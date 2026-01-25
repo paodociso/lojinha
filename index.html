@@ -130,16 +130,28 @@
         <div class="opcao-pagamento" onclick="selPgto('Pix', this)" style="border-radius: 12px; border: 2px solid #ddd; background: #f9f9f9; padding: 15px; cursor: pointer; margin-bottom: 12px;">
             <span class="selo-rec">RECOMENDADO</span>
             <span style="color: var(--p-green); font-size: 1.1rem; font-weight: bold; margin-right: 4px;">❖</span> PIX
+            
             <div class="pagamento-info-frame" style="display:none; margin-top: 15px;">
                 <div class="pix-valor-destaque" style="background: #fdf8f3; border: 1px solid var(--p-green); padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; text-align: center; color: var(--p-green);">
                     VALOR: <span id="pix-valor-txt" style="color: inherit;"></span>
                 </div>
+                
                 <div class="qr-container" style="display: flex; justify-content: center; align-items: center; background: #fff; padding: 10px; border-radius: 10px; border: 1px solid #eee; width: fit-content; margin: 0 auto 15px auto;">
                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhAdMMy5OknVHvs1RNFM3tik8FXT0lwM1JmYjJmtnZJrFb46pcwkOdTMCsRA5wx3whHPeXFm_8Ql6iZCFGmoKLrQiM0lCuVDc5YFLGEwhNplENrWlYhKFGG1ONARuy8VgZR0ROpGK9MT123ng1aL69gz-rmRXGejVZqeUqDwKf81nmxOZ5RqTqJV_Lqw3g/s1000/qrcode-paodociso.png" style="width:160px;">
                 </div>
-                <p style="text-align: center; font-weight: bold; font-size: 0.85rem;">CHAVE PIX: paodociso@gmail.com</p>
+
+                <p style="text-align: center; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px;">CHAVE PIX (E-MAIL):</p>
+                <div onclick="copiarPix()" style="border: 2px dashed var(--p-green); background: #fff; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; position: relative;">
+                    <span id="chave-pix-texto" style="font-family: monospace; font-size: 1rem; color: var(--p-green);">paodociso@gmail.com</span>
+                    <span style="font-size: 1.2rem;">📋</span>
+                </div>
+
+                <div id="aviso-copiado" style="display:none; text-align: center; color: #25d366; font-size: 0.75rem; font-weight: bold; margin-top: 5px;">
+                    ✅ Chave copiada com sucesso!
+                </div>
             </div>
-        </div>
+        </div>        
+        
 
         <div class="opcao-pagamento" onclick="selPgto('Cartão', this)" style="border-radius: 12px; border: 2px solid #ddd; background: #f9f9f9; padding: 15px; cursor: pointer; margin-bottom: 12px;">
             <i class="fas fa-credit-card" style="margin-right: 8px; color: #555;"></i> CARTÃO (Crédito)

@@ -514,20 +514,32 @@ function selPgto(tipo, elemento) {
     }
 }
 
-function copiarChave(texto) {
-    // Tenta usar a API moderna de área de transferência
+function copiarPix() {
+    const texto = "paodociso@gmail.com";
+    
     navigator.clipboard.writeText(texto).then(() => {
-        alert("A chave PIX foi copiada!");
+        exibirFeedbackCopia();
     }).catch(err => {
-        // Fallback caso o navegador bloqueie a API moderna
-        const inputTemporario = document.createElement("input");
-        inputTemporario.value = texto;
-        document.body.appendChild(inputTemporario);
-        inputTemporario.select();
+        // Fallback para navegadores antigos ou bloqueios
+        const input = document.createElement("input");
+        input.value = texto;
+        document.body.appendChild(input);
+        input.select();
         document.execCommand("copy");
-        document.body.removeChild(inputTemporario);
-        alert("A chave PIX foi copiada!");
+        document.body.removeChild(input);
+        exibirFeedbackCopia();
     });
+}
+
+function exibirFeedbackCopia() {
+    const aviso = el('aviso-copiado');
+    if (aviso) {
+        aviso.style.display = 'block';
+        // Esconde o aviso sozinho depois de 3 segundos
+        setTimeout(() => {
+            aviso.style.display = 'none';
+        }, 3000);
+    }
 }
 
 // Voltar da etapa de Pagamento para Dados
