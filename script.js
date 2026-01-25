@@ -73,8 +73,9 @@ function abrirDetalhes(secaoIdx, itemIdx) {
         const chaveOpcionais = "opcionais" + nomeSecao;
         const listaPrecosOpcionais = dadosIniciais[chaveOpcionais] || [];
 
+        // Alteração: menu-opc começa com display: none
         htmlOpcionais = `
-            <div class="menu-opcionais" id="menu-opc">
+            <div class="menu-opcionais" id="menu-opc" style="display: none;">
                 <div class="titulo-opcionais" onclick="this.parentElement.classList.toggle('aberto')">
                     Acompanhamentos / Opcionais
                 </div>
@@ -99,9 +100,10 @@ function abrirDetalhes(secaoIdx, itemIdx) {
             </div>`;
     }
 
+    // Alteração: Frame da imagem quadrado com borda e margem (padding)
     modalConteudo.innerHTML = `
-        <div style="text-align:center; background:#eee; border: 2px solid var(--nav); border-radius:12px; overflow:hidden; margin-bottom:15px; margin-top:20px;">
-            <img src="${produto[3]}" style="max-height:220px; width:auto; max-width:100%; object-fit:contain; display:block; margin:auto;">
+        <div style="width: 220px; height: 220px; margin: 20px auto 15px auto; background:#eee; border: 2px solid var(--nav); border-radius:12px; overflow:hidden; display:flex; align-items:center; justify-content:center; padding: 10px; box-sizing: border-box;">
+            <img src="${produto[3]}" style="width:100%; height:100%; object-fit:cover; border-radius:8px; display:block;">
         </div>
         <h2 style="color:var(--a-brown); font-size:1.3rem;">${produto[0]}</h2>
         <p style="font-size:0.85rem; margin:8px 0; color:#666;">${produto[1]}</p>
@@ -165,8 +167,18 @@ function alterarQtdPrincipal(delta, nome, preco) {
     let novaVal = parseInt(input.value) + delta;
     if (novaVal >= 0) {
         input.value = novaVal;
-        if (novaVal > 0 && menuOpc) menuOpc.classList.add('aberto');
-        if (novaVal === 0 && menuOpc) menuOpc.classList.remove('aberto');
+        
+        // Regra solicitada: Só exibe os opcionais se a quantidade for pelo menos 1
+        if (menuOpc) {
+            if (novaVal >= 1) {
+                menuOpc.style.display = 'block';
+                menuOpc.classList.add('aberto');
+            } else {
+                menuOpc.style.display = 'none';
+                menuOpc.classList.remove('aberto');
+            }
+        }
+        
         atualizarSubtotalItem(nome, preco);
     }
 }

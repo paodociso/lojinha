@@ -58,13 +58,17 @@ const dadosIniciais = {
     ["Rúcula", "1.00"],
     ["Tomate", "1.00"]
   ],
+  
+  // --- OPCIONAIS - BEBIDAS
   "opcionaisBebidas": [
     ["Taça de vidro", "40.00"],
     ["Taça champangne", "30.00"]
   ],
+   // --- OPCIONAIS - ANTIPASTI
   "opcionaisAntipasti": [
     ["Potinho de vidro", "5.00"]
   ],
+   // --- OPCIONAIS - TÁBUAS
   "opcionaisTábuas": [
     ["Alichella", "10.00"],
     ["Sardella", "10.00"],
@@ -95,6 +99,7 @@ const dadosIniciais = {
     ["Pastinha de parmesão", "4.00"],
     ["Pastinha de pimentão vermelho", "4.00"]
   ],
+   // --- SEÇÕES E PRODUTOS POR SEÇÕES
   "secoes": [
     {
       "nome": "Pães de fermentação natural",
