@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestão Pão do Ciso - Painel Administrativo</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root { 
+            --p-green: #2d3a27; --a-brown: #7d4f39; --bg: #f5f5f5; 
+            --white: #ffffff; --text: #333; --border: #ddd;
+            --blue-modern: #007bff;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); padding: 20px; color: var(--text); margin: 0; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        
+        header { background: var(--p-green); color: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
+
+        .nav-aba-container { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--border); margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
+        .nav-abas { display: flex; gap: 5px; }
+        .aba { padding: 12px 20px; cursor: pointer; border-radius: 8px 8px 0 0; font-weight: bold; background: #ddd; color: #666; transition: 0.2s; }
+        .aba.ativa { background: var(--white); color: var(--p-green); border: 2px solid var(--border); border-bottom: none; position: relative; top: 2px; }
+
+        .btn-baixar { background: var(--p-green); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+
+        /* AJUSTE DOS CONTROLES TOPO PARA ALINHAR À DIREITA */
+        .controles-topo { margin-bottom: 15px; display: flex; gap: 10px; justify-content: flex-start; align-items: center; }
+        .controles-topo.flex-end { justify-content: flex-end; }
+        
+        /* BOTÃO NOVA SEÇÃO MODERNO */
+        .btn-nova-secao {
+            background: var(--blue-modern);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            font-size: 13px;
+        }
+        .btn-nova-secao:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,123,255,0.4);
+        }
+
+        .card { background: var(--white); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; overflow: hidden; }
+        .card-header { padding: 15px 20px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid #eee; }
+        .card-header:hover { background: #f9f9f9; }
+        .card-body { padding: 20px; display: none; }
+        .card.aberto .card-body { display: block; }
+        .card.aberto .icon-chevr { transform: rotate(180deg); }
+
+        .item-row { 
+            display: flex; 
+            align-items: stretch; 
+            border-bottom: 1px solid #eee; 
+            background: #fff; 
+            min-height: 120px;
+            transition: 0.2s;
+        }
+        .item-row.oculto { opacity: 0.5; background: #ebebeb; }
+
+        .acoes-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            justify-content: center;
+            padding: 10px;
+            background: #fdfdfd; 
+            border-left: 1px solid #eee;
+            min-width: 160px;
+        }
+
+        .btn-status-cmd {
+            padding: 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 10px;
+            text-transform: uppercase;
+            border: 2px solid #ddd;
+            background: white;
+            color: #666;
+        }
+
+        .btn-status-cmd.ativo-esgotado { background: #ff9800 !important; color: white !important; border-color: #e68900 !important; }
+        .btn-status-cmd.ativo-oculto { background: #9e9e9e !important; color: white !important; border-color: #757575 !important; }
+
+        .btn-acao-card { padding: 7px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; font-size: 10px; text-transform: uppercase; }
+        .btn-azul { background: #2196F3; }
+        .btn-duplicar { background: #28a745; }
+        .btn-vermelho { background: #dc3545; }
+
+        .divisor-botoes { height: 1px; background: #ddd; margin: 4px 0; }
+        
+        .btn-add-mini { padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; background: #e8f5e9; color: var(--p-green); border: 1px solid var(--p-green); }
+
+        .handle-secao { cursor: grab; color: #999; margin-right: 10px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .modal-content h2 { margin-top: 0; color: var(--p-green); }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .balao-opcional { padding: 6px 12px; border: 1px solid #ccc; border-radius: 20px; font-size: 12px; cursor: pointer; background: #fff; }
+        .balao-opcional.selecionado { background: var(--p-green); color: white; border-color: var(--p-green); }
+        .btn-edit { background: #eee; border: 1px solid #ccc; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .btn-del { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Gestão Pão do Ciso - Painel Administrativo</h1>
+        <div id="subtitulo-arquivo" style="font-size: 0.9em; opacity: 0.8; margin-top: 10px; font-weight: normal;">
+            <i class="fas fa-file-code"></i> Arquivo: <span id="caminho-arquivo" style="color: #FFD700; cursor: pointer; text-decoration: underline;" onclick="definirCaminho()">Clique para configurar o endereço completo do cardapio.js</span>
+        </div>
+    </header>
+
+    <div class="nav-aba-container">
+        <div class="nav-abas">
+            <div class="aba ativa" id="aba-cardapio" onclick="mudarAba('cardapio')">PRODUTOS</div>
+            <div class="aba" id="aba-opcionais" onclick="mudarAba('opcionais')">TABELAS DE OPCIONAIS</div>
+            <div class="aba" id="aba-secoes" onclick="mudarAba('secoes')">GERENCIAR SEÇÕES</div>
+        </div>
+        <button class="btn-baixar" onclick="baixar()"><i class="fas fa-download"></i> baixar cardapio.js</button>
+    </div>
+
+    <div id="conteudo-cardapio">
+        <div class="controles-topo flex-end">
+            <button class="btn" style="margin-right:auto" onclick="toggleTodos(true, 'lista-secoes')">Expandir Todos</button>
+            <button class="btn" style="margin-right:10px" onclick="toggleTodos(false, 'lista-secoes')">Recolher Todos</button>
+            <button class="btn-nova-secao" onclick="abrirModalSecao()"><i class="fas fa-plus"></i> Nova Seção</button>
+        </div>
+        <div id="lista-secoes"></div>
+    </div>
+
+    <div id="conteudo-opcionais" style="display:none;">
+        <div class="controles-topo">
+            <button class="btn" onclick="toggleTodos(true, 'lista-precos-opcionais')">Expandir Todos</button>
+            <button class="btn" onclick="toggleTodos(false, 'lista-precos-opcionais')">Recolher Todos</button>
+        </div>
+        <div id="lista-precos-opcionais"></div>
+    </div>
+
+    <div id="conteudo-secoes" style="display:none;">
+        <div class="controles-topo flex-end">
+            <button class="btn-nova-secao" onclick="abrirModalSecao()"><i class="fas fa-plus"></i> Nova Seção</button>
+        </div>
+        <div id="lista-gerenciamento-secoes"></div>
+    </div>
+</div>
+
+<div id="modal-secao" class="modal">
+    <div class="modal-content">
+        <h3 id="titulo-modal-secao">Nova Seção</h3>
+        <input type="hidden" id="secao-indice">
+        <input type="text" id="campo-nome-secao" placeholder="Nome da seção...">
+        <div style="text-align:right; margin-top:15px;">
+            <button class="btn" onclick="fecharModais()">Cancelar</button>
+            <button class="btn" style="background:var(--p-green); color:white;" onclick="salvarSecao()">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-item" class="modal">
+    <div class="modal-content">
+        <h3>Dados do Produto</h3>
+        <input type="hidden" id="item-indice-secao">
+        <input type="hidden" id="item-indice-item">
+        <label style="font-size: 11px; color: #666; font-weight: bold;">SEÇÃO:</label>
+        <input type="text" id="campo-secao-item" readonly style="background: #f0f0f0; color: #666; cursor: not-allowed; border: 1px solid #ddd; margin-bottom: 10px;">
+        <input type="text" id="campo-nome-item" placeholder="Nome">
+        <textarea id="campo-descricao-item" placeholder="Descrição"></textarea>
+        <input type="number" id="campo-valor-item" step="0.01" placeholder="Preço (ex: 25.00)">
+        <div style="display: flex; gap: 5px; align-items: center;">
+            <input type="text" id="campo-imagem-item" placeholder="URL da Imagem" style="margin: 0; flex: 1;">
+            <button class="btn" onclick="buscarImagem()" style="background: #e3f2fd; color: #1565c0; white-space: nowrap; height: 38px;">
+                <i class="fas fa-search"></i> Google
+            </button>
+        </div>
+        <div id="render-opcionais-selecao" style="display:flex; flex-wrap:wrap; gap:5px; margin-top:15px; border: 1px dashed #ccc; padding: 10px; border-radius: 8px;"></div>
+        <div style="text-align:right; margin-top:20px;">
+            <button class="btn" onclick="fecharModais()">Cancelar</button>
+            <button class="btn" style="background:var(--p-green); color:white;" onclick="salvarItem()">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-opcional-direto" class="modal">
+    <div class="modal-content">
+        <h3>Adicionar Opcional</h3>
+        <input type="hidden" id="opc-direto-key">
+        <label>Nome do Opcional:</label>
+        <input type="text" id="campo-nome-opc-direto" placeholder="Ex: Queijo Extra">
+        <label>Valor (R$):</label>
+        <input type="number" id="campo-valor-opc-direto" step="0.01" value="0.00">
+        <div class="modal-footer">
+            <button class="btn" onclick="fecharModais()">Cancelar</button>
+            <button class="btn" style="background:var(--p-green); color:white;" onclick="confirmarOpcionalDireto()">Salvar Opcional</button>
+        </div>
+    </div>
+</div>
+
+<script id="script-cardapio" src="cardapio.js"></script>
+<script>
+let db = { secoes: [] };
+let primeiraCarga = true;
+
+window.onload = () => {
+    if (typeof dadosIniciais !== 'undefined') db = JSON.parse(JSON.stringify(dadosIniciais));
+    renderizarTudo();
+    primeiraCarga = false;
+    carregarCaminhoSalvo();
+};
+
+function carregarCaminhoSalvo() {
+    const salvo = localStorage.getItem('caminhoCardapio');
+    if (salvo) document.getElementById('caminho-arquivo').innerText = salvo;
+}
+
+function definirCaminho() {
+    const novo = prompt("Cole o caminho completo do arquivo cardapio.js:");
+    if (novo) {
+        localStorage.setItem('caminhoCardapio', novo);
+        document.getElementById('caminho-arquivo').innerText = novo;
+    }
+}
+
+function encontrarChaveOpcional(nomeSecao) {
+    let tentativa1 = "opcionais" + nomeSecao;
+    if (db[tentativa1]) return tentativa1;
+    let tentativa2 = "opcionais" + nomeSecao.replace(/\s/g, '');
+    if (db[tentativa2]) return tentativa2;
+    let tentativa3 = "opcionais" + nomeSecao.normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
+    if (db[tentativa3]) return tentativa3;
+    return tentativa1;
+}
+
+function mudarAba(aba) {
+    document.querySelectorAll('.aba').forEach(a => a.classList.remove('ativa'));
+    document.getElementById(`aba-${aba}`).classList.add('ativa');
+    document.getElementById('conteudo-cardapio').style.display = 'none';
+    document.getElementById('conteudo-opcionais').style.display = 'none';
+    document.getElementById('conteudo-secoes').style.display = 'none';
+    document.getElementById(`conteudo-${aba}`).style.display = 'block';
+    renderizarTudo();
+}
+
+function toggleTodos(abrir, containerId) {
+    const container = document.getElementById(containerId);
+    if(container) container.querySelectorAll('.card').forEach(c => abrir ? c.classList.add('aberto') : c.classList.remove('aberto'));
+}
+
+function toggleCard(el) { 
+    const card = el.closest('.card');
+    card.classList.toggle('aberto'); 
+}
+
+function fecharModais() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+
+function renderizarTudo() {
+    renderSecoes();
+    renderOpcionaisPrecos();
+    renderGerenciamentoSecoes();
+}
+
+function renderGerenciamentoSecoes() {
+    const container = document.getElementById('lista-gerenciamento-secoes');
+    if (!container) return;
+    
+    container.innerHTML = db.secoes.map((s, sIdx) => {
+        const keyOpc = encontrarChaveOpcional(s.nome);
+        const opcionaisDaSecao = db[keyOpc] || [];
+
+        return `
+        <div class="card aberto" style="margin-bottom: 15px; border: 1px solid var(--border); border-radius:12px; background: white;">
+            <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee;">
+                <div>
+                    <strong style="font-size: 18px; color: var(--p-green);">${s.nome}</strong><br>
+                    <small style="color: #666;">${s.itens.length} produtos | Tabela: ${keyOpc}</small>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-add-mini" onclick="abrirModalOpcionalDireto('${keyOpc}')">
+                        <i class="fas fa-plus"></i> Criar Opcional
+                    </button>
+                    <button class="btn btn-edit" onclick="abrirModalSecao(${sIdx})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-del" onclick="removerSecao(${sIdx})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div style="padding: 12px 15px; background: #fdfdfd;">
+                <label style="font-size: 11px; font-weight: bold; color: #999; text-transform: uppercase;">Itens na tabela de opcionais:</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
+                    ${opcionaisDaSecao.length > 0 
+                        ? opcionaisDaSecao.map((op, opIdx) => `
+                            <div class="balao-opcional" style="cursor: default; background: #eee; display: flex; align-items: center; gap: 8px;">
+                                <span>${op[0]} (R$ ${op[1]})</span>
+                                <i class="fas fa-times" onclick="removerOpcionalBase('${keyOpc}', ${opIdx})" style="cursor: pointer; color: #c62828; font-size: 10px;"></i>
+                            </div>
+                        `).join('')
+                        : '<small style="color: #ccc;">Nenhuma tabela ou itens encontrados.</small>'
+                    }
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function abrirModalOpcionalDireto(key) {
+    document.getElementById('opc-direto-key').value = key;
+    document.getElementById('campo-nome-opc-direto').value = "";
+    document.getElementById('campo-valor-opc-direto').value = "0.00";
+    document.getElementById('modal-opcional-direto').style.display = 'flex';
+}
+
+function confirmarOpcionalDireto() {
+    const key = document.getElementById('opc-direto-key').value;
+    const nome = document.getElementById('campo-nome-opc-direto').value.trim();
+    const valor = parseFloat(document.getElementById('campo-valor-opc-direto').value || 0).toFixed(2);
+
+    if (!nome) return alert("Digite o nome do opcional");
+
+    if (!db[key]) db[key] = [];
+    db[key].push([nome, valor]);
+
+    fecharModais();
+    renderizarTudo();
+}
+
+function renderSecoes() {
+    const container = document.getElementById('lista-secoes');
+    if (!container) return;
+    const classeAberto = primeiraCarga ? "" : "aberto";
+    
+    container.innerHTML = db.secoes.map((s, sIdx) => `
+        <div class="card ${classeAberto}" data-idx="${sIdx}">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div><span class="handle-secao">⠿</span> <strong>${s.nome}</strong></div>
+                <div style="display:flex; gap:10px; align-items:center;" onclick="event.stopPropagation()">
+                    <button class="btn-add-mini" onclick="abrirModalItem(${sIdx}, -1)">+ Novo Produto</button>
+                    <i class="fas fa-chevron-down icon-chevr"></i>
+                </div>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                <div class="sortable-itens" data-secao="${sIdx}">
+                    ${s.itens.map((it, iIdx) => `
+                        <div class="item-row ${it[6] ? 'oculto' : ''}" data-idx="${iIdx}" style="display: flex; align-items: stretch; border-bottom: 1px solid #eee; background: #fff;">
+                            <div style="display: flex; align-items: center; padding: 0 8px; color: #ccc; cursor: grab;">☰</div>
+                            <div style="flex: 1; display: flex; padding: 15px; gap: 15px;">
+                                <img src="${it[3]}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" onerror="this.src='https://via.placeholder.com/80'">
+                                <div style="flex: 1;">
+                                    <strong style="font-size: 1.1em; color: var(--p-green);">${it[0]}</strong>
+                                    <p style="margin: 4px 0; color: #666; font-size: 0.9em;">${it[1] || '<i>Sem descrição</i>'}</p>
+                                    <div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">
+                                        ${(it[4] || []).map(opc => `<span style="font-size:10px; background:#e9ecef; padding:2px 8px; border-radius:10px; border:1px solid #dee2e6;">${opc}</span>`).join('')}
+                                    </div>
+                                    <strong style="font-size: 1.1em;">R$ ${it[2]}</strong>
+                                </div>
+                            </div>
+                            <div class="acoes-item" onclick="event.stopPropagation()">
+                                <button class="btn-status-cmd ${it[5] ? 'ativo-esgotado' : ''}" onclick="toggleStatus(${sIdx}, ${iIdx}, 5)">${it[5] ? 'ESTÁ ESGOTADO' : 'MARCAR ESGOTADO'}</button>
+                                <button class="btn-status-cmd ${it[6] ? 'ativo-oculto' : ''}" onclick="toggleStatus(${sIdx}, ${iIdx}, 6)">${it[6] ? 'ESTÁ OCULTO' : 'OCULTAR PRODUTO'}</button>
+                                <div class="divisor-botoes"></div>
+                                <button class="btn-acao-card btn-azul" onclick="abrirModalItem(${sIdx}, ${iIdx})">EDITAR</button>
+                                <button class="btn-acao-card btn-duplicar" onclick="duplicarItem(${sIdx}, ${iIdx})">DUPLICAR</button>
+                                <button class="btn-acao-card btn-vermelho" onclick="removerItem(${sIdx}, ${iIdx})">EXCLUIR</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>`).join('');
+}
+
+function renderOpcionaisPrecos() {
+    const container = document.getElementById('lista-precos-opcionais');
+    if (!container) return;
+    let html = "";
+    for (let key in db) {
+        if (key.startsWith("opcionais")) {
+            html += `
+            <div class="card aberto">
+                <div class="card-header">
+                    <strong>Tabela: ${key}</strong>
+                    <div style="display:flex; gap:10px; align-items:center;" onclick="event.stopPropagation()">
+                        <button class="btn-add-mini" onclick="addOpcionalBase('${key}')">+ Novo Item</button>
+                        <i class="fas fa-chevron-down icon-chevr" onclick="toggleCard(this.parentElement.parentElement)"></i>
+                    </div>
+                </div>
+                <div class="card-body" style="padding:10px;">
+                    <div class="sortable-opcionais" data-tabela="${key}">
+                        ${db[key].map((op, opIdx) => `
+                            <div class="item-row" style="display:flex; gap:10px; margin-bottom:5px; align-items:center; padding:5px; min-height:auto;">
+                                <span style="cursor:grab; color:#ccc; padding: 0 5px;">☰</span>
+                                <input type="text" value="${op[0]}" oninput="db['${key}'][${opIdx}][0] = this.value" style="flex: 2; margin:0;">
+                                <input type="number" step="0.01" value="${op[1]}" oninput="db['${key}'][${opIdx}][1] = parseFloat(this.value || 0).toFixed(2)" style="flex: 1; margin:0; width:80px;">
+                                <button class="btn-azul" title="Copiar" onclick="copiarOpcional('${key}', ${opIdx})" style="padding:5px 10px; border-radius:4px; border:none; color:white; cursor:pointer;"><i class="fas fa-copy"></i></button>
+                                <button class="btn-vermelho" onclick="removerOpcionalBase('${key}', ${opIdx})" style="padding:5px 10px; border-radius:4px; border:none; color:white; cursor:pointer;"><i class="fas fa-times"></i></button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>`;
+        }
+    }
+    container.innerHTML = html;
+    initSortableOpcionais();
+}
+
+function abrirModalItem(sIdx, iIdx) {
+    if (event) event.stopPropagation();
+    document.getElementById('item-indice-secao').value = sIdx;
+    document.getElementById('item-indice-item').value = iIdx;
+    const nomeSecao = db.secoes[sIdx].nome;
+    document.getElementById('campo-secao-item').value = nomeSecao;
+    const item = iIdx === -1 ? ["", "", "0.00", "", [], false, false] : db.secoes[sIdx].itens[iIdx];
+    document.getElementById('campo-nome-item').value = item[0];
+    document.getElementById('campo-descricao-item').value = item[1];
+    document.getElementById('campo-valor-item').value = item[2];
+    document.getElementById('campo-imagem-item').value = item[3];
+    const keyOpc = encontrarChaveOpcional(nomeSecao);
+    const baseOpc = db[keyOpc] || [];
+    const selecionados = item[4] || [];
+    const containerOpc = document.getElementById('render-opcionais-selecao');
+    containerOpc.innerHTML = baseOpc.length === 0 ? '<small style="color: #999;">Sem opcionais.</small>' : baseOpc.map(op => `
+        <div class="balao-opcional ${selecionados.includes(op[0]) ? 'selecionado' : ''}" onclick="this.classList.toggle('selecionado')">${op[0]}</div>
+    `).join('');
+    document.getElementById('modal-item').style.display = 'flex';
+}
+
+function salvarItem() {
+    const sIdx = document.getElementById('item-indice-secao').value;
+    const iIdx = parseInt(document.getElementById('item-indice-item').value);
+    const opcs = Array.from(document.querySelectorAll('.balao-opcional.selecionado')).map(b => b.innerText);
+    const item = [document.getElementById('campo-nome-item').value, document.getElementById('campo-descricao-item').value, parseFloat(document.getElementById('campo-valor-item').value || 0).toFixed(2), document.getElementById('campo-imagem-item').value, opcs, (iIdx !== -1) ? db.secoes[sIdx].itens[iIdx][5] : false, (iIdx !== -1) ? db.secoes[sIdx].itens[iIdx][6] : false];
+    if(iIdx === -1) db.secoes[sIdx].itens.push(item); else db.secoes[sIdx].itens[iIdx] = item;
+    fecharModais(); renderizarTudo();
+}
+
+function salvarSecao() {
+    const idx = parseInt(document.getElementById('secao-indice').value);
+    const nome = document.getElementById('campo-nome-secao').value.trim();
+    if (!nome) return;
+    if (idx === -1) {
+        db.secoes.push({ nome, itens: [] });
+        const key = "opcionais" + nome;
+        if (!db[key]) db[key] = [];
+    } else { db.secoes[idx].nome = nome; }
+    fecharModais(); renderizarTudo();
+}
+
+function abrirModalSecao(idx = -1) {
+    document.getElementById('secao-indice').value = idx;
+    document.getElementById('titulo-modal-secao').innerText = idx === -1 ? "Nova Seção" : "Editar Seção";
+    document.getElementById('campo-nome-secao').value = idx === -1 ? "" : db.secoes[idx].nome;
+    document.getElementById('modal-secao').style.display = 'flex';
+}
+
+function removerSecao(idx) { if(confirm("Apagar seção?")) { db.secoes.splice(idx, 1); renderizarTudo(); } }
+function duplicarItem(sIdx, iIdx) { const clone = JSON.parse(JSON.stringify(db.secoes[sIdx].itens[iIdx])); clone[0] += " (Cópia)"; db.secoes[sIdx].itens.splice(iIdx + 1, 0, clone); renderizarTudo(); }
+function removerItem(sIdx, iIdx) { if(confirm("Remover?")) { db.secoes[sIdx].itens.splice(iIdx, 1); renderizarTudo(); } }
+
+function addOpcionalBase(key) {
+    if (!db[key]) db[key] = [];
+    db[key].push(["Novo Item", "0.00"]);
+    renderizarTudo();
+}
+
+function copiarOpcional(origemKey, idx) {
+    const item = JSON.parse(JSON.stringify(db[origemKey][idx]));
+    const tabelas = Object.keys(db).filter(k => k.startsWith("opcionais") && k !== origemKey);
+    let escolha = prompt("Copiar para qual tabela?\n" + tabelas.map((t, i) => (i+1)+"- "+t).join("\n"));
+    if (escolha && tabelas[escolha-1]) { db[tabelas[escolha-1]].push(item); renderOpcionaisPrecos(); alert("Copiado!"); }
+}
+
+function removerOpcionalBase(key, idx) {
+    if (confirm("Remover este item?")) { db[key].splice(idx, 1); renderizarTudo(); }
+}
+
+function initSortableOpcionais() {
+    document.querySelectorAll('.sortable-opcionais').forEach(el => {
+        new Sortable(el, {
+            animation: 150, handle: 'span',
+            onEnd: (evt) => {
+                const tabela = el.getAttribute('data-tabela');
+                const [movedItem] = db[tabela].splice(evt.oldIndex, 1);
+                db[tabela].splice(evt.newIndex, 0, movedItem);
+            }
+        });
+    });
+}
+
+function toggleStatus(sIdx, iIdx, indexArray) { db.secoes[sIdx].itens[iIdx][indexArray] = !db.secoes[sIdx].itens[iIdx][indexArray]; renderizarTudo(); }
+
+function baixar() {
+    const conteudoJS = `const dadosIniciais = ${JSON.stringify(db, null, 2)};`;
+    const blob = new Blob([conteudoJS], {type: 'text/javascript'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = "cardapio.js";
+    a.click();
+}
+
+</script>
+</body>
+</html>
