@@ -1,7 +1,4 @@
-// =============================================
-// ESTADO GLOBAL E CONFIGURAÇÕES
-// =============================================
-
+// --- ESTADO GLOBAL ---
 let appState = {
     carrinho: [],
     totalItens: 0,
@@ -9,135 +6,74 @@ let appState = {
     taxaEntrega: 0,
     desconto: 0,
     cupomAtivo: null,
-    formaPgto: "",
-    user: { nome: "", tel: "", entrega: "", endereco: "", cpf: "" },
+    pagamentoSel: "",
+    user: { nome: "", tel: "", entrega: "", endereco: "" },
     ultimaMsg: "",
-    scrollPos: 0
+    scrollPos: 0 // Armazena a posição da tela para retorno
 };
 
-// =============================================
-// FUNÇÕES AUXILIARES
-// =============================================
-
-/**
- * Atalho para document.getElementById
- * @param {string} id - ID do elemento
- * @returns {HTMLElement|null} Elemento DOM
- */
 const el = id => document.getElementById(id);
+const fmtMoeda = val => `R$ ${parseFloat(val || 0).toFixed(2)}`;
 
-/**
- * Formata valor para moeda brasileira
- * @param {number|string} valor - Valor a ser formatado
- * @returns {string} Valor formatado como "R$ X,XX"
- */
-const fmtMoeda = val => `R$ ${parseFloat(val || 0).toFixed(2).replace('.', ',')}`;
-
-/**
- * Valida se a entrada contém apenas números
- * @param {HTMLInputElement} input - Campo de entrada
- */
-function validarApenasNumeros(input) {
-    input.value = input.value.replace(/\D/g, '');
-}
-
-// =============================================
-// GERENCIAMENTO DE MODAIS
-// =============================================
-
-/**
- * Fecha todos os modais e retorna à posição original da tela
- */
-function fecharModais() {
-    document.querySelectorAll('.modal-pedido, .modal-overlay, #modalImg').forEach(m => {
-        m.style.display = 'none';
-    });
+const fecharModais = () => {
+    document.querySelectorAll('.modal-pedido, .modal-overlay, #modalImg').forEach(m => m.style.display = 'none');
+    // Retorna o usuário para a posição exata onde ele estava no cardápio
     window.scrollTo({ top: appState.scrollPos, behavior: 'instant' });
-}
+};
 
-// =============================================
-// RENDERIZAÇÃO INICIAL DO CARDÁPIO
-// =============================================
-
-/**
- * Renderiza a página inicial com as seções e produtos
- */
+// --- RENDERIZAÇÃO INICIAL (MANTIDA) ---
 function render() {
-    // Restaura dados do usuário do localStorage
     const saved = localStorage.getItem('paodociso_dados');
-    if (saved) {
-        const dados = JSON.parse(saved);
-        if (el('nomeCli')) el('nomeCli').value = dados.nome || "";
-        if (el('telCli')) el('telCli').value = dados.tel || "";
+    if(saved) {
+        const d = JSON.parse(saved);
+        if(el('nomeCli')) el('nomeCli').value = d.nome || "";
+        if(el('telCli')) el('telCli').value = d.tel || "";
     }
     
-    // Renderiza as seções do cardápio
     if (typeof dadosIniciais !== 'undefined') {
         const { secoes } = dadosIniciais;
-        const container = el('render-cli');
-        
-        container.innerHTML = secoes.map((secao, secaoIndex) => {
-            // Filtra itens que não estão ocultos (posição 6 diferente de true)
-            const itensVisiveis = secao.itens.filter((item, itemIndex) => {
-                // Verifica se o item tem a posição 6 e se é true (oculto)
-                return item[6] !== true;
-            });
+        el('render-cli').innerHTML = secoes.map((s, si) => {
             
-            // Se não houver itens visíveis, retorna string vazia
-            if (itensVisiveis.length === 0) return "";
-            
+            // Filtra itens ocultos (índice 6)
+            const itensParaExibir = s.itens.filter(i => i[6] !== true);
+            if (itensParaExibir.length === 0) return ""; 
+
             return `
-                <div class="secao-titulo">${secao.nome}</div>
+                <div class="secao-titulo">${s.nome}</div>
                 <div class="grid-produtos">
-                    ${itensVisiveis.map((item, indexFiltrado) => {
-                        // Encontra o índice original no array completo
-                        const itemOriginal = secao.itens.find((i, idx) => 
-                            i === item || JSON.stringify(i) === JSON.stringify(item)
-                        );
-                        const itemIndex = secao.itens.indexOf(itemOriginal);
-                        const esgotado = item[5] === true;
+                    ${itensParaExibir.map((i, originalIndex) => {
+                        const esgotado = i[5] === true;
                         
                         return `
                         <div class="card-quadrado ${esgotado ? 'card-esgotado' : ''}" 
-                             onclick="${esgotado ? '' : `abrirDetalhes(${secaoIndex}, ${itemIndex})`}">
+                             onclick="${esgotado ? '' : `abrirDetalhes(${si}, ${originalIndex})`}">
                             
                             ${esgotado ? '<div class="selo-esgotado">ESGOTADO</div>' : ''}
                             
                             <div class="conteudo-card">
-                                <img src="${item[3]}" class="img-grid">
+                                <img src="${i[3]}" class="img-grid">
                                 <div class="info-grid">
-                                    <div class="nome-grid">${item[0]}</div>
-                                    <div class="preco-grid">${esgotado ? 'Indisponível' : fmtMoeda(item[2])}</div>
+                                    <div class="nome-grid">${i[0]}</div>
+                                    <div class="preco-grid">${esgotado ? 'Indisponível' : fmtMoeda(i[2])}</div>
                                 </div>
                             </div>
                         </div>
-                    `;
-                    }).join('')}
+                    `;}).join('')}
                 </div>`;
         }).join('');
     }
-    
     atualizarTotais();
 }
 
-// =============================================
-// DETALHES DO PRODUTO (MODAL)
-// =============================================
-
-/**
- * Abre o modal com detalhes do produto selecionado
- * @param {number} secaoIdx - Índice da seção
- * @param {number} itemIdx - Índice do item na seção
- */
+// --- LÓGICA DO PRODUTO (MODAL DETALHES - MANTIDA) ---
 function abrirDetalhes(secaoIdx, itemIdx) {
     const produto = dadosIniciais.secoes[secaoIdx].itens[itemIdx];
     const nomeSecao = dadosIniciais.secoes[secaoIdx].nome;
     const modalConteudo = el('conteudo-produto-modal');
     
-    // Constrói HTML para opcionais, se existirem
     let htmlOpcionais = "";
     if (produto[4] && produto[4].length > 0) {
-        const chaveOpcionais = "opcionais" + nomeSecao.replace(/\s+/g, '');
+        const chaveOpcionais = "opcionais" + nomeSecao;
         const listaPrecosOpcionais = dadosIniciais[chaveOpcionais] || [];
 
         htmlOpcionais = `
@@ -189,34 +125,24 @@ function abrirDetalhes(secaoIdx, itemIdx) {
             <button id="btn-modal-prosseguir" class="btn-prosseguir" style="display: none; margin-top: 10px;" onclick="abrirRevisao()">PROSSEGUIR PARA A CESTA DE COMPRAS ></button>
         </div>`;
 
-    // Salva posição atual e abre modal
+    // Salva a posição antes de abrir e rola para o topo
     appState.scrollPos = window.scrollY;
     el('modalOverlay').style.display = 'block';
     el('modalProduto').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/**
- * Atualiza o subtotal do item no modal
- * @param {string} nome - Nome do produto
- * @param {number} precoBase - Preço base do produto
- */
 function atualizarSubtotalItem(nome, precoBase) {
-    const qtdPrincipal = parseInt(el('qtd-principal').value) || 0;
+    const qtdPrincipal = parseInt(el('qtd-principal').value);
     let precoOpcionais = 0;
-    
-    // Calcula preço dos opcionais
     document.querySelectorAll('.opc-qtd').forEach(input => {
-        const qtd = parseInt(input.value) || 0;
-        const preco = parseFloat(input.dataset.preco) || 0;
-        precoOpcionais += preco * qtd;
+        precoOpcionais += (parseFloat(input.dataset.preco) * parseInt(input.value));
     });
 
     const subtotal = (precoBase + precoOpcionais) * qtdPrincipal;
     const frame = el('sub-total-frame');
     const btnProsseguir = el('btn-modal-prosseguir');
     
-    // Exibe ou oculta subtotal e botão de prosseguir
     if (subtotal > 0) {
         frame.innerText = `Subtotal do item: ${fmtMoeda(subtotal)}`;
         frame.style.display = 'block';
@@ -226,51 +152,29 @@ function atualizarSubtotalItem(nome, precoBase) {
         btnProsseguir.style.display = 'none';
     }
 
-    // Atualiza carrinho
-    appState.carrinho = appState.carrinho.filter(item => item.nome !== nome);
-    
+    appState.carrinho = appState.carrinho.filter(i => i.nome !== nome);
     if (qtdPrincipal > 0) {
-        let opcionais = [];
+        let opcs = [];
         document.querySelectorAll('.opc-qtd').forEach(input => {
-            const qtd = parseInt(input.value) || 0;
-            if (qtd > 0) {
-                opcionais.push({
-                    nome: input.dataset.nome,
-                    qtd: qtd,
-                    preco: parseFloat(input.dataset.preco) || 0
-                });
+            if(parseInt(input.value) > 0) {
+                opcs.push({ nome: input.dataset.nome, qtd: parseInt(input.value), preco: parseFloat(input.dataset.preco) });
             }
         });
-        
-        appState.carrinho.push({
-            nome: nome,
-            preco: precoBase + precoOpcionais,
-            qtd: qtdPrincipal,
-            detalhes: opcionais
-        });
+        appState.carrinho.push({ nome, preco: precoBase + precoOpcionais, qtd: qtdPrincipal, detalhes: opcs });
     }
-    
     atualizarTotais();
 }
 
-/**
- * Altera quantidade do produto principal
- * @param {number} delta - Variação (+1 ou -1)
- * @param {string} nome - Nome do produto
- * @param {number} preco - Preço do produto
- */
 function alterarQtdPrincipal(delta, nome, preco) {
-    const input = el('qtd-principal');
-    const menuOpc = el('menu-opc');
-    const valorAtual = parseInt(input.value) || 0;
-    const novoValor = valorAtual + delta;
-    
-    if (novoValor >= 0) {
-        input.value = novoValor;
+    let input = el('qtd-principal');
+    let menuOpc = el('menu-opc');
+    let novaVal = parseInt(input.value) + delta;
+    if (novaVal >= 0) {
+        input.value = novaVal;
         
-        // Controla exibição dos opcionais
+        // Regra solicitada: Só exibe os opcionais se a quantidade for pelo menos 1
         if (menuOpc) {
-            if (novoValor >= 1) {
+            if (novaVal >= 1) {
                 menuOpc.style.display = 'block';
                 menuOpc.classList.add('aberto');
             } else {
@@ -283,116 +187,81 @@ function alterarQtdPrincipal(delta, nome, preco) {
     }
 }
 
-/**
- * Altera quantidade de um opcional
- * @param {HTMLButtonElement} btn - Botão clicado
- * @param {number} delta - Variação (+1 ou -1)
- * @param {string} nome - Nome do produto principal
- * @param {number} preco - Preço do produto principal
- */
 function alterarQtdOpcional(btn, delta, nome, preco) {
     const input = btn.parentElement.querySelector('.opc-qtd');
-    const valorAtual = parseInt(input.value) || 0;
-    const novoValor = valorAtual + delta;
-    
-    if (novoValor >= 0) {
-        input.value = novoValor;
+    let v = parseInt(input.value) + delta;
+    if (v >= 0) {
+        input.value = v;
         atualizarSubtotalItem(nome, preco);
     }
 }
 
-// =============================================
-// GERENCIAMENTO DO CARRINHO E TOTAIS
-// =============================================
-
-/**
- * Atualiza todos os totais e exibe resumo financeiro
- */
+// --- ATUALIZAÇÃO DE TOTAIS (REVISADA COM RESUMO) ---
 function atualizarTotais() {
-    // 1. Cálculos básicos
-    const subtotalProdutos = appState.carrinho.reduce((acc, item) => {
-        return acc + (item.preco * item.qtd);
-    }, 0);
-    
-    appState.desconto = appState.cupomAtivo ? 
-        (subtotalProdutos * (appState.cupomAtivo.porcentagem / 100)) : 0;
-    
-    appState.totalGeral = subtotalProdutos - appState.desconto + appState.taxaEntrega;
+    // 1. Cálculos de negócio
+    const subtotalProd = appState.carrinho.reduce((acc, item) => acc + (item.preco * item.qtd), 0);
+    appState.desconto = appState.cupomAtivo ? (subtotalProd * (appState.cupomAtivo.porcentagem / 100)) : 0;
+    appState.totalGeral = subtotalProd - appState.desconto + appState.taxaEntrega;
     appState.totalItens = appState.carrinho.reduce((acc, item) => acc + item.qtd, 0);
 
-    // 2. Formata valores
-    const valorFormatado = fmtMoeda(appState.totalGeral);
+    // 2. Atualiza os textos da barra (IDs que estão no seu HTML)
+    const valFormatado = fmtMoeda(appState.totalGeral);
     const qtdFormatada = `${appState.totalItens} ${appState.totalItens === 1 ? 'item' : 'itens'}`;
 
-    // 3. Atualiza elementos da interface
-    const elementosParaAtualizar = [
-        { id: 'count-txt', texto: qtdFormatada },
-        { id: 'total-txt', texto: valorFormatado },
-        { id: 'carrinho-qtd-fixo', texto: qtdFormatada },
-        { id: 'carrinho-total-fixo', texto: valorFormatado }
-    ];
-    
-    elementosParaAtualizar.forEach(elem => {
-        const elemento = el(elem.id);
-        if (elemento) elemento.innerText = elem.texto;
-    });
+    // Atualiza o primeiro rodapé (cesta-rodape)
+    if(el('count-txt')) el('count-txt').innerText = qtdFormatada;
+    if(el('total-txt')) el('total-txt').innerText = valFormatado;
 
-    // 4. Controle de exibição das barras
-    const barraCarrinho = el('barra-carrinho');
+    // Atualiza o segundo rodapé (barra-carrinho)
+    if(el('carrinho-qtd-fixo')) el('carrinho-qtd-fixo').innerText = qtdFormatada;
+    if(el('carrinho-total-fixo')) el('carrinho-total-fixo').innerText = valFormatado;
+
+    // 3. LOGICA DE EXIBIÇÃO: Mostra a barra se houver itens
+    const barra = el('barra-carrinho');
     const rodapeSimples = el('cesta-rodape');
-    
+
     if (appState.totalItens > 0) {
-        if (barraCarrinho) barraCarrinho.style.display = 'flex';
-        if (rodapeSimples) rodapeSimples.style.display = 'block';
+        if(barra) barra.style.display = 'flex';
+        if(rodapeSimples) rodapeSimples.style.display = 'block';
     } else {
-        if (barraCarrinho) barraCarrinho.style.display = 'none';
-        if (rodapeSimples) rodapeSimples.style.display = 'none';
+        if(barra) barra.style.display = 'none';
+        if(rodapeSimples) rodapeSimples.style.display = 'none';
     }
 
-    // 5. Atualiza resumo no modal de revisão
+    // 4. Resumo financeiro dentro do Modal de Revisão
     const resumoTotal = el('revisao-total-txt');
-    if (resumoTotal) {
-        const descontoHTML = appState.desconto > 0 ? `
-            <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:#27ae60; margin-bottom:5px;">
-                <span>Desconto:</span> <span>- ${fmtMoeda(appState.desconto)}</span>
-            </div>` : '';
-        
+    if(resumoTotal) {
         resumoTotal.innerHTML = `
             <div style="margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 12px; border: 1px solid #eee;">
                 <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:5px;">
-                    <span>Subtotal produtos:</span> <span>${fmtMoeda(subtotalProdutos)}</span>
+                    <span>Subtotal produtos:</span> <span>${fmtMoeda(subtotalProd)}</span>
                 </div>
-                ${descontoHTML}
+                ${appState.desconto > 0 ? `
+                <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:#27ae60; margin-bottom:5px;">
+                    <span>Desconto:</span> <span>- ${fmtMoeda(appState.desconto)}</span>
+                </div>` : ''}
                 <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:5px;">
                     <span>Taxa de entrega:</span> <span>${fmtMoeda(appState.taxaEntrega)}</span>
                 </div>
                 <div style="display:flex; justify-content:space-between; font-size:1.1rem; font-weight:bold; margin-top:10px; padding-top:10px; border-top:2px solid #ddd; color:var(--a-brown);">
-                    <span>TOTAL:</span> <span>${valorFormatado}</span>
+                    <span>TOTAL:</span> <span>${valFormatado}</span>
                 </div>
             </div>`;
     }
 }
 
-// =============================================
-// MODAL DA CESTA (REVISÃO)
-// =============================================
+// --- LÓGICA DO MODAL MINHA CESTA (REVISADA COM NOVOS REQUISITOS) ---
 
-/**
- * Abre modal com itens da cesta para revisão
- */
 function abrirRevisao() {
     const lista = el('lista-revisao-completa');
     if (!lista) return;
 
-    // Verifica se o carrinho está vazio
     if (appState.carrinho.length === 0) {
         lista.innerHTML = "<p style='text-align:center; padding:20px; color:#666;'>Sua cesta está vazia.</p>";
     } else {
-        lista.innerHTML = appState.carrinho.map((item, index) => {
-            const textoOpcionais = item.detalhes && item.detalhes.length > 0 
-                ? item.detalhes.map(opc => 
-                    `<div style="font-size:0.75rem; color:#888; margin-left:10px;">+ ${opc.qtd}x ${opc.nome}</div>`
-                  ).join('')
+        lista.innerHTML = appState.carrinho.map((item, idx) => {
+            let textoOpcionais = item.detalhes && item.detalhes.length > 0 
+                ? item.detalhes.map(o => `<div style="font-size:0.75rem; color:#888; margin-left:10px;">+ ${o.qtd}x ${o.nome}</div>`).join('')
                 : "";
             
             return `
@@ -402,27 +271,23 @@ function abrirRevisao() {
                         ${textoOpcionais}
                         <div style="font-weight:bold; font-size:0.85rem; margin-top:4px;">${fmtMoeda(item.preco * item.qtd)}</div>
                     </div>
-                    <button onclick="removerItem(${index})" style="background:#ff4d4d; border:none; color:white; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.7rem; font-weight:bold; text-transform:uppercase;">
+                    <button onclick="removerItem(${idx})" style="background:#ff4d4d; border:none; color:white; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.7rem; font-weight:bold; text-transform:uppercase;">
                         Excluir
                     </button>
                 </div>`;
         }).join('');
     }
 
-    // Ajusta estilos dos elementos de cupom
     const btnAplicar = el('modalRevisao').querySelector('button[onclick="aplicarCupom()"]');
     const inputCupom = el('inputCupom');
     
     if (btnAplicar && inputCupom) {
-        const parent = inputCupom.parentElement;
-        parent.style.display = "flex";
-        parent.style.alignItems = "center";
-        parent.style.gap = "8px";
-        
+        inputCupom.parentElement.style.display = "flex";
+        inputCupom.parentElement.style.alignItems = "center";
+        inputCupom.parentElement.style.gap = "8px";
         inputCupom.style.height = "34px";
         inputCupom.style.margin = "0";
         inputCupom.style.flex = "1";
-        
         btnAplicar.style.height = "34px";
         btnAplicar.style.width = "100px";
         btnAplicar.style.padding = "0";
@@ -433,13 +298,12 @@ function abrirRevisao() {
         btnAplicar.style.fontSize = "0.8rem";
     }
 
-    // Ajusta parágrafo do cupom
-    const pCupom = inputCupom ? inputCupom.parentElement.previousElementSibling : null;
+    const pCupom = inputCupom.parentElement.previousElementSibling;
     if (pCupom && pCupom.tagName === "P") {
         pCupom.style.cssText = "font-weight: bold; font-size: 0.85rem; margin-bottom: 8px;";
     }
 
-    // Abre o modal
+    // Gerencia o foco visual
     appState.scrollPos = window.scrollY;
     atualizarTotais();
     fecharModais();
@@ -448,79 +312,58 @@ function abrirRevisao() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/**
- * Remove item do carrinho
- * @param {number} index - Índice do item a ser removido
- */
-function removerItem(index) {
-    if (index >= 0 && index < appState.carrinho.length) {
-        appState.carrinho.splice(index, 1);
-        
-        if (appState.carrinho.length === 0) {
-            fecharModais();
-            atualizarTotais();
-        } else {
-            abrirRevisao();
-            atualizarTotais();
-        }
-    }
-}
-
-// =============================================
-// SELEÇÃO DE ENTREGA E CUPOM
-// =============================================
-
-/**
- * Seleciona opção de entrega
- * @param {string} tipo - 'Retirada' ou 'Entrega'
- * @param {HTMLElement} elemento - Elemento clicado
- */
+// 3. Nova função para destacar botões de recebimento
 function selEntrega(tipo, elemento) {
-    // Define taxa de entrega
+    // Define a taxa
     appState.taxaEntrega = (tipo === 'Entrega') ? 10 : 0;
     
-    // Remove destaque de todas as opções
+    // Remove destaque de todos
     document.querySelectorAll('#modalRevisao .opcao-entrega').forEach(opt => {
         opt.style.border = "2px solid #eee";
         opt.style.background = "#fff";
         opt.style.color = "#333";
     });
 
-    // Aplica destaque na opção selecionada
+    // Aplica destaque no selecionado
     elemento.style.border = "2px solid var(--a-brown)";
     elemento.style.background = "#fdf8f3";
     elemento.style.color = "var(--a-brown)";
     elemento.style.fontWeight = "bold";
 
-    // Mostra/oculta frame de aviso de taxa
+    // Mostra/Esconde o frame de aviso de taxa se existir
     const aviso = elemento.querySelector('.entrega-info-frame');
-    document.querySelectorAll('.entrega-info-frame').forEach(frame => {
-        frame.style.display = 'none';
-    });
-    
-    if (aviso) aviso.style.display = 'block';
+    document.querySelectorAll('.entrega-info-frame').forEach(f => f.style.display = 'none');
+    if(aviso) aviso.style.display = 'block';
 
     atualizarTotais();
 }
 
-/**
- * Aplica cupom de desconto
- */
+// --- NOVAS FUNÇÕES ADICIONADAS ---
+
+function selecionarRecebimento(tipo) {
+    appState.taxaEntrega = (tipo === 'Entrega') ? 10 : 0;
+    const isE = (tipo === 'Entrega');
+    
+    // Destaque visual (Melhoria 2)
+    const btnE = el('opt-entrega');
+    const btnR = el('opt-retirada');
+    if(btnE && btnR) {
+        btnE.style.borderColor = isE ? 'var(--a-brown)' : '#eee';
+        btnE.style.background = isE ? '#fdf8f3' : '#fff';
+        btnR.style.borderColor = !isE ? 'var(--a-brown)' : '#eee';
+        btnR.style.background = !isE ? '#fdf8f3' : '#fff';
+    }
+    
+    if(el('aviso-entrega-frame')) el('aviso-entrega-frame').style.display = isE ? 'block' : 'none';
+    atualizarTotais();
+}
+
 function aplicarCupom() {
-    const codigo = el('inputCupom').value.trim().toLowerCase();
-    const cupons = {
-        'mathilde10': 10,
-        'mathilde15': 15, 
-        'mathilde20': 20
-    };
-    
+    const cod = el('inputCupom').value.trim().toLowerCase();
+    const cupons = {'mathilde10': 10, 'mathilde15': 15, 'mathilde20': 20};
     const msg = el('msgCupom');
-    
-    if (cupons[codigo]) {
-        appState.cupomAtivo = {
-            nome: codigo.toUpperCase(),
-            porcentagem: cupons[codigo]
-        };
+    if (cupons[cod]) {
+        appState.cupomAtivo = { nome: cod.toUpperCase(), porcentagem: cupons[cod] };
         msg.innerText = "Cupom aplicado!";
         msg.style.color = "green";
     } else {
@@ -528,398 +371,185 @@ function aplicarCupom() {
         msg.innerText = "Cupom inválido";
         msg.style.color = "red";
     }
-    
     atualizarTotais();
 }
 
-// =============================================
-// VALIDAÇÕES E FUNÇÕES AUXILIARES DE VALIDAÇÃO
-// =============================================
+// --- FUNÇÕES DE NAVEGAÇÃO (MANTIDAS) ---
 
-/**
- * Valida CPF usando algoritmo oficial
- * @param {string} cpf - CPF a ser validado
- * @returns {boolean} True se CPF válido
- */
-function validarCPF(cpf) {
-    // Remove caracteres não numéricos
-    cpf = cpf.replace(/\D/g, '');
-    
-    // Verifica tamanho e sequências repetidas
-    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
-        return false;
+function removerItem(idx) {
+    appState.carrinho.splice(idx, 1);
+    if (appState.carrinho.length === 0) {
+        fecharModais();
+        atualizarTotais();
+    } else {
+        abrirRevisao();
+        atualizarTotais();
     }
-    
-    // Valida primeiro dígito verificador
-    let soma = 0;
-    for (let i = 1; i <= 9; i++) {
-        soma += parseInt(cpf.substring(i - 1, i)) * (11 - i);
-    }
-    
-    let resto = (soma * 10) % 11;
-    if (resto === 10 || resto === 11) resto = 0;
-    if (resto !== parseInt(cpf.substring(9, 10))) return false;
-    
-    // Valida segundo dígito verificador
-    soma = 0;
-    for (let i = 1; i <= 10; i++) {
-        soma += parseInt(cpf.substring(i - 1, i)) * (12 - i);
-    }
-    
-    resto = (soma * 10) % 11;
-    if (resto === 10 || resto === 11) resto = 0;
-    
-    return resto === parseInt(cpf.substring(10, 11));
 }
 
-/**
- * Valida número de cartão de crédito usando algoritmo de Luhn
- * @param {string} numero - Número do cartão
- * @returns {boolean} True se número válido
- */
-function validarCartaoCredito(numero) {
-    const sanitized = String(numero).replace(/\D/g, '');
-    if (!sanitized) return false;
-    
-    let soma = 0;
-    let deveDobrar = false;
-    
-    for (let i = sanitized.length - 1; i >= 0; i--) {
-        let digito = parseInt(sanitized.charAt(i));
-        
-        if (deveDobrar) {
-            digito *= 2;
-            if (digito > 9) digito -= 9;
-        }
-        
-        soma += digito;
-        deveDobrar = !deveDobrar;
-    }
-    
-    return (soma % 10) === 0;
+// 1. Criando a função que faltava para o botão voltar
+function voltarParaRevisao() {
+    fecharModais();
+    abrirRevisao(); 
 }
 
-/**
- * Valida campos de forma recursiva
- * @param {string[]} listaCampos - IDs dos campos a validar
- * @returns {boolean} True se todos válidos
- */
+function abrirDados() {
+    appState.scrollPos = window.scrollY; 
+    fecharModais();
+    
+    // Mostra o modal e o fundo escuro
+    el('modalDados').style.display = 'block';
+    el('modalOverlay').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Lógica para mostrar/esconder endereço baseada na escolha da Cesta
+    // Se appState.taxaEntrega for maior que 0, significa que ele pediu entrega
+    const campoEnd = el('campo-endereco');
+    if (appState.taxaEntrega > 0) {
+        campoEnd.style.display = 'block';
+    } else {
+        campoEnd.style.display = 'none';
+    }
+}
+
+// FUNÇÃO RECURSIVA DE FLUXO
 function validarFluxoRecursivo(listaCampos) {
-    // Caso base: lista vazia
-    if (listaCampos.length === 0) return true;
+    if (listaCampos.length === 0) return true; 
+
+    const campo = el(listaCampos[0]);
     
-    const idAtual = listaCampos[0];
-    const campo = el(idAtual);
-    
-    // Se campo não existe ou está oculto, pula para o próximo
     if (!campo || campo.style.display === 'none') {
         return validarFluxoRecursivo(listaCampos.slice(1));
     }
-    
-    // Dispara validação do campo
+
+    // Dispara o evento onblur configurado na abrirDados
     campo.focus();
-    campo.blur();
-    
-    // Se campo ficou com borda vermelha, interrompe
-    if (campo.style.borderColor === "red") {
-        return false;
-    }
-    
-    // Continua com próximo campo
+    campo.blur(); 
+
+    // Se o onblur travou o campo com borda vermelha, para a recursão
+    if (campo.style.borderColor === "red") return false; 
+
     return validarFluxoRecursivo(listaCampos.slice(1));
 }
 
-// =============================================
-// FLUXO DE DADOS DO CLIENTE
-// =============================================
-
-/**
- * Abre modal para coleta de dados do cliente
- */
-function abrirDados() {
-    // Salva posição e abre modal
-    appState.scrollPos = window.scrollY;
-    fecharModais();
-    el('modalOverlay').style.display = 'block';
-    el('modalDados').style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    // Exibe etapa de dados, oculta pagamento
-    el('etapa-dados').style.display = 'block';
-    el('etapa-pagamento').style.display = 'none';
-
-    // Lista de DDDs válidos no Brasil
-    const dddsValidos = [
-        11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 24, 27, 28, 31, 32, 33, 
-        34, 35, 37, 38, 41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 53, 54, 55, 
-        61, 62, 64, 63, 65, 66, 67, 68, 69, 71, 73, 74, 75, 77, 79, 81, 87, 
-        82, 83, 84, 85, 88, 86, 89, 91, 93, 94, 92, 97, 95, 96, 98, 99
-    ];
-
-    // --- Validação do Nome ---
-    const inputNome = el('nomeCli');
-    if (inputNome) {
-        inputNome.onblur = function() {
-            if (this.value.trim().length < 3) {
-                alert("Por favor, digite seu nome completo.");
-                setTimeout(() => this.focus(), 10);
-                this.style.borderColor = "red";
-            } else {
-                this.style.borderColor = "#ccc";
-            }
-        };
-    }
-
-    // --- Validação do Telefone ---
-    const inputTel = el('telCli');
-    if (inputTel) {
-        inputTel.onblur = function() {
-            const numeros = this.value.replace(/\D/g, '');
-            const ddd = parseInt(numeros.substring(0, 2));
-            
-            if (numeros.length !== 11 || !dddsValidos.includes(ddd)) {
-                alert("ERRO NO TELEFONE:\n- Use DDD + 9 dígitos (Total 11 números).\n- O DDD deve ser válido no Brasil.");
-                setTimeout(() => this.focus(), 10);
-                this.style.borderColor = "red";
-            } else {
-                this.style.borderColor = "#ccc";
-            }
-        };
-    }
-
-    // --- Validação do Endereço ---
-    const campoEndereco = el('endCliDados');
-    if (campoEndereco) {
-        const precisaEntrega = (appState.taxaEntrega > 0);
-        campoEndereco.style.display = precisaEntrega ? 'block' : 'none';
-        
-        campoEndereco.onblur = function() {
-            if (precisaEntrega) {
-                const valor = this.value.toUpperCase().trim();
-                const regexEndereco = /^(RUA|AVENIDA|PRAÇA|PRACA).*\d+/;
-                
-                if (!regexEndereco.test(valor)) {
-                    alert("ERRO NO ENDEREÇO:\n- Deve começar com RUA, AVENIDA ou PRAÇA.\n- Deve conter o número da residência.");
-                    setTimeout(() => this.focus(), 10);
-                    this.style.borderColor = "red";
-                } else {
-                    this.style.borderColor = "#ccc";
-                }
-            }
-        };
-    }
-
-    // --- Criação e Validação de CPF e Senha (se não existirem) ---
-    if (!el('cpfCli')) {
-        // Campo CPF
-        const inputCpf = document.createElement('input');
-        inputCpf.id = 'cpfCli';
-        inputCpf.placeholder = 'CPF (Apenas 11 números) *';
-        inputCpf.maxLength = 11;
-        inputCpf.style.cssText = "width:100%; margin-top:10px;";
-        
-        inputCpf.onblur = function() {
-            const cpfLimpo = this.value.replace(/\D/g, '');
-            if (!validarCPF(cpfLimpo)) {
-                alert("CPF INVÁLIDO:\nOs números digitados não formam um CPF válido.");
-                setTimeout(() => this.focus(), 10);
-                this.style.borderColor = "red";
-            } else {
-                this.style.borderColor = "#ccc";
-            }
-        };
-
-        // Campo Senha
-        const inputSenha = document.createElement('input');
-        inputSenha.id = 'senhaCli';
-        inputSenha.type = 'password';
-        inputSenha.placeholder = 'Crie uma Senha (mín. 4 caracteres) *';
-        inputSenha.style.cssText = "width:100%; margin-top:10px;";
-        
-        inputSenha.onblur = function() {
-            if (this.value.length < 4) {
-                alert("A senha deve ter pelo menos 4 caracteres.");
-                setTimeout(() => this.focus(), 10);
-                this.style.borderColor = "red";
-            } else {
-                this.style.borderColor = "#ccc";
-            }
-        };
-
-        // Insere campos após telefone
-        inputTel.insertAdjacentElement('afterend', inputCpf);
-        inputCpf.insertAdjacentElement('afterend', inputSenha);
-    }
-
-    // --- Validação do Cartão de Crédito ---
-    const inputCartao = el('numCartao');
-    if (inputCartao) {
-        inputCartao.onblur = function() {
-            if (!validarCartaoCredito(this.value)) {
-                alert("Número de cartão de crédito inválido! Verifique os dígitos.");
-                setTimeout(() => this.focus(), 10);
-                this.style.borderColor = "red";
-            } else {
-                this.style.borderColor = "#ccc";
-            }
-        };
-    }
-
-    // --- Validação do CVV ---
-    const inputCVV = el('cvvCartao');
-    if (inputCVV) {
-        inputCVV.onblur = function() {
-            if (this.value.length < 3 || isNaN(this.value)) {
-                alert("CVV inválido! Digite os 3 números no verso do cartão.");
-                setTimeout(() => this.focus(), 10);
-                this.style.borderColor = "red";
-            } else {
-                this.style.borderColor = "#ccc";
-            }
-        };
-    }
-}
-
-/**
- * Retorna ao modal de revisão da cesta
- */
-function voltarParaRevisao() {
-    fecharModais();
-    abrirRevisao();
-}
-
-/**
- * Avança para etapa de pagamento após validação
- */
+// Transição: Fecha dados e abre pagamento
+// Valida os dados e pula para o modal de pagamento
+// Valida os dados e pula para o modal de pagamento com validações rigorosas
 function prosseguirParaPagamento() {
-    const camposParaValidar = ['nomeCli', 'telCli', 'cpfCli', 'endCliDados'];
-    
-    // Valida campos recursivamente
-    if (!validarFluxoRecursivo(camposParaValidar)) return;
+    const nome = el('nomeCli').value.trim();
+    const telRaw = el('telCli').value.replace(/\D/g, ''); 
+    const end = el('endCliDados').value.trim().toUpperCase();
+    const isEntrega = (appState.taxaEntrega > 0);
 
-    // Salva dados do usuário
-    appState.user = { 
-        nome: el('nomeCli').value.trim(),
-        tel: el('telCli').value.replace(/\D/g, ''), 
-        endereco: el('endCliDados').value,
-        cpf: el('cpfCli') ? el('cpfCli').value : ""
-    };
-    
-    // Salva no localStorage
-    localStorage.setItem('paodociso_dados', JSON.stringify({ 
-        nome: appState.user.nome, 
-        tel: appState.user.tel 
-    }));
+    const dddsValidos = [11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 24, 27, 28, 31, 32, 33, 34, 35, 37, 38, 41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 53, 54, 55, 61, 62, 63, 64, 65, 66, 67, 68, 69, 71, 73, 74, 75, 77, 79, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 94, 95, 96, 97, 98, 99];
 
-    // Avança para pagamento
-    el('etapa-dados').style.display = 'none';
-    el('etapa-pagamento').style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Validação Nome
+    if (nome.length < 3) {
+        alert("Por favor, digite seu nome completo.");
+        el('nomeCli').focus();
+        return;
+    }
+
+    // Validação Telefone (DDD + 11 dígitos)
+    const ddd = parseInt(telRaw.substring(0, 2));
+    if (telRaw.length !== 11 || !dddsValidos.includes(ddd)) {
+        alert("Telefone inválido! Use DDD + 9 dígitos (ex: 11999999999).");
+        el('telCli').focus();
+        return;
+    }
+
+    // Validação Endereço (se optou por entrega na cesta)
+    if (isEntrega) {
+        const regexEnd = /^(RUA|AVENIDA|PRAÇA|PRACA|ALAMEDA|ESTRADA).*\d+/;
+        if (!regexEnd.test(end)) {
+            alert("Endereço deve começar com RUA, AVENIDA ou PRAÇA e conter o NÚMERO.");
+            el('endCliDados').focus();
+            return;
+        }
+    }
+
+    // Sucesso: Salva e vai para pagamento
+    appState.user.nome = nome;
+    appState.user.tel = telRaw;
+    appState.user.endereco = isEntrega ? end : "Retirada no Local";
+
+    fecharModais();
+    el('modalPagamento').style.display = 'block';
+    el('modalOverlay').style.display = 'block';
+    
+    if(el('pix-valor-txt')) el('pix-valor-txt').innerText = fmtMoeda(appState.totalGeral);
 }
 
-// =============================================
-// PAGAMENTO
-// =============================================
+// 2. Função auxiliar para garantir que só entrem números (caso não tenha)
+function validarApenasNumeros(input) {
+    input.value = input.value.replace(/\D/g, '');
+}
 
-/**
- * Seleciona forma de pagamento
- * @param {string} tipo - 'Pix', 'Cartão' ou 'Dinheiro'
- * @param {HTMLElement} elemento - Elemento clicado
- */
+// Seleção da Forma de Pagamento
 function selPgto(tipo, elemento) {
-    appState.formaPgto = tipo;
+    appState.formaPgto = tipo; // Define se é 'Pix', 'Cartão', etc.
 
-    // Remove destaque de todas as opções
+    // 1. Limpa o visual de todos os botões
     document.querySelectorAll('.opcao-pagamento').forEach(opt => {
         opt.style.border = "2px solid #eee";
         opt.style.background = "#fff";
-        
-        // Oculta frames de informação
+        // Esconde todos os frames de informação (Pix, Cartão, etc)
         const frame = opt.querySelector('.pagamento-info-frame');
         if (frame) frame.style.display = 'none';
     });
 
-    // Destaca opção selecionada
+    // 2. Destaca o botão que foi clicado
     elemento.style.border = "2px solid var(--a-brown)";
     elemento.style.background = "#fdf8f3";
 
-    // Mostra informações específicas
+    // 3. Mostra o conteúdo específico (O formulário de cartão ou o QR Code)
     const infoFrame = elemento.querySelector('.pagamento-info-frame');
     if (infoFrame) {
         infoFrame.style.display = 'block';
     }
 
-    // Atualiza valor para PIX
+    // 4. Se for Pix, atualiza o valor dinamicamente
     if (tipo === 'Pix' && el('pix-valor-txt')) {
         el('pix-valor-txt').innerText = fmtMoeda(appState.totalGeral);
     }
 }
 
-/**
- * Copia chave PIX para área de transferência
- * @param {string} texto - Chave PIX a ser copiada
- */
 function copiarChave(texto) {
-    navigator.clipboard.writeText(texto)
-        .then(() => {
-            alert("A chave PIX foi copiada!");
-        })
-        .catch(err => {
-            // Fallback para navegadores mais antigos
-            const inputTemporario = document.createElement("input");
-            inputTemporario.value = texto;
-            document.body.appendChild(inputTemporario);
-            inputTemporario.select();
-            document.execCommand("copy");
-            document.body.removeChild(inputTemporario);
-            alert("A chave PIX foi copiada!");
-        });
+    // Tenta usar a API moderna de área de transferência
+    navigator.clipboard.writeText(texto).then(() => {
+        alert("A chave PIX foi copiada!");
+    }).catch(err => {
+        // Fallback caso o navegador bloqueie a API moderna
+        const inputTemporario = document.createElement("input");
+        inputTemporario.value = texto;
+        document.body.appendChild(inputTemporario);
+        inputTemporario.select();
+        document.execCommand("copy");
+        document.body.removeChild(inputTemporario);
+        alert("A chave PIX foi copiada!");
+    });
 }
 
-/**
- * Retorna para etapa de dados do cliente
- */
+// Voltar da etapa de Pagamento para Dados
 function voltarParaDados() {
-    el('etapa-pagamento').style.display = 'none';
-    el('etapa-dados').style.display = 'block';
+    fecharModais();
+    abrirDados();
 }
 
-// =============================================
-// INTEGRAÇÃO COM PLANILHA GOOGLE
-// =============================================
-
-/**
- * Envia dados do pedido para planilha Google
- */
+// --- FUNÇÃO PARA SALVAR NA PLANILHA (CHAMAR ANTES DO WHATSAPP) ---
 function salvarPedidoNaPlanilha() {
-    const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbwRQmndj1t99DPcI2ofgdF8ll_uWZv1gG_Bq5ZNpEuzQyJnSqd-4rNdZU32ZjFyC2QMYg/exec";
+    const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbwRQmndj1t99DPcI2ofgdF8ll_uWZv1gG_Bq5ZNpEuzQyJnSqd-4rNdZU32ZjFyC2QMYg/exec"; 
 
     const dados = {
         data: new Date().toLocaleString('pt-BR'),
         nome: el('nomeCli').value,
         whatsapp: el('telCli').value,
-        cpf: el('cpfCli') ? el('cpfCli').value : "",
-        senha: el('senhaCli') ? el('senhaCli').value : "",
         endereco: el('endCliDados').value || "Retirada",
         pagamento: appState.formaPgto,
         total: appState.totalGeral,
-        itens: appState.carrinho.map(item => `${item.qtd}x ${item.nome}`).join(', '),
-        cartao_num: "",
-        cartao_nome: "",
-        cartao_validade: "",
-        cartao_cvv: ""
+        itens: appState.carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
     };
 
-    // Adiciona dados do cartão se necessário
-    if (appState.formaPgto === 'Cartão') {
-        dados.cartao_num = el('numCartao') ? el('numCartao').value : "";
-        dados.cartao_nome = el('nomeNoCartao') ? el('nomeNoCartao').value.toUpperCase() : "";
-        dados.cartao_validade = (el('cartaoMes') && el('cartaoAno')) ? 
-            `${el('cartaoMes').value}/${el('cartaoAno').value}` : "";
-        dados.cartao_cvv = el('cvvCartao') ? el('cvvCartao').value : "";
-    }
-
-    // Envia dados (no-cors para evitar problemas de CORS)
     fetch(URL_PLANILHA, {
         method: 'POST',
         mode: 'no-cors',
@@ -927,95 +557,71 @@ function salvarPedidoNaPlanilha() {
         body: JSON.stringify(dados)
     })
     .then(() => console.log("Dados enviados para a planilha com sucesso!"))
-    .catch(err => console.error("Erro ao enviar para planilha:", err));
+    .catch(err => console.error("Erro planilha:", err));
 }
 
-// =============================================
-// MENSAGEM DO WHATSAPP
-// =============================================
-
-/**
- * Monta mensagem para envio pelo WhatsApp
- * @returns {string} Mensagem formatada
- */
+// --- FUNÇÃO MONTAR MENSAGEM WHATSAPP ---
 function montarMensagemWhats() {
-    let mensagem = `*🍞 NOVO PEDIDO - PÃO DO CISO*\n`;
-    mensagem += `--------------------------------\n`;
-    mensagem += `*Cliente:* ${el('nomeCli').value}\n`;
-    mensagem += `*WhatsApp:* ${el('telCli').value}\n`;
+    let texto = `*🍞 NOVO PEDIDO - PÃO DO CISO*\n`;
+    texto += `--------------------------------\n`;
+    texto += `*Cliente:* ${el('nomeCli').value}\n`;
+    texto += `*WhatsApp:* ${el('telCli').value}\n`;
     
-    // Informações de entrega/retirada
+    // Se houver taxa de entrega, mostra endereço, senão é retirada
     if (appState.taxaEntrega > 0) {
-        mensagem += `*Entrega em:* ${el('endCliDados').value}\n`;
+        texto += `*Entrega em:* ${el('endCliDados').value}\n`;
     } else {
-        mensagem += `*Forma:* Retirada no Local\n`;
+        texto += `*Forma:* Retirada no Local\n`;
     }
     
-    mensagem += `--------------------------------\n`;
-    mensagem += `*ITENS DO PEDIDO:*\n`;
+    texto += `--------------------------------\n`;
+    texto += `*ITENS DO PEDIDO:*\n`;
     
-    // Itens do pedido
     appState.carrinho.forEach(item => {
-        mensagem += `• ${item.qtd}x ${item.nome} (${fmtMoeda(item.preco * item.qtd)})\n`;
-        
-        // Opcionais
+        texto += `• ${item.qtd}x ${item.nome} (${fmtMoeda(item.preco * item.qtd)})\n`;
+        // Adiciona opcionais se existirem
         if (item.detalhes && item.detalhes.length > 0) {
             item.detalhes.forEach(opc => {
-                mensagem += `  └ _${opc.qtd}x ${opc.nome}_\n`;
+                texto += `  └ _${opc.qtd}x ${opc.nome}_\n`;
             });
         }
     });
     
-    mensagem += `--------------------------------\n`;
+    texto += `--------------------------------\n`;
     
-    // Desconto
     if (appState.desconto > 0) {
-        mensagem += `*Desconto:* - ${fmtMoeda(appState.desconto)}\n`;
+        texto += `*Desconto:* - ${fmtMoeda(appState.desconto)}\n`;
     }
     
-    // Taxa de entrega
     if (appState.taxaEntrega > 0) {
-        mensagem += `*Taxa de Entrega:* ${fmtMoeda(appState.taxaEntrega)}\n`;
+        texto += `*Taxa de Entrega:* ${fmtMoeda(appState.taxaEntrega)}\n`;
     }
 
-    // Forma de pagamento e total
-    mensagem += `*Pagamento:* ${appState.formaPgto}\n`;
-    mensagem += `*TOTAL A PAGAR: ${fmtMoeda(appState.totalGeral)}*\n`;
-    mensagem += `--------------------------------\n`;
-    mensagem += `_Pedido gerado pelo catálogo virtual_`;
+    texto += `*Pagamento:* ${appState.formaPgto}\n`;
+    texto += `*TOTAL A PAGAR: ${fmtMoeda(appState.totalGeral)}*\n`;
+    texto += `--------------------------------\n`;
+    texto += `_Pedido gerado pelo catálogo virtual_`;
     
-    return mensagem;
+    return texto;
 }
 
-// =============================================
-// FINALIZAÇÃO DO PEDIDO
-// =============================================
-
-/**
- * Finaliza pedido com validações e redirecionamento
- */
+// Finalizar Pedido e Redirecionar
 function finalizar() {
-    // Valida forma de pagamento selecionada
     if (!appState.formaPgto) {
         alert("Por favor, selecione uma forma de pagamento.");
         return;
     }
 
-    // Validação adicional para cartão
-    if (appState.formaPgto === 'Cartão') {
-        const camposCartao = ['numCartao', 'cvvCartao'];
-        if (!validarFluxoRecursivo(camposCartao)) return;
-    }
+    // Validação de cartão removida daqui
 
-    // Envia para planilha
     salvarPedidoNaPlanilha();
 
-    // Exibe modal de sucesso
+    // 1. Exibe o Modal de Sucesso
     fecharModais();
     el('modalOverlay').style.display = 'block';
     el('modalSucesso').style.display = 'block';
 
-    // Configura contagem regressiva
+    // 2. Gerencia o elemento da contagem regressiva
     let displayContagem = el('contagem-regressiva');
     if (!displayContagem) {
         displayContagem = document.createElement('div');
@@ -1024,7 +630,7 @@ function finalizar() {
         el('modalSucesso').appendChild(displayContagem);
     }
 
-    // Executa contagem regressiva
+    // 3. Inicia a lógica da Contagem Regressiva Visual
     let tempoRestante = 3;
     displayContagem.innerText = tempoRestante;
 
@@ -1038,43 +644,39 @@ function finalizar() {
         }
     }, 1000);
 
-    // Prepara mensagem para WhatsApp
-    let mensagem = "";
+    // 4. Prepara a mensagem e abre o WhatsApp após os 3 segundos
+    let msg = "";
     try {
-        mensagem = montarMensagemWhats();
+        msg = montarMensagemWhats();
     } catch (e) {
-        mensagem = "Olá, gostaria de fazer um pedido!";
+        msg = "Olá, gostaria de fazer um pedido!";
         console.error("Erro ao montar mensagem:", e);
     }
 
-    const telefoneLoja = "5511982391781";
-    const urlWhatsApp = `https://api.whatsapp.com/send?phone=${telefoneLoja}&text=${encodeURIComponent(mensagem)}`;
+    const foneLoja = "5511982391781";
+    const url = `https://api.whatsapp.com/send?phone=${foneLoja}&text=${encodeURIComponent(msg)}`;
 
-    // Redireciona após 3 segundos
     setTimeout(() => {
-        const novaJanela = window.open(urlWhatsApp, '_blank');
+        const win = window.open(url, '_blank');
         
-        // Fallback se popup for bloqueado
-        if (!novaJanela || novaJanela.closed || typeof novaJanela.closed == 'undefined') {
-            window.location.href = urlWhatsApp;
+        if (!win || win.closed || typeof win.closed == 'undefined') {
+            window.location.href = url;
         }
 
-        // Mostra modal pós-envio
         setTimeout(() => {
-            mostrarModalPosEnvio();
+            if (typeof mostrarModalPosEnvio === "function") {
+                mostrarModalPosEnvio();
+            }
         }, 800);
         
-    }, 3000);
+    }, 3000); 
 }
 
-/**
- * Mostra modal pós-envio com opções
- */
 function mostrarModalPosEnvio() {
     fecharModais();
     el('modalOverlay').style.display = 'block';
     
-    // Cria ou atualiza modal
+    // Cria o modal pós-envio caso ele não exista no HTML
     let modalPos = el('modalPosEnvio');
     if (!modalPos) {
         modalPos = document.createElement('div');
@@ -1098,11 +700,9 @@ function mostrarModalPosEnvio() {
     `;
 }
 
-/**
- * Reenvia pedido para WhatsApp
- */
 function reenviarWhats() {
-    const mensagem = montarMensagemWhats();
-    const url = `https://wa.me/5511982391781?text=${encodeURIComponent(mensagem)}`;
+    const msg = montarMensagemWhats();
+    const url = `https://wa.me/5511982391781?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
 }
+// fim do código

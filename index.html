@@ -25,153 +25,140 @@
         </div>
     </header>
 
-    <div class="banner-fornada" onclick="abrirModalFornada()">
-        <h2 id="txt-data-fornada">PRÓXIMA FORNADA: --/--</h2>
-        <p id="txt-limite-pedido">Pedidos até --/--</p>
+<!-- BANNER QUE EXIBE A PRÓXIMA DATA DE FORNADA E LIMITE DE PEDIDOS (CLICÁVEL PARA ABRIR MODAL) -->
+<div class="banner-fornada" onclick="abrirModalFornada()">
+    <h2 id="txt-data-fornada">PRÓXIMA FORNADA: --/--</h2>
+    <p id="txt-limite-pedido">Pedidos até --/--</p>
+</div>
+
+<!-- ÁREA PRINCIPAL DE ROLAGEM ONDE OS PRODUTOS DO CARDÁPIO SERÃO RENDERIZADOS -->
+<div class="main-scroll">
+    <div class="container-grid" id="render-cli"></div>
+</div>
+
+<!-- MODAL QUE EXIBE DETALHES DA FORNADA (DATA, HORÁRIO, INFORMAÇÕES) -->
+<div id="modalFornada" class="modal-pedido" style="text-align: center;">
+    <div class="fechar-modal-x" onclick="fecharModais()"><i class="fas fa-times"></i></div>
+    <h3>Informações da Fornada</h3>
+    <div id="conteudoFornada" style="font-size: 0.95rem; line-height: 1.6; color: var(--text);"></div>
+    <div class="info-tag">
+        <i class="fas fa-info-circle"></i> Produção artesanal e limitada. <br>Os pães são assados no dia da entrega.
+    </div>
+    <button class="btn-prosseguir" style="margin-top: 15px;" onclick="fecharModais()">PROSSEGUIR ></button>
+</div>
+
+<!-- MODAL QUE EXIBE DETALHES DE UM PRODUTO ESPECÍFICO (INGREDIENTES, PREÇO, ADICIONAR AO CARRINHO) -->
+<div id="modalProduto" class="modal-pedido modal-scroll">
+    <div class="fechar-modal-x" onclick="fecharModais()"><i class="fas fa-times"></i></div>
+    <div id="conteudo-produto-modal"></div>
+</div>
+
+<!-- MODAL DE REVISÃO DO PEDIDO (CARRINHO DE COMPRAS) -->
+<div id="modalRevisao" class="modal-pedido">
+    <div class="fechar-modal-x" onclick="fecharModais()">
+        <i class="fas fa-times"></i>
     </div>
 
-    <div class="main-scroll">
-        <div class="container-grid" id="render-cli"></div>
-    </div>
-
-    <div id="modalFornada" class="modal-pedido" style="text-align: center;">
-        <div class="fechar-modal-x" onclick="fecharModais()"><i class="fas fa-times"></i></div>
-        <h3>Informações da Fornada</h3>
-        <div id="conteudoFornada" style="font-size: 0.95rem; line-height: 1.6; color: var(--text);"></div>
-        <div class="info-tag">
-            <i class="fas fa-info-circle"></i> Produção artesanal e limitada. <br>Os pães são assados no dia da entrega.
+    <h3>Minha Cesta</h3>
+    <!-- LISTA DE ITENS DO CARRINHO SERÁ INSERIDA AQUI DINAMICAMENTE -->
+    <div id="lista-revisao-completa"></div>
+    
+    <!-- SEÇÃO PARA APLICAÇÃO DE CUPOM DE DESCONTO -->
+    <div class="cupom-section">
+        <p>POSSUI UM CUPOM?</p>
+        <div style="display: flex; gap: 8px;">
+            <input type="text" id="inputCupom" placeholder="CÓDIGO">
+            <button onclick="aplicarCupom()" class="btn-cupom">APLICAR</button>
         </div>
-        <button class="btn-prosseguir" style="margin-top: 15px;" onclick="fecharModais()">PROSSEGUIR ></button>
+        <!-- MENSAGEM DE RETORNO DA APLICAÇÃO DO CUPOM -->
+        <div id="msgCupom"></div>
     </div>
 
-    <div id="modalProduto" class="modal-pedido modal-scroll">
-        <div class="fechar-modal-x" onclick="fecharModais()"><i class="fas fa-times"></i></div>
-        <div id="conteudo-produto-modal"></div>
-    </div>
-
-    <div id="modalRevisao" class="modal-pedido">
-        <div class="fechar-modal-x" onclick="fecharModais()"><i class="fas fa-times"></i></div>
-        <h3>Minha Cesta</h3>
-        <div id="lista-revisao-completa"></div>
-        
-        <div class="cupom-section">
-            <p>POSSUI UM CUPOM?</p>
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="inputCupom" placeholder="CÓDIGO">
-                <button onclick="aplicarCupom()" class="btn-cupom">APLICAR</button>
-            </div>
-            <div id="msgCupom"></div>
-        </div>
-
-        <div style="margin-top:20px;">
-            <p style="font-weight: bold; font-size: 0.85rem; margin-bottom: 5px;">COMO DESEJA RECEBER?</p>
-            <div class="opcao-entrega" onclick="selEntrega('Retirada', this)">Vou retirar no local</div>
-            <div class="opcao-entrega" onclick="selEntrega('Entrega', this)">
-                Entrega em domicílio
-                <div class="entrega-info-frame">
-                    <div class="aviso-taxa-entrega">
-                        <i class="fas fa-truck"></i>
-                        <div><b>Taxa de entrega:</b><br>R$ 10,00 adicionados ao total.</div>
-                    </div>
+    <!-- SELEÇÃO DO MÉTODO DE ENTREGA (RETIRADA NO LOCAL OU ENTREGA COM TAXA) -->
+    <div style="margin-top:20px;">
+        <p style="font-weight: bold; font-size: 0.85rem; margin-bottom: 5px;">COMO DESEJA RECEBER?</p>
+        <div class="opcao-entrega" onclick="selEntrega('Retirada', this)">Vou retirar no local</div>
+        <div class="opcao-entrega" onclick="selEntrega('Entrega', this)">
+            Entrega em domicílio
+            <div class="entrega-info-frame">
+                <div class="aviso-taxa-entrega">
+                    <i class="fas fa-truck"></i>
+                    <div><b>Taxa de entrega:</b><br>R$ 10,00 adicionados ao total.</div>
                 </div>
             </div>
         </div>
-
-        <div id="revisao-total-txt"></div>
-        <button class="btn-prosseguir" style="margin-top:20px; background: var(--a-brown);" onclick="fecharModais()">+ ADICIONAR MAIS ITENS +</button>
-        <button class="btn-prosseguir" style="margin-top:10px;" onclick="abrirDados()">PROSSEGUIR ></button>
     </div>
 
+    <!-- EXIBIÇÃO DO VALOR TOTAL DO PEDIDO (COM DESCONTOS E TAXAS) -->
+    <div id="revisao-total-txt"></div>
+    
+    <!-- BOTÕES PARA CONTINUAR COMPRANDO OU PROSSEGUIR PARA OS DADOS DO CLIENTE -->
+    <button class="btn-prosseguir" style="margin-top:20px; background: var(--a-brown);" onclick="fecharModais()">+ ADICIONAR MAIS ITENS +</button>
+    <button class="btn-prosseguir" style="margin-top:10px;" onclick="abrirDados()">PROSSEGUIR ></button>
+</div>
+
 <div id="modalDados" class="modal-pedido">
-        <div class="fechar-modal-x" onclick="fecharModais()"><i class="fas fa-times"></i></div>
+    <div class="fechar-modal-x" onclick="fecharModais()">
+        <i class="fas fa-times"></i>
+    </div>
+
+    <div class="modal-body">
+        <h3 style="margin-bottom: 15px;">Meus Dados</h3>
         
-        <div id="etapa-dados">
-            <h3>Seus Dados</h3>
-            <input type="text" id="nomeCli" placeholder="Nome Completo *">
-            <input type="tel" id="telCli" placeholder="WhatsApp (DDD + Número) *" maxlength="11" oninput="validarApenasNumeros(this)">
-            <input type="text" id="endCliDados" placeholder="Informe seu endereço completo *" style="display:none;">
-            
-            <button class="btn-prosseguir" onclick="prosseguirParaPagamento()">PROSSEGUIR PARA PAGAMENTO ></button>
-            <button class="btn-voltar" onclick="voltarParaRevisao()">< VOLTAR PARA CESTA</button>
+        <input type="text" id="nomeCli" placeholder="Seu Nome Completo">
+        
+        <input type="tel" id="telCli" placeholder="WhatsApp (ex: 11999999999)">
+
+        <div id="campo-endereco" style="display:none; margin-top: 10px;">
+            <p style="font-weight: bold; font-size: 0.85rem; color: var(--a-brown); margin-bottom: 5px;">ENDEREÇO PARA ENTREGA:</p>
+            <input type="text" id="endCliDados" placeholder="Ex: Rua das Flores, 123 - Bairro">
         </div>
-        
-        <div id="etapa-pagamento" style="display:none">
-            <h3>Forma de Pagamento</h3>
-            
+
+        <button class="btn-prosseguir" style="margin-top: 20px;" onclick="prosseguirParaPagamento()">ESCOLHER PAGAMENTO</button>
+        <button class="btn-voltar" onclick="abrirRevisao()">VOLTAR PARA A CESTA</button>
+    </div>
+</div>
+
+<div id="modalPagamento" class="modal-pedido">
+    <div class="fechar-modal-x" onclick="fecharModais()">
+        <i class="fas fa-times"></i>
+    </div>
+
+    <div class="modal-body" style="padding: 20px;">
+        <h3 style="margin-bottom: 15px;">Forma de Pagamento</h3>
+
         <div class="opcao-pagamento" onclick="selPgto('Pix', this)" style="border-radius: 12px; border: 2px solid #ddd; background: #f9f9f9; padding: 15px; cursor: pointer; margin-bottom: 12px;">
             <span class="selo-rec">RECOMENDADO</span>
             <span style="color: var(--p-green); font-size: 1.1rem; font-weight: bold; margin-right: 4px;">❖</span> PIX
-            
             <div class="pagamento-info-frame" style="display:none; margin-top: 15px;">
                 <div class="pix-valor-destaque" style="background: #fdf8f3; border: 1px solid var(--p-green); padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; text-align: center; color: var(--p-green);">
                     VALOR: <span id="pix-valor-txt" style="color: inherit;"></span>
                 </div>
-
                 <div class="qr-container" style="display: flex; justify-content: center; align-items: center; background: #fff; padding: 10px; border-radius: 10px; border: 1px solid #eee; width: fit-content; margin: 0 auto 15px auto;">
                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhAdMMy5OknVHvs1RNFM3tik8FXT0lwM1JmYjJmtnZJrFb46pcwkOdTMCsRA5wx3whHPeXFm_8Ql6iZCFGmoKLrQiM0lCuVDc5YFLGEwhNplENrWlYhKFGG1ONARuy8VgZR0ROpGK9MT123ng1aL69gz-rmRXGejVZqeUqDwKf81nmxOZ5RqTqJV_Lqw3g/s1000/qrcode-paodociso.png" style="width:160px;">
                 </div>
-
-                <p style="margin: 15px 0 5px 0; font-weight: bold; color: #555; font-size: 0.85rem; text-align: center;">CHAVE PIX:</p>
-
-                <div class="btn-copiar-pix" onclick="copiarChave('paodociso@gmail.com')" style="background: #fdf8f3; border: 1px solid var(--p-green); padding: 12px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <b style="color: #333;">paodociso@gmail.com</b> 
-                        <i class="far fa-copy" style="color: var(--p-green);"></i>
-                    </div>
-                </div>
-
-                
-
-                <div style="background: #ebebeb; border-radius: 8px; padding: 12px; margin-top: 15px; text-align: left; border: 1px solid #d1d1d1;">
-                    <p style="font-size: 0.75rem; color: #444; margin: 0; line-height: 1.4;">
-                        ⚠️ <b>IMPORTANTE:</b><br>
-                        Seu pedido será enviado por WhatsApp. Após enviá-lo, por favor, faça o pagamento e envie o comprovante.
-                    </p>
-                </div>
+                <p style="text-align: center; font-weight: bold; font-size: 0.85rem;">CHAVE PIX: paodociso@gmail.com</p>
             </div>
         </div>
 
         <div class="opcao-pagamento" onclick="selPgto('Cartão', this)" style="border-radius: 12px; border: 2px solid #ddd; background: #f9f9f9; padding: 15px; cursor: pointer; margin-bottom: 12px;">
             <i class="fas fa-credit-card" style="margin-right: 8px; color: #555;"></i> CARTÃO (Crédito)
-            
-            <div id="pagamento-cartao" class="pagamento-info-frame" style="display:none; font-size: 0.85rem; margin-top: 10px; color: #444; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #eee; text-align: left;">
-                <p style="margin-bottom: 10px; font-weight: bold; color: #d32f2f;">Insira os dados para pagamento online:</p>
-                
-                <input type="text" id="numCartao" placeholder="Número do Cartão" maxlength="16" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
-                
-                <input type="text" id="nomeNoCartao" placeholder="Nome conforme no cartão" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; text-transform: uppercase; box-sizing: border-box;">
-                
-                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                    <select id="cartaoMes" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                        <option value="">Mês</option>
-                        <option value="01">01</option><option value="02">02</option><option value="03">03</option>
-                        <option value="04">04</option><option value="05">05</option><option value="06">06</option>
-                        <option value="07">07</option><option value="08">08</option><option value="09">09</option>
-                        <option value="10">10</option><option value="11">11</option><option value="12">12</option>
-                    </select>
-                    
-                    <select id="cartaoAno" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                        <option value="">Ano</option>
-                        <option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option>
-                        <option value="2029">2029</option><option value="2030">2030</option><option value="2031">2031</option>
-                    </select>
-                    
-                    <input type="text" id="cvvCartao" placeholder="CVV" maxlength="3" style="width: 60px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
-                </div>
-                <p style="font-size: 0.7rem; color: #777;">* Pagamento processado via ambiente seguro.</p>
+            <div class="pagamento-info-frame" style="display:none; font-size: 0.85rem; margin-top: 10px; color: #444;">
+                <p>Pague por aproximação na entrega ou link via WhatsApp.</p>
             </div>
         </div>
 
         <div class="opcao-pagamento" onclick="selPgto('Dinheiro', this)" style="border-radius: 12px; border: 2px solid #ddd; background: #f9f9f9; padding: 15px; cursor: pointer; margin-bottom: 12px;">
             <i class="fas fa-money-bill-wave" style="margin-right: 8px; color: #555;"></i> DINHEIRO
-            <div class="pagamento-info-frame" style="display:none; font-size: 0.85rem; margin-top: 10px; color: #444; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #eee;">
+            <div class="pagamento-info-frame" style="display:none; font-size: 0.85rem; margin-top: 10px; color: #444;">
                 Pagamento em espécie na entrega.
             </div>
         </div>
-            <button class="btn-prosseguir" style="margin-top: 20px;" onclick="finalizar()">FINALIZAR PEDIDO ></button>
-            <button class="btn-voltar" onclick="voltarParaDados()">< VOLTAR PARA DADOS</button>
-        </div>
+
+        <button class="btn-prosseguir" style="margin-top: 20px;" onclick="finalizar()">FINALIZAR PEDIDO ></button>
+        <button class="btn-voltar" onclick="abrirDados()">VOLTAR PARA DADOS</button>
     </div>
+</div>
 
     <div id="modalSucesso" class="modal-pedido" style="text-align:center; display:none;">
         <i class="fas fa-spinner fa-spin" style="font-size: 3rem; color: var(--p-green); margin-bottom: 15px;"></i>
