@@ -37,23 +37,32 @@ body {
 .titulo-secao-wrapper {
     display: flex;
     align-items: center;
+    justify-content: center;
     width: 100%;
-    margin: 60px 0 35px;
+    margin: 40px 0 25px;
+    padding: 0 10px; /* Margem de segurança nas bordas da tela */
 }
 
-.linha-solida { flex-grow: 1; height: 2px; background-color: var(--borda-nav); }
+.linha-solida { 
+    flex: 1; /* Faz as linhas crescerem ou diminuírem conforme o texto */
+    height: 2px; 
+    background-color: var(--borda-nav); 
+}
 
 .titulo-secao {
-    padding: 0 25px;
+    padding: 0 15px;
     font-weight: 900;
-    font-size: 1.4rem;
+    font-size: 1.2rem; /* Reduzi um pouco para ganhar espaço */
     color: var(--marrom-detalhe);
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     text-align: center;
-    white-space: normal; /* Permite quebra de linha para não cortar no celular */
-    flex-shrink: 0;
-    position: relative;
+    
+    /* REGRAS CRÍTICAS PARA NÃO CORTAR */
+    white-space: normal;      /* Permite quebra de linha */
+    word-wrap: break-word;    /* Quebra palavras se forem gigantes */
+    max-width: 70%;           /* Garante que o texto não encoste nas bordas */
+    flex-shrink: 2;           /* Faz o texto ter prioridade sobre as linhas */
 }
 
 .titulo-secao::after {
@@ -214,24 +223,35 @@ body {
 }
 
 @media (max-width: 768px) {
-    .titulo-secao { font-size: 1.1rem; }
-    
+    /* --- Novos ajustes para o Título não cortar --- */
+    .titulo-secao {
+        font-size: 1rem;
+        padding: 0 10px;
+        max-width: 85%;
+        white-space: normal; /* Garante que quebre linha se for grande */
+    }
+
+    .linha-solida {
+        min-width: 20px;
+    }
+
+    /* --- Ajustes dos Cards (MANTENHA ESTES) --- */
     .grid-produtos { 
         grid-template-columns: repeat(2, 1fr) !important; 
         gap: 12px; 
     }
 
-    /* Esconde a descrição no celular conforme solicitado */
+    /* Esconde a descrição e o divisor no celular */
     .card-desc, .divisor-card {
         display: none !important;
     }
 
     .card {
-        min-height: auto; /* Remove a altura mínima fixa no celular */
+        min-height: auto; 
     }
 
     .card-imagem-wrapper {
-        height: 140px; /* Foto menor no celular para otimizar espaço */
+        height: 140px; 
     }
 
     .card-nome {
