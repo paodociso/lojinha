@@ -1,565 +1,403 @@
-// --- ESTADO GLOBAL ---
-let appState = {
-    carrinho: [],
-    totalItens: 0,
-    totalGeral: 0,
-    taxaEntrega: 0,
-    desconto: 0,
-    cupomAtivo: null,
-    pagamentoSel: "",
-    user: { nome: "", tel: "", entrega: "", endereco: "" },
-    ultimaMsg: "",
-    scrollPos: 0 // Armazena a posição da tela para retorno
-};
-
+// utilitários básicos
 const el = id => document.getElementById(id);
-const fmtMoeda = val => `R$ ${parseFloat(val || 0).toFixed(2)}`;
+const fmtMoeda = v => parseFloat(v).toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
 
-const fecharModais = () => {
-    document.querySelectorAll('.modal-pedido, .modal-overlay, #modalImg').forEach(m => m.style.display = 'none');
-    // Retorna o usuário para a posição exata onde ele estava no cardápio
-    window.scrollTo({ top: appState.scrollPos, behavior: 'instant' });
+// --- 1. VARIÁVEIS GLOBAIS ---
+let itemAtual = {
+    id: null,
+    sessaoIndex: null,
+    itemIndex: null,
+    qtd: 0,
+    opcionais: {} 
 };
 
-// --- RENDERIZAÇÃO INICIAL (MANTIDA) ---
-function render() {
-    const saved = localStorage.getItem('paodociso_dados');
-    if(saved) {
-        const d = JSON.parse(saved);
-        if(el('nomeCli')) el('nomeCli').value = d.nome || "";
-        if(el('telCli')) el('telCli').value = d.tel || "";
-    }
-    
-    if (typeof dadosIniciais !== 'undefined') {
-        const { secoes } = dadosIniciais;
-        el('render-cli').innerHTML = secoes.map((s, si) => {
-            
-            // Filtra itens ocultos (índice 6)
-            const itensParaExibir = s.itens.filter(i => i[6] !== true);
-            if (itensParaExibir.length === 0) return ""; 
+let cesta = {}; 
 
-            return `
-                <div class="secao-titulo">${s.nome}</div>
-                <div class="grid-produtos">
-                    ${itensParaExibir.map((i, originalIndex) => {
-                        const esgotado = i[5] === true;
-                        
-                        return `
-                        <div class="card-quadrado ${esgotado ? 'card-esgotado' : ''}" 
-                             onclick="${esgotado ? '' : `abrirDetalhes(${si}, ${originalIndex})`}">
-                            
-                            ${esgotado ? '<div class="selo-esgotado">ESGOTADO</div>' : ''}
-                            
-                            <div class="conteudo-card">
-                                <img src="${i[3]}" class="img-grid">
-                                <div class="info-grid">
-                                    <div class="nome-grid">${i[0]}</div>
-                                    <div class="preco-grid">${esgotado ? 'Indisponível' : fmtMoeda(i[2])}</div>
-                                </div>
-                            </div>
+// Adicione junto às suas globais
+let appState = {
+    formaPgto: null,
+    totalGeral: 0
+};
+
+// --- 2. INICIALIZAÇÃO ---
+window.onload = () => render();
+
+function render() {
+    const container = el('app-container');
+    if (!container) return;
+    
+    let html = "";
+    dadosIniciais.secoes.forEach((secao, sIdx) => {
+        html += `
+            <div class="titulo-secao-wrapper">
+                <div class="linha-solida"></div>
+                <h2 class="titulo-secao">${secao.nome}</h2>
+                <div class="linha-solida"></div>
+            </div>
+            <div class="grid-produtos">`;
+            
+        secao.itens.forEach((item, iIdx) => {
+            html += `
+                <div class="card" onclick="configurarProduto(${sIdx}, ${iIdx})">
+                    <img src="${item.imagem}" alt="${item.nome}">
+                    <div class="card-content">
+                        <div class="card-nome">${item.nome}</div>
+                        <hr class="divisor-card">
+                        <div class="card-desc">${item.descricao}</div>
+                        <hr class="divisor-card">
+                        <div class="card-footer">
+                            <span class="card-preco">${fmtMoeda(item.preco)}</span>
                         </div>
-                    `;}).join('')}
+                    </div>
                 </div>`;
-        }).join('');
-    }
-    atualizarTotais();
+        });
+        html += `</div>`;
+    });
+    container.innerHTML = html;
 }
 
-// --- LÓGICA DO PRODUTO (MODAL DETALHES - MANTIDA) ---
-function abrirDetalhes(secaoIdx, itemIdx) {
-    const produto = dadosIniciais.secoes[secaoIdx].itens[itemIdx];
-    const nomeSecao = dadosIniciais.secoes[secaoIdx].nome;
-    const modalConteudo = el('conteudo-produto-modal');
+// --- 3. CONTROLE DOS MODAIS ---
+
+function abrirModal(id) {
+    if(el(id)) el(id).style.display = 'block';
+    if(el('modal-overlay')) el('modal-overlay').style.display = 'block';
+}
+
+function fecharModal(id) {
+    if(el(id)) el(id).style.display = 'none';
+    if(el('modal-overlay')) el('modal-overlay').style.display = 'none';
+}
+
+function fecharModalTudo() {
+    // Certifique-se de que todos os IDs aqui batem com os do seu HTML
+    const modais = ['modalProduto', 'modalCesta', 'modalDadosDoCliente', 'modalFormaDePagamento'];
+    modais.forEach(id => { 
+        if(el(id)) el(id).style.display = 'none'; 
+    });
+    if(el('modal-overlay')) el('modal-overlay').style.display = 'none';
+}
+
+// --- 4. LÓGICA DO PRODUTO (MODAL 5.1) - VERSÃO FINAL CORRIGIDA ---
+function configurarProduto(sIdx, iIdx) {
+    const produto = dadosIniciais.secoes[sIdx].itens[iIdx];
+    
+    itemAtual = {
+        sessaoIndex: sIdx,
+        itemIndex: iIdx,
+        id: produto.id || `item-${sIdx}-${iIdx}`,
+        qtd: 0,
+        opcionais: {}
+    };
+
+    const corpo = el('corpoModalProduto');
     
     let htmlOpcionais = "";
-    if (produto[4] && produto[4].length > 0) {
-        const chaveOpcionais = "opcionais" + nomeSecao;
-        const listaPrecosOpcionais = dadosIniciais[chaveOpcionais] || [];
+    const listaOpcionais = dadosIniciais.opcionais[produto.opcionais] || [];
 
+    if (listaOpcionais.length > 0) {
         htmlOpcionais = `
-            <div class="menu-opcionais" id="menu-opc" style="display: none;">
-                <div class="titulo-opcionais" onclick="this.parentElement.classList.toggle('aberto')">
-                    Acompanhamentos / Opcionais
-                </div>
-                <div class="divisor-opcionais"></div>
-                <div class="lista-opcionais">
-                    ${produto[4].map(nomeOpc => {
-                        const dadosOpc = listaPrecosOpcionais.find(o => o[0] === nomeOpc) || [nomeOpc, "0.00"];
-                        return `
-                            <div class="linha-opcional-estilizada">
-                                <div class="nome-opcional-container">
-                                    <strong>${dadosOpc[0]}</strong><br>
-                                    <small>+ ${fmtMoeda(dadosOpc[1])}</small>
-                                </div>
-                                <div class="qty-box-opcional">
-                                    <button class="btn-q" onclick="alterarQtdOpcional(this, -1, '${produto[0]}', ${produto[2]})">-</button>
-                                    <input type="text" class="qty-val opc-qtd" data-nome="${dadosOpc[0]}" data-preco="${dadosOpc[1]}" value="0">
-                                    <button class="btn-q" onclick="alterarQtdOpcional(this, 1, '${produto[0]}', ${produto[2]})">+</button>
-                                </div>
-                            </div>`;
-                    }).join('')}
-                </div>
-            </div>`;
+            <div id="container-opcionais" style="display:none; margin-top:15px; padding:15px; border:1px solid #eee; border-radius:12px; background:#f9f9f9;">
+                <h4 style="font-size: 0.9rem; font-weight: 900; margin-bottom:10px; color:#333; text-align:center; text-transform:uppercase;">OPCIONAIS</h4>
+                <hr style="border:0; border-top:1px solid #ddd; margin-bottom:15px;">
+        `;
+        
+        listaOpcionais.forEach(opc => {
+            const idOpc = opc.nome.replace(/\s+/g, '');
+            htmlOpcionais += `
+                <div class="linha-opcional" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <div class="opc-info">
+                        <div style="font-size:1rem; font-weight:normal; color:#111;">${opc.nome}</div>
+                        <div style="font-size:0.85rem; font-weight:bold; color:var(--verde-militar);">${fmtMoeda(opc.preco)}</div>
+                    </div>
+                    <div class="opc-controles">
+                        <button type="button" class="btn-qtd-moderno" onclick="alterarQtdOpcional('${opc.nome}', ${opc.preco}, -1)">-</button>
+                        <span id="qtd-opc-${idOpc}" style="font-weight:900; min-width:25px; text-align:center; color:#111;">0</span>
+                        <button type="button" class="btn-qtd-moderno" onclick="alterarQtdOpcional('${opc.nome}', ${opc.preco}, 1)">+</button>
+                    </div>
+                </div>`;
+        });
     }
 
-    modalConteudo.innerHTML = `
-        <div style="width: 220px; height: 220px; margin: 20px auto 15px auto; background:#eee; border: 2px solid var(--nav); border-radius:12px; overflow:hidden; display:flex; align-items:center; justify-content:center; padding: 10px; box-sizing: border-box;">
-            <img src="${produto[3]}" style="width:100%; height:100%; object-fit:cover; border-radius:8px; display:block;">
-        </div>
-        <h2 style="color:var(--a-brown); font-size:1.3rem;">${produto[0]}</h2>
-        <p style="font-size:0.85rem; margin:8px 0; color:#666;">${produto[1]}</p>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin: 15px 0; padding:10px 0; border-top:1px solid #eee; border-bottom:1px solid #eee;">
-            <div class="preco-grid" style="font-size:1.4rem; margin:0;">${fmtMoeda(produto[2])}</div>
-            <div class="qty-box">
-                <button class="btn-q" onclick="alterarQtdPrincipal(-1, '${produto[0]}', ${produto[2]})">-</button>
-                <input type="text" id="qtd-principal" class="qty-val" value="0">
-                <button class="btn-q" onclick="alterarQtdPrincipal(1, '${produto[0]}', ${produto[2]})">+</button>
+    corpo.innerHTML = `
+        <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+            <div style="width: 200px; height: 200px; border: 1px solid #eee; border-radius: 12px; overflow: hidden; background: #fff; padding: 5px;">
+                <img src="${produto.imagem}" alt="${produto.nome}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
             </div>
         </div>
-        ${htmlOpcionais}
-        <div id="sub-total-frame" class="total-destaque-box" style="margin: 10px 0; font-size: 1rem; padding: 10px; display: none;">
-            Subtotal do item: R$ 0,00
+
+        <div style="padding:15px; background:#f9f9f9; border-radius:12px; border:1px solid #eee; margin-bottom:15px;">
+            <h2 style="font-size:0.95rem; font-weight:900; text-transform:uppercase; color:#000; margin:0;">${produto.nome}</h2>
+            <p style="font-size:0.85rem; color:#444; margin-top:8px; line-height:1.4; font-weight:500;">${produto.descricao}</p>
         </div>
-        <div style="margin-top: 20px;">
-            <button class="btn-prosseguir" style="background: var(--a-brown);" onclick="fecharModais()">+ ADICIONAR MAIS ITENS +</button>
-            <button id="btn-modal-prosseguir" class="btn-prosseguir" style="display: none; margin-top: 10px;" onclick="abrirRevisao()">PROSSEGUIR PARA A CESTA DE COMPRAS ></button>
-        </div>`;
 
-    // Salva a posição antes de abrir e rola para o topo
-    appState.scrollPos = window.scrollY;
-    el('modalOverlay').style.display = 'block';
-    el('modalProduto').style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function atualizarSubtotalItem(nome, precoBase) {
-    const qtdPrincipal = parseInt(el('qtd-principal').value);
-    let precoOpcionais = 0;
-    document.querySelectorAll('.opc-qtd').forEach(input => {
-        precoOpcionais += (parseFloat(input.dataset.preco) * parseInt(input.value));
-    });
-
-    const subtotal = (precoBase + precoOpcionais) * qtdPrincipal;
-    const frame = el('sub-total-frame');
-    const btnProsseguir = el('btn-modal-prosseguir');
-    
-    if (subtotal > 0) {
-        frame.innerText = `Subtotal do item: ${fmtMoeda(subtotal)}`;
-        frame.style.display = 'block';
-        btnProsseguir.style.display = 'block';
-    } else {
-        frame.style.display = 'none';
-        btnProsseguir.style.display = 'none';
-    }
-
-    appState.carrinho = appState.carrinho.filter(i => i.nome !== nome);
-    if (qtdPrincipal > 0) {
-        let opcs = [];
-        document.querySelectorAll('.opc-qtd').forEach(input => {
-            if(parseInt(input.value) > 0) {
-                opcs.push({ nome: input.dataset.nome, qtd: parseInt(input.value), preco: parseFloat(input.dataset.preco) });
-            }
-        });
-        appState.carrinho.push({ nome, preco: precoBase + precoOpcionais, qtd: qtdPrincipal, detalhes: opcs });
-    }
-    atualizarTotais();
-}
-
-function alterarQtdPrincipal(delta, nome, preco) {
-    let input = el('qtd-principal');
-    let menuOpc = el('menu-opc');
-    let novaVal = parseInt(input.value) + delta;
-    if (novaVal >= 0) {
-        input.value = novaVal;
-        
-        // Regra solicitada: Só exibe os opcionais se a quantidade for pelo menos 1
-        if (menuOpc) {
-            if (novaVal >= 1) {
-                menuOpc.style.display = 'block';
-                menuOpc.classList.add('aberto');
-            } else {
-                menuOpc.style.display = 'none';
-                menuOpc.classList.remove('aberto');
-            }
-        }
-        
-        atualizarSubtotalItem(nome, preco);
-    }
-}
-
-function alterarQtdOpcional(btn, delta, nome, preco) {
-    const input = btn.parentElement.querySelector('.opc-qtd');
-    let v = parseInt(input.value) + delta;
-    if (v >= 0) {
-        input.value = v;
-        atualizarSubtotalItem(nome, preco);
-    }
-}
-
-// --- ATUALIZAÇÃO DE TOTAIS (REVISADA COM RESUMO) ---
-function atualizarTotais() {
-    // 1. Cálculos de negócio
-    const subtotalProd = appState.carrinho.reduce((acc, item) => acc + (item.preco * item.qtd), 0);
-    appState.desconto = appState.cupomAtivo ? (subtotalProd * (appState.cupomAtivo.porcentagem / 100)) : 0;
-    appState.totalGeral = subtotalProd - appState.desconto + appState.taxaEntrega;
-    appState.totalItens = appState.carrinho.reduce((acc, item) => acc + item.qtd, 0);
-
-    // 2. Atualiza os textos da barra (IDs que estão no seu HTML)
-    const valFormatado = fmtMoeda(appState.totalGeral);
-    const qtdFormatada = `${appState.totalItens} ${appState.totalItens === 1 ? 'item' : 'itens'}`;
-
-    // Atualiza o primeiro rodapé (cesta-rodape)
-    if(el('count-txt')) el('count-txt').innerText = qtdFormatada;
-    if(el('total-txt')) el('total-txt').innerText = valFormatado;
-
-    // Atualiza o segundo rodapé (barra-carrinho)
-    if(el('carrinho-qtd-fixo')) el('carrinho-qtd-fixo').innerText = qtdFormatada;
-    if(el('carrinho-total-fixo')) el('carrinho-total-fixo').innerText = valFormatado;
-
-    // 3. LOGICA DE EXIBIÇÃO: Mostra a barra se houver itens
-    const barra = el('barra-carrinho');
-    const rodapeSimples = el('cesta-rodape');
-
-    if (appState.totalItens > 0) {
-        if(barra) barra.style.display = 'flex';
-        if(rodapeSimples) rodapeSimples.style.display = 'block';
-    } else {
-        if(barra) barra.style.display = 'none';
-        if(rodapeSimples) rodapeSimples.style.display = 'none';
-    }
-
-    // 4. Resumo financeiro dentro do Modal de Revisão
-    const resumoTotal = el('revisao-total-txt');
-    if(resumoTotal) {
-        resumoTotal.innerHTML = `
-            <div style="margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 12px; border: 1px solid #eee;">
-                <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:5px;">
-                    <span>Subtotal produtos:</span> <span>${fmtMoeda(subtotalProd)}</span>
-                </div>
-                ${appState.desconto > 0 ? `
-                <div style="display:flex; justify-content:space-between; font-size:0.9rem; color:#27ae60; margin-bottom:5px;">
-                    <span>Desconto:</span> <span>- ${fmtMoeda(appState.desconto)}</span>
-                </div>` : ''}
-                <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:5px;">
-                    <span>Taxa de entrega:</span> <span>${fmtMoeda(appState.taxaEntrega)}</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:1.1rem; font-weight:bold; margin-top:10px; padding-top:10px; border-top:2px solid #ddd; color:var(--a-brown);">
-                    <span>TOTAL:</span> <span>${valFormatado}</span>
-                </div>
-            </div>`;
-    }
-}
-
-// --- LÓGICA DO MODAL MINHA CESTA (REVISADA COM NOVOS REQUISITOS) ---
-
-function abrirRevisao() {
-    const lista = el('lista-revisao-completa');
-    if (!lista) return;
-
-    if (appState.carrinho.length === 0) {
-        lista.innerHTML = "<p style='text-align:center; padding:20px; color:#666;'>Sua cesta está vazia.</p>";
-    } else {
-        lista.innerHTML = appState.carrinho.map((item, idx) => {
-            let textoOpcionais = item.detalhes && item.detalhes.length > 0 
-                ? item.detalhes.map(o => `<div style="font-size:0.75rem; color:#888; margin-left:10px;">+ ${o.qtd}x ${o.nome}</div>`).join('')
-                : "";
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; background:#f9f9f9; border-radius:12px; border:1px solid #eee;">
+            <div style="font-size:1.4rem; font-weight:900; color:var(--verde-militar);">
+                ${fmtMoeda(produto.preco)}
+            </div>
             
-            return `
-                <div style="background:#fdf8f3; border: 1px solid #eee; border-radius:10px; padding:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                    <div style="flex:1;">
-                        <div style="color:var(--a-brown); font-weight:bold; font-size:0.95rem;">${item.qtd}x ${item.nome}</div>
-                        ${textoOpcionais}
-                        <div style="font-weight:bold; font-size:0.85rem; margin-top:4px;">${fmtMoeda(item.preco * item.qtd)}</div>
-                    </div>
-                    <button onclick="removerItem(${idx})" style="background:#ff4d4d; border:none; color:white; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.7rem; font-weight:bold; text-transform:uppercase;">
-                        Excluir
-                    </button>
-                </div>`;
-        }).join('');
-    }
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="btn-qtd-moderno" onclick="atualizarQtdPrincipal(-1)">-</button>
+                <span id="qtd-display-principal" style="font-size:1.3rem; font-weight:900; min-width:25px; text-align:center; color:#000;">0</span>
+                <button class="btn-qtd-moderno" onclick="atualizarQtdPrincipal(1)">+</button>
+            </div>
+        </div>
 
-    const btnAplicar = el('modalRevisao').querySelector('button[onclick="aplicarCupom()"]');
-    const inputCupom = el('inputCupom');
-    
-    if (btnAplicar && inputCupom) {
-        inputCupom.parentElement.style.display = "flex";
-        inputCupom.parentElement.style.alignItems = "center";
-        inputCupom.parentElement.style.gap = "8px";
-        inputCupom.style.height = "34px";
-        inputCupom.style.margin = "0";
-        inputCupom.style.flex = "1";
-        btnAplicar.style.height = "34px";
-        btnAplicar.style.width = "100px";
-        btnAplicar.style.padding = "0";
-        btnAplicar.style.margin = "0";
-        btnAplicar.style.display = "flex";
-        btnAplicar.style.alignItems = "center";
-        btnAplicar.style.justifyContent = "center";
-        btnAplicar.style.fontSize = "0.8rem";
-    }
+        ${htmlOpcionais}
 
-    const pCupom = inputCupom.parentElement.previousElementSibling;
-    if (pCupom && pCupom.tagName === "P") {
-        pCupom.style.cssText = "font-weight: bold; font-size: 0.85rem; margin-bottom: 8px;";
-    }
+        <div id="frame-subtotal" style="background:#ffeded; padding:12px; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; margin:15px 0; border:1px solid #ffcccc;">
+            <span style="font-size:0.7rem; color:#cc0000; letter-spacing:1px; font-weight:bold; text-transform:uppercase;">SUBTOTAL DO ITEM</span>
+            <span id="valor-subtotal-display" style="font-size:1.4rem; font-weight:900; color:#cc0000;">R$ 0,00</span>
+        </div>
 
-    // Gerencia o foco visual
-    appState.scrollPos = window.scrollY;
-    atualizarTotais();
-    fecharModais();
-    el('modalOverlay').style.display = 'block';
-    el('modalRevisao').style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+        <button class="btn-acao-cesta secundario" onclick="fecharModal('modalProduto')">+ ADICIONAR MAIS +</button>
+        <button class="btn-acao-cesta primario" onclick="abrirCesta()">VER CESTA DE COMPRAS ></button>
+    `;
+
+    abrirModal('modalProduto');
 }
 
-// 3. Nova função para destacar botões de recebimento
-function selEntrega(tipo, elemento) {
-    // Define a taxa
-    appState.taxaEntrega = (tipo === 'Entrega') ? 10 : 0;
+function atualizarQtdPrincipal(val) {
+    let novaQtd = itemAtual.qtd + val;
+    if (novaQtd < 0) return;
+
+    itemAtual.qtd = novaQtd;
+    el('qtd-display-principal').innerText = novaQtd;
+
+    const containerOpc = el('container-opcionais');
+    if (containerOpc) {
+        containerOpc.style.display = novaQtd > 0 ? 'block' : 'none';
+    }
+
+    sincronizarCesta();
+    recalcularSubtotal();
+}
+
+function alterarQtdOpcional(nome, preco, val) {
+    if (itemAtual.qtd === 0) return;
+    if (!itemAtual.opcionais[nome]) itemAtual.opcionais[nome] = { qtd: 0, preco: preco };
     
-    // Remove destaque de todos
-    document.querySelectorAll('#modalRevisao .opcao-entrega').forEach(opt => {
-        opt.style.border = "2px solid #eee";
-        opt.style.background = "#fff";
-        opt.style.color = "#333";
+    let novaQtd = itemAtual.opcionais[nome].qtd + val;
+    if (novaQtd < 0) return;
+
+    itemAtual.opcionais[nome].qtd = novaQtd;
+    el(`qtd-opc-${nome.replace(/\s+/g, '')}`).innerText = novaQtd;
+
+    if (itemAtual.opcionais[nome].qtd === 0) delete itemAtual.opcionais[nome];
+
+    sincronizarCesta();
+    recalcularSubtotal();
+}
+
+function recalcularSubtotal() {
+    const produto = dadosIniciais.secoes[itemAtual.sessaoIndex].itens[itemAtual.itemIndex];
+    let somaOpcionais = 0;
+    for (let k in itemAtual.opcionais) {
+        somaOpcionais += itemAtual.opcionais[k].qtd * itemAtual.opcionais[k].preco;
+    }
+    let subtotal = (produto.preco * itemAtual.qtd) + somaOpcionais;
+    el('valor-subtotal-display').innerText = fmtMoeda(subtotal);
+}
+
+// --- 5. LÓGICA DA CESTA E BARRA ---
+
+function sincronizarCesta() {
+    const chave = itemAtual.id;
+    if (itemAtual.qtd > 0) {
+        // Cria uma cópia fiel do item atual para a cesta
+        cesta[chave] = JSON.parse(JSON.stringify(itemAtual)); 
+    } else {
+        // Se a quantidade zerar, remove da cesta automaticamente
+        delete cesta[chave];
+    }
+    
+    // Atualiza a barra do carrinho (se ela existir no HTML)
+    if (typeof atualizarBarraCarrinho === "function") {
+        atualizarBarraCarrinho();
+    }
+}
+
+function atualizarBarraCarrinho() {
+    let total = 0;
+    let qtdTotal = 0;
+    
+    Object.values(cesta).forEach(item => {
+        const prod = dadosIniciais.secoes[item.sessaoIndex].itens[item.itemIndex];
+        let somaOpc = 0;
+        Object.values(item.opcionais).forEach(o => somaOpc += (o.qtd * o.preco));
+        total += (prod.preco * item.qtd) + somaOpc;
+        qtdTotal += item.qtd;
     });
 
-    // Aplica destaque no selecionado
-    elemento.style.border = "2px solid var(--a-brown)";
-    elemento.style.background = "#fdf8f3";
-    elemento.style.color = "var(--a-brown)";
-    elemento.style.fontWeight = "bold";
-
-    // Mostra/Esconde o frame de aviso de taxa se existir
-    const aviso = elemento.querySelector('.entrega-info-frame');
-    document.querySelectorAll('.entrega-info-frame').forEach(f => f.style.display = 'none');
-    if(aviso) aviso.style.display = 'block';
-
-    atualizarTotais();
-}
-
-// --- NOVAS FUNÇÕES ADICIONADAS ---
-
-function selecionarRecebimento(tipo) {
-    appState.taxaEntrega = (tipo === 'Entrega') ? 10 : 0;
-    const isE = (tipo === 'Entrega');
-    
-    // Destaque visual (Melhoria 2)
-    const btnE = el('opt-entrega');
-    const btnR = el('opt-retirada');
-    if(btnE && btnR) {
-        btnE.style.borderColor = isE ? 'var(--a-brown)' : '#eee';
-        btnE.style.background = isE ? '#fdf8f3' : '#fff';
-        btnR.style.borderColor = !isE ? 'var(--a-brown)' : '#eee';
-        btnR.style.background = !isE ? '#fdf8f3' : '#fff';
-    }
-    
-    if(el('aviso-entrega-frame')) el('aviso-entrega-frame').style.display = isE ? 'block' : 'none';
-    atualizarTotais();
-}
-
-function aplicarCupom() {
-    const cod = el('inputCupom').value.trim().toLowerCase();
-    const cupons = {'mathilde10': 10, 'mathilde15': 15, 'mathilde20': 20};
-    const msg = el('msgCupom');
-    if (cupons[cod]) {
-        appState.cupomAtivo = { nome: cod.toUpperCase(), porcentagem: cupons[cod] };
-        msg.innerText = "Cupom aplicado!";
-        msg.style.color = "green";
+    if (qtdTotal > 0) {
+        el('barra-carrinho').style.display = 'flex';
+        el('resumo-qtd').innerText = `${qtdTotal} itens`;
+        el('resumo-total').innerText = fmtMoeda(total);
     } else {
-        appState.cupomAtivo = null;
-        msg.innerText = "Cupom inválido";
-        msg.style.color = "red";
-    }
-    atualizarTotais();
-}
-
-// --- FUNÇÕES DE NAVEGAÇÃO (MANTIDAS) ---
-
-function removerItem(idx) {
-    appState.carrinho.splice(idx, 1);
-    if (appState.carrinho.length === 0) {
-        fecharModais();
-        atualizarTotais();
-    } else {
-        abrirRevisao();
-        atualizarTotais();
+        el('barra-carrinho').style.display = 'none';
     }
 }
 
-// 1. Criando a função que faltava para o botão voltar
-function voltarParaRevisao() {
-    fecharModais();
-    abrirRevisao(); 
+function abrirCesta() {
+    fecharModal('modalProduto');
+    renderizarCesta();
+    abrirModal('modalCesta');
 }
 
-function abrirDados() {
-    appState.scrollPos = window.scrollY; 
-    fecharModais();
-    
-    // Mostra o modal e o fundo escuro
-    el('modalDados').style.display = 'block';
-    el('modalOverlay').style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+function renderizarCesta() {
+    const corpoCesta = el('itensCesta');
+    const itens = Object.values(cesta);
+    let html = "";
+    let totalProdutos = 0;
 
-    // Lógica para mostrar/esconder endereço baseada na escolha da Cesta
-    // Se appState.taxaEntrega for maior que 0, significa que ele pediu entrega
-    const campoEnd = el('campo-endereco');
-    if (appState.taxaEntrega > 0) {
-        campoEnd.style.display = 'block';
-    } else {
-        campoEnd.style.display = 'none';
-    }
-}
-
-// FUNÇÃO RECURSIVA DE FLUXO
-function validarFluxoRecursivo(listaCampos) {
-    if (listaCampos.length === 0) return true; 
-
-    const campo = el(listaCampos[0]);
-    
-    if (!campo || campo.style.display === 'none') {
-        return validarFluxoRecursivo(listaCampos.slice(1));
-    }
-
-    // Dispara o evento onblur configurado na abrirDados
-    campo.focus();
-    campo.blur(); 
-
-    // Se o onblur travou o campo com borda vermelha, para a recursão
-    if (campo.style.borderColor === "red") return false; 
-
-    return validarFluxoRecursivo(listaCampos.slice(1));
-}
-
-// Transição: Fecha dados e abre pagamento
-// Valida os dados e pula para o modal de pagamento
-// Valida os dados e pula para o modal de pagamento com validações rigorosas
-function prosseguirParaPagamento() {
-    const nome = el('nomeCli').value.trim();
-    const telRaw = el('telCli').value.replace(/\D/g, ''); 
-    const end = el('endCliDados').value.trim().toUpperCase();
-    const isEntrega = (appState.taxaEntrega > 0);
-
-    const dddsValidos = [11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 24, 27, 28, 31, 32, 33, 34, 35, 37, 38, 41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 53, 54, 55, 61, 62, 63, 64, 65, 66, 67, 68, 69, 71, 73, 74, 75, 77, 79, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 94, 95, 96, 97, 98, 99];
-
-    // Validação Nome
-    if (nome.length < 3) {
-        alert("Por favor, digite seu nome completo.");
-        el('nomeCli').focus();
+    if (itens.length === 0) {
+        corpoCesta.innerHTML = `
+            <div style="text-align:center; padding:40px 20px;">
+                <p style="color:#888; font-weight:500;">Sua cesta está vazia no momento.</p>
+                <button class="btn-acao-cesta primario" style="margin-top:20px;" onclick="fecharModal('modalCesta')">VOLTAR AO CARDÁPIO</button>
+            </div>`;
         return;
     }
 
-    // Validação Telefone (DDD + 11 dígitos)
-    const ddd = parseInt(telRaw.substring(0, 2));
-    if (telRaw.length !== 11 || !dddsValidos.includes(ddd)) {
-        alert("Telefone inválido! Use DDD + 9 dígitos (ex: 11999999999).");
-        el('telCli').focus();
-        return;
-    }
+    html += `<h3 style="text-align:center; font-weight:900; text-transform:uppercase; color:var(--marrom-cafe); margin-bottom:20px; letter-spacing:1px;">Cesta de Compras</h3>`;
 
-    // Validação Endereço (se optou por entrega na cesta)
-    if (isEntrega) {
-        const regexEnd = /^(RUA|AVENIDA|PRAÇA|PRACA|ALAMEDA|ESTRADA).*\d+/;
-        if (!regexEnd.test(end)) {
-            alert("Endereço deve começar com RUA, AVENIDA ou PRAÇA e conter o NÚMERO.");
-            el('endCliDados').focus();
-            return;
+    // 1. LISTAGEM DE ITENS
+    html += `<div style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #eee; margin-bottom:15px;">`;
+    itens.forEach(item => {
+        const prod = dadosIniciais.secoes[item.sessaoIndex].itens[item.itemIndex];
+        let subtotalItem = prod.preco * item.qtd;
+        let htmlOpc = "";
+        Object.keys(item.opcionais).forEach(nome => {
+            const opc = item.opcionais[nome];
+            subtotalItem += (opc.qtd * opc.preco);
+            htmlOpc += `<div style="font-size:0.8rem; color:#666; margin-left:10px;">+ ${opc.qtd}x ${nome}</div>`;
+        });
+        totalProdutos += subtotalItem;
+        html += `
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                <div style="flex-grow:1;">
+                    <div style="font-weight:900; color:#222; font-size:0.95rem;">${item.qtd}x ${prod.nome}</div>
+                    ${htmlOpc}
+                    <div style="font-weight:bold; color:var(--verde-militar); font-size:0.9rem; margin-top:4px;">${fmtMoeda(subtotalItem)}</div>
+                </div>
+                <button onclick="removerDaCesta('${item.id}')" class="btn-qtd-moderno" style="width:28px !important; height:28px !important; font-size:1rem !important; background:#ffeded !important; color:#cc0000 !important; box-shadow:none !important;">&times;</button>
+            </div>`;
+    });
+    html += `</div>`;
+
+    // 2. CAMPO DE CUPOM
+    html += `
+        <div style="background:#f9f9f9; padding:12px; border-radius:12px; border:1px solid #eee; margin-bottom:15px; display:flex; gap:10px; align-items:center;">
+            <input type="text" id="input-cupom" placeholder="CUPOM DE DESCONTO" style="flex-grow:1; padding:10px; border-radius:8px; border:1px solid #ccc; font-size:0.8rem; font-weight:bold;">
+            <button onclick="recalcularValoresCesta()" style="background:var(--marrom-cafe); color:white; border:none; padding:10px 15px; border-radius:8px; font-weight:900; font-size:0.75rem; cursor:pointer;">APLICAR</button>
+        </div>
+    `;
+
+    // 3. OPÇÕES DE ENTREGA (Vazias por padrão)
+    html += `
+        <div style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #eee; margin-bottom:15px;">
+            <p style="font-size:0.75rem; font-weight:900; color:#444; margin-bottom:10px; text-transform:uppercase; text-align:center;">Como deseja receber seu pedido?</p>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <label style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; border:1px solid #ccc; border-radius:8px; cursor:pointer; font-weight:900; font-size:0.7rem; background:white;">
+                    <input type="radio" name="opcaoEntrega" value="entrega" onchange="recalcularValoresCesta()"> RECEBER EM CASA
+                </label>
+                <label style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; border:1px solid #ccc; border-radius:8px; cursor:pointer; font-weight:900; font-size:0.7rem; background:white;">
+                    <input type="radio" name="opcaoEntrega" value="retirada" onchange="recalcularValoresCesta()"> RETIRADA
+                </label>
+            </div>
+            
+            <div id="info-taxa-pontilhada" style="border: 2px dashed var(--borda-nav); padding: 10px; border-radius: 8px; text-align: center; font-size: 0.85rem; font-weight: bold; color: var(--marrom-detalhe); display:none;"></div>
+        </div>
+    `;
+
+    html += `
+        <div id="resumo-financeiro-cesta"></div>
+        <button class="btn-acao-cesta primario" onclick="irParaCheckout()">PROSSEGUIR PARA O PAGAMENTO ></button>
+        <button class="btn-acao-cesta secundario" onclick="fecharModal('modalCesta')">+ ADICIONAR MAIS ITENS</button>
+    `;
+
+    corpoCesta.innerHTML = html;
+    recalcularValoresCesta(); // Inicia o resumo financeiro
+}
+
+function recalcularValoresCesta() {
+    const itens = Object.values(cesta);
+    let totalProdutos = 0;
+    
+    itens.forEach(item => {
+        const prod = dadosIniciais.secoes[item.sessaoIndex].itens[item.itemIndex];
+        let subtotalItem = (prod.preco * item.qtd);
+        Object.values(item.opcionais).forEach(o => subtotalItem += (o.qtd * o.preco));
+        totalProdutos += subtotalItem;
+    });
+
+    const radioSel = document.querySelector('input[name="opcaoEntrega"]:checked');
+    const modoEntrega = radioSel ? radioSel.value : null;
+    let taxa = (modoEntrega === 'entrega') ? 10 : 0;
+
+    const cupomInput = el('input-cupom');
+    const codigoDigitado = cupomInput ? cupomInput.value.trim().toLowerCase() : "";
+    let desconto = 0;
+
+    if (codigoDigitado && dadosIniciais.cupons) {
+        const cupomEncontrado = dadosIniciais.cupons.find(c => c.codigo.toLowerCase() === codigoDigitado);
+        if (cupomEncontrado) {
+            desconto = cupomEncontrado.tipo === 'porcentagem' 
+                ? totalProdutos * (cupomEncontrado.valor / 100) 
+                : cupomEncontrado.valor;
         }
     }
 
-    // Sucesso: Salva e vai para pagamento
-    appState.user.nome = nome;
-    appState.user.tel = telRaw;
-    appState.user.endereco = isEntrega ? end : "Retirada no Local";
+    // ATUALIZA O ESTADO GLOBAL
+    appState.totalGeral = (totalProdutos - desconto) + taxa;
 
-    fecharModais();
-    el('modalPagamento').style.display = 'block';
-    el('modalOverlay').style.display = 'block';
+    // Renderiza o resumo financeiro (mantenha seu código de innerHTML aqui...)
+    renderizarResumoFinanceiro(totalProdutos, desconto, taxa, modoEntrega);
+}
+
+function removerDaCesta(id) {
+    delete cesta[id];
+    renderizarCesta();
+    atualizarBarraCarrinho();
+}
+
+function irParaCheckout() {
+    const radioSel = document.querySelector('input[name="opcaoEntrega"]:checked');
+    if(!radioSel) {
+        alert("Por favor, selecione se deseja Receber em Casa ou Retirada.");
+        return;
+    }
+
+    const modo = radioSel.value;
     
-    if(el('pix-valor-txt')) el('pix-valor-txt').innerText = fmtMoeda(appState.totalGeral);
-}
-
-// 2. Função auxiliar para garantir que só entrem números (caso não tenha)
-function validarApenasNumeros(input) {
-    input.value = input.value.replace(/\D/g, '');
-}
-
-// Seleção da Forma de Pagamento
-function selPgto(tipo, elemento) {
-    appState.formaPgto = tipo; // Define se é 'Pix', 'Cartão', etc.
-
-    // 1. Limpa o visual de todos os botões
-    document.querySelectorAll('.opcao-pagamento').forEach(opt => {
-        opt.style.border = "2px solid #eee";
-        opt.style.background = "#fff";
-        // Esconde todos os frames de informação (Pix, Cartão, etc)
-        const frame = opt.querySelector('.pagamento-info-frame');
-        if (frame) frame.style.display = 'none';
-    });
-
-    // 2. Destaca o botão que foi clicado
-    elemento.style.border = "2px solid var(--a-brown)";
-    elemento.style.background = "#fdf8f3";
-
-    // 3. Mostra o conteúdo específico (O formulário de cartão ou o QR Code)
-    const infoFrame = elemento.querySelector('.pagamento-info-frame');
-    if (infoFrame) {
-        infoFrame.style.display = 'block';
-    }
-
-    // 4. Se for Pix, atualiza o valor dinamicamente
-    if (tipo === 'Pix' && el('pix-valor-txt')) {
-        el('pix-valor-txt').innerText = fmtMoeda(appState.totalGeral);
-    }
-}
-
-function copiarPix() {
-    const texto = "paodociso@gmail.com";
+    // Agora mostramos/escondemos o "wrapper-endereco" que contém o label e o input
+    el('wrapper-endereco').style.display = (modo === 'retirada') ? 'none' : 'block';
     
-    navigator.clipboard.writeText(texto).then(() => {
-        exibirFeedbackCopia();
-    }).catch(err => {
-        // Fallback para navegadores antigos ou bloqueios
-        const input = document.createElement("input");
-        input.value = texto;
-        document.body.appendChild(input);
-        input.select();
-        document.execCommand("copy");
-        document.body.removeChild(input);
-        exibirFeedbackCopia();
-    });
+    fecharModal('modalCesta');
+    abrirModal('modalDadosDoCliente');
 }
 
-function exibirFeedbackCopia() {
-    const aviso = el('aviso-copiado');
-    if (aviso) {
-        aviso.style.display = 'block';
-        // Esconde o aviso sozinho depois de 3 segundos
-        setTimeout(() => {
-            aviso.style.display = 'none';
-        }, 3000);
-    }
-}
+// 1. ESSA FUNÇÃO ENVIA PARA O GOOGLE (Adicione ao final do seu JS)
+function salvarPedidoNaPlanilha(metodoPagamento) {
+    const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbxnbNO1lc24JMIeEAOjS1tCUaYEGjTXuIKxH-FEvUxlRuVb5ov78j-_tDk_W77QgcVCRw/exec"; 
 
-// Voltar da etapa de Pagamento para Dados
-function voltarParaDados() {
-    fecharModais();
-    abrirDados();
-}
-
-// --- FUNÇÃO PARA SALVAR NA PLANILHA (CHAMAR ANTES DO WHATSAPP) ---
-function salvarPedidoNaPlanilha() {
-    const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbwRQmndj1t99DPcI2ofgdF8ll_uWZv1gG_Bq5ZNpEuzQyJnSqd-4rNdZU32ZjFyC2QMYg/exec"; 
+    const resumoItens = Object.values(cesta).map(item => {
+        const prod = dadosIniciais.secoes[item.sessaoIndex].itens[item.itemIndex];
+        let info = `${item.qtd}x ${prod.nome}`;
+        const nomesOpc = Object.keys(item.opcionais);
+        if (nomesOpc.length > 0) {
+            info += ` (${nomesOpc.map(n => `${item.opcionais[n].qtd} ${n}`).join(', ')})`;
+        }
+        return info;
+    }).join(' | ');
 
     const dados = {
         data: new Date().toLocaleString('pt-BR'),
-        nome: el('nomeCli').value,
-        whatsapp: el('telCli').value,
-        endereco: el('endCliDados').value || "Retirada",
-        pagamento: appState.formaPgto,
+        nome: el('nomeCliente').value.trim(),
+        whatsapp: el('telefoneCliente').value.trim(),
+        endereco: el('enderecoCliente').value.trim() || "Retirada",
+        pagamento: metodoPagamento,
         total: appState.totalGeral,
-        itens: appState.carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
+        itens: resumoItens
     };
 
     fetch(URL_PLANILHA, {
@@ -567,154 +405,185 @@ function salvarPedidoNaPlanilha() {
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dados)
-    })
-    .then(() => console.log("Dados enviados para a planilha com sucesso!"))
-    .catch(err => console.error("Erro planilha:", err));
+    });
 }
 
-// --- FUNÇÃO MONTAR MENSAGEM WHATSAPP ---
-function montarMensagemWhats() {
-    let texto = `*🍞 NOVO PEDIDO - PÃO DO CISO*\n`;
-    texto += `--------------------------------\n`;
-    texto += `*Cliente:* ${el('nomeCli').value}\n`;
-    texto += `*WhatsApp:* ${el('telCli').value}\n`;
+// 3. ESSA É A QUE VOCÊ JÁ TEM, MAS GARANTA QUE ELA ESTEJA ASSIM (Com emojis)
+function enviarParaWhatsApp(metodoPagamento) {
+    const nome = el('nomeCliente').value.trim();
+    const tel = el('telefoneCliente').value.trim();
+    const endereco = el('enderecoCliente').value.trim();
+    const radioSel = document.querySelector('input[name="opcaoEntrega"]:checked');
+    const modoEntrega = radioSel ? radioSel.value : 'retirada';
+
+    // Cálculo de Taxa e Desconto para o texto
+    const taxa = (modoEntrega === 'entrega') ? 10 : 0;
     
-    // Se houver taxa de entrega, mostra endereço, senão é retirada
-    if (appState.taxaEntrega > 0) {
-        texto += `*Entrega em:* ${el('endCliDados').value}\n`;
-    } else {
-        texto += `*Forma:* Retirada no Local\n`;
+    // Recuperar valor do desconto (lógica idêntica à da cesta)
+    let desconto = 0;
+    const cupomInput = el('input-cupom');
+    const codigoDigitado = cupomInput ? cupomInput.value.trim().toLowerCase() : "";
+    if (codigoDigitado && dadosIniciais.cupons) {
+        const cupomEncontrado = dadosIniciais.cupons.find(c => c.codigo.toLowerCase() === codigoDigitado);
+        if (cupomEncontrado) {
+            // Cálculo simplificado para o texto
+            let totalProds = 0;
+            Object.values(cesta).forEach(item => {
+                const p = dadosIniciais.secoes[item.sessaoIndex].itens[item.itemIndex];
+                totalProds += (p.preco * item.qtd);
+                Object.values(item.opcionais).forEach(o => totalProds += (o.qtd * o.preco));
+            });
+            desconto = cupomEncontrado.tipo === 'porcentagem' ? totalProds * (cupomEncontrado.valor / 100) : cupomEncontrado.valor;
+        }
+    }
+
+    let texto = "🍞 *NOVO PEDIDO - PÃO DO CISO*\n";
+    texto += "--------------------------------\n";
+    texto += "👤 *Cliente:* " + nome + "\n";
+    texto += "📞 *WhatsApp:* " + tel + "\n";
+    texto += "🛵 *Entrega:* " + (modoEntrega === 'entrega' ? 'Receber em Casa' : '🏠 Retirada') + "\n";
+    
+    if (modoEntrega === 'entrega') {
+        texto += "📍 *Endereço:* " + endereco + "\n";
     }
     
-    texto += `--------------------------------\n`;
-    texto += `*ITENS DO PEDIDO:*\n`;
+    texto += "💳 *Pagamento:* " + metodoPagamento + "\n";
+    texto += "--------------------------------\n\n";
+    texto += "🛒 *ITENS DO PEDIDO:*\n";
     
-    appState.carrinho.forEach(item => {
-        texto += `• ${item.qtd}x ${item.nome} (${fmtMoeda(item.preco * item.qtd)})\n`;
-        // Adiciona opcionais se existirem
-        if (item.detalhes && item.detalhes.length > 0) {
-            item.detalhes.forEach(opc => {
-                texto += `  └ _${opc.qtd}x ${opc.nome}_\n`;
-            });
+    Object.values(cesta).forEach(item => {
+        const prod = dadosIniciais.secoes[item.sessaoIndex].itens[item.itemIndex];
+        let subtotalItem = prod.preco * item.qtd;
+        Object.values(item.opcionais).forEach(o => subtotalItem += (o.qtd * o.preco));
+        texto += "✅ *" + item.qtd + "x " + prod.nome + "* (" + fmtMoeda(subtotalItem) + ")\n";
+        Object.keys(item.opcionais).forEach(nomeOpc => {
+            const opc = item.opcionais[nomeOpc];
+            texto += "    └ " + opc.qtd + "x " + nomeOpc + "\n";
+        });
+    });
+
+    texto += "\n--------------------------------\n";
+    
+    // --- ADIÇÃO DA TAXA E DESCONTO NO TEXTO ---
+    if (taxa > 0) texto += "🛵 *Taxa de Entrega:* " + fmtMoeda(taxa) + "\n";
+    if (desconto > 0) texto += "🏷️ *Desconto Cupom:* -" + fmtMoeda(desconto) + "\n";
+    
+    texto += "💰 *TOTAL FINAL: " + fmtMoeda(appState.totalGeral) + "*\n";
+    texto += "--------------------------------\n";
+    texto += "_Pedido gerado pelo catálogo virtual_";
+
+    window.open("https://api.whatsapp.com/send?phone=5511982391781&text=" + encodeURIComponent(texto), '_blank');
+}
+function validarDadosCliente() {
+    const nome = el('nomeCliente').value.trim();
+    const tel = el('telefoneCliente').value.trim();
+    const modoRadio = document.querySelector('input[name="opcaoEntrega"]:checked');
+    
+    if (!modoRadio) {
+        alert("Selecione Entrega ou Retirada na cesta!");
+        return;
+    }
+
+    const modo = modoRadio.value;
+    const end = el('enderecoCliente').value.trim();
+
+    if (!nome || !tel) {
+        alert("Nome e WhatsApp são obrigatórios!");
+        return;
+    }
+
+    if (modo === 'entrega' && !end) {
+        alert("Informe o endereço para entrega!");
+        return;
+    }
+
+    fecharModal('modalDadosDoCliente');
+    abrirModal('modalFormaDePagamento');
+    renderizarOpcoesPagamento(); // Essa função cria os botões de Pix, Cartão, etc.
+}
+
+function selPgto(tipo, elemento) {
+    appState.formaPgto = tipo;
+
+    document.querySelectorAll('.opcao-pagamento').forEach(opt => {
+        opt.style.borderColor = "#eee";
+        opt.style.background = "#fff";
+        const frame = opt.querySelector('.pagamento-info-frame');
+        if (frame) frame.style.display = 'none';
+    });
+
+    elemento.style.borderColor = "var(--marrom-cafe)";
+    elemento.style.background = "#fdfaf7";
+    const infoFrame = elemento.querySelector('.pagamento-info-frame');
+    if (infoFrame) infoFrame.style.display = 'block';
+
+    if (tipo === 'Pix') {
+        const txtValor = el('pix-valor-txt');
+        if (txtValor) txtValor.innerText = fmtMoeda(appState.totalGeral);
+    }
+}
+
+function copiarPix() {
+    const texto = "paodociso@gmail.com";
+    navigator.clipboard.writeText(texto).then(() => {
+        const aviso = el('aviso-copiado');
+        if (aviso) {
+            aviso.style.display = 'block';
+            setTimeout(() => { aviso.style.display = 'none'; }, 2500);
         }
     });
-    
-    texto += `--------------------------------\n`;
-    
-    if (appState.desconto > 0) {
-        texto += `*Desconto:* - ${fmtMoeda(appState.desconto)}\n`;
-    }
-    
-    if (appState.taxaEntrega > 0) {
-        texto += `*Taxa de Entrega:* ${fmtMoeda(appState.taxaEntrega)}\n`;
-    }
-
-    texto += `*Pagamento:* ${appState.formaPgto}\n`;
-    texto += `*TOTAL A PAGAR: ${fmtMoeda(appState.totalGeral)}*\n`;
-    texto += `--------------------------------\n`;
-    texto += `_Pedido gerado pelo catálogo virtual_`;
-    
-    return texto;
 }
 
-// Finalizar Pedido e Redirecionar
-function finalizar() {
+
+function renderizarResumoFinanceiro(totalProdutos, desconto, taxa, modoEntrega) {
+    const container = el('resumo-financeiro-cesta');
+    const containerTaxa = el('info-taxa-pontilhada');
+    if (!container) return;
+
+    // 1. Volta a exibir o aviso da taxa (pontilhado)
+    if (containerTaxa) {
+        if (modoEntrega) {
+            containerTaxa.style.display = 'block';
+            containerTaxa.innerText = modoEntrega === 'entrega' ? "Taxa de entrega: R$ 10,00 🛵" : "Sem taxa de entrega";
+        } else {
+            containerTaxa.style.display = 'none';
+        }
+    }
+
+    const totalGeral = (totalProdutos - desconto) + taxa;
+
+    // 2. Renderiza o resumo
+    container.innerHTML = `
+        <div style="padding:5px 15px; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#666; margin-bottom:5px;">
+                <span>Produtos e Opcionais:</span>
+                <span>${fmtMoeda(totalProdutos)}</span>
+            </div>
+            ${desconto > 0 ? `
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#cc0000; margin-bottom:5px;">
+                <span>Desconto Cupom:</span>
+                <span>- ${fmtMoeda(desconto)}</span>
+            </div>` : ''}
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#666; margin-bottom:5px;">
+                <span>Taxa de Entrega:</span>
+                <span>${modoEntrega ? (taxa === 0 ? 'Grátis' : fmtMoeda(taxa)) : '--'}</span>
+            </div>
+        </div>
+        <div style="background:#ffeded; padding:15px; border-radius:12px; display:flex; flex-direction:column; align-items:center; border:1px solid #ffcccc; margin-bottom:20px;">
+            <span style="font-size:0.7rem; color:#cc0000; letter-spacing:1px; font-weight:bold; text-transform:uppercase;">TOTAL DA CESTA</span>
+            <span style="font-size:1.6rem; font-weight:900; color:#cc0000;">${fmtMoeda(totalGeral)}</span>
+        </div>
+    `;
+}
+
+// 3. O Botão chama esta (A ÚNICA)
+function finalizarPedido() {
     if (!appState.formaPgto) {
         alert("Por favor, selecione uma forma de pagamento.");
         return;
     }
 
-    // Validação de cartão removida daqui
-
-    salvarPedidoNaPlanilha();
-
-    // 1. Exibe o Modal de Sucesso
-    fecharModais();
-    el('modalOverlay').style.display = 'block';
-    el('modalSucesso').style.display = 'block';
-
-    // 2. Gerencia o elemento da contagem regressiva
-    let displayContagem = el('contagem-regressiva');
-    if (!displayContagem) {
-        displayContagem = document.createElement('div');
-        displayContagem.id = 'contagem-regressiva';
-        displayContagem.style.cssText = "font-size: 3rem; font-weight: bold; color: #5d4037; margin-top: 10px; text-align: center;";
-        el('modalSucesso').appendChild(displayContagem);
-    }
-
-    // 3. Inicia a lógica da Contagem Regressiva Visual
-    let tempoRestante = 3;
-    displayContagem.innerText = tempoRestante;
-
-    const intervalo = setInterval(() => {
-        tempoRestante--;
-        if (tempoRestante >= 0) {
-            displayContagem.innerText = tempoRestante;
-        }
-        if (tempoRestante <= 0) {
-            clearInterval(intervalo);
-        }
-    }, 1000);
-
-    // 4. Prepara a mensagem e abre o WhatsApp após os 3 segundos
-    let msg = "";
-    try {
-        msg = montarMensagemWhats();
-    } catch (e) {
-        msg = "Olá, gostaria de fazer um pedido!";
-        console.error("Erro ao montar mensagem:", e);
-    }
-
-    const foneLoja = "5511982391781";
-    const url = `https://api.whatsapp.com/send?phone=${foneLoja}&text=${encodeURIComponent(msg)}`;
-
-    setTimeout(() => {
-        const win = window.open(url, '_blank');
-        
-        if (!win || win.closed || typeof win.closed == 'undefined') {
-            window.location.href = url;
-        }
-
-        setTimeout(() => {
-            if (typeof mostrarModalPosEnvio === "function") {
-                mostrarModalPosEnvio();
-            }
-        }, 800);
-        
-    }, 3000); 
+    // Executa as duas ações
+    salvarPedidoNaPlanilha(appState.formaPgto);
+    enviarParaWhatsApp(appState.formaPgto);
 }
-
-function mostrarModalPosEnvio() {
-    fecharModais();
-    el('modalOverlay').style.display = 'block';
-    
-    // Cria o modal pós-envio caso ele não exista no HTML
-    let modalPos = el('modalPosEnvio');
-    if (!modalPos) {
-        modalPos = document.createElement('div');
-        modalPos.id = 'modalPosEnvio';
-        modalPos.className = 'modal-pedido';
-        modalPos.style.display = 'block';
-        modalPos.style.textAlign = 'center';
-        document.body.appendChild(modalPos);
-    }
-
-    modalPos.innerHTML = `
-        <h3>Pedido Enviado!</h3>
-        <p>O que deseja fazer agora?</p>
-        <button class="btn-prosseguir" onclick="reenviarWhats()" style="background:#25d366; margin-bottom:10px;">
-            <i class="fab fa-whatsapp"></i> REENVIAR PARA WHATSAPP
-        </button>
-        <button class="btn-prosseguir" onclick="location.reload()" style="background:var(--a-brown); margin-bottom:10px;">
-            FAZER NOVO PEDIDO
-        </button>
-        <button class="btn-voltar" onclick="fecharModais()">ENCERRAR</button>
-    `;
-}
-
-function reenviarWhats() {
-    const msg = montarMensagemWhats();
-    const url = `https://wa.me/5511982391781?text=${encodeURIComponent(msg)}`;
-    window.open(url, '_blank');
-}
-// fim do código

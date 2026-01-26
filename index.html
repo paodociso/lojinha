@@ -2,218 +2,203 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pão do Ciso</title>
-    <link rel="icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhQuJ4QfA-MRI3zoMZ369g2bR010Oo5zbObK9ESGcNWq2TMO197DYMjXXdICjeYi4l_8DwNCuPzpso6-M_6ED22uWkLtzU7sId9nj6KzfnvY2-oHXpKXypBYkCL4BU3P17UXbIvj_vDu1d57d5j82KSv7zv7mDdKJpncS18bn4KpKhcGjjwHEse2-CgWzQ/s320/logo2.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pão do Ciso - Cardápio</title>
     
-    <meta property="og:title" content="Pão do Ciso - Cardápio Digital">
-    <meta property="og:description" content="Faça seu pedido de pães artesanais de forma rápida e fácil.">
-    <meta property="og:image" content="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhQuJ4QfA-MRI3zoMZ369g2bR010Oo5zbObK9ESGcNWq2TMO197DYMjXXdICjeYi4l_8DwNCuPzpso6-M_6ED22uWkLtzU7sId9nj6KzfnvY2-oHXpKXypBYkCL4BU3P17UXbIvj_vDu1d57d5j82KSv7zv7mDdKJpncS18bn4KpKhcGjjwHEse2-CgWzQ/s320/logo2.png">
-    <meta property="og:type" content="website">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body onload="render()">
+<body>
 
-    <header>
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhQuJ4QfA-MRI3zoMZ369g2bR010Oo5zbObK9ESGcNWq2TMO197DYMjXXdICjeYi4l_8DwNCuPzpso6-M_6ED22uWkLtzU7sId9nj6KzfnvY2-oHXpKXypBYkCL4BU3P17UXbIvj_vDu1d57d5j82KSv7zv7mDdKJpncS18bn4KpKhcGjjwHEse2-CgWzQ/s320/logo2.png" class="logo-img" alt="Logo Pão do Ciso">
-        <div class="header-info">
-            <h1>Pão do Ciso</h1>
-            <a href="https://instagram.com/paodociso" target="_blank" class="sub-link"><i class="fab fa-instagram"></i> @paodociso</a>
-            <a href="https://wa.me/5511982391781" target="_blank" class="sub-link"><i class="fab fa-whatsapp"></i> (11) 98239-1781</a>
+    <!-- ===================== BLOCO 1: CABEÇALHO ===================== -->
+
+    <header class="main-header" style="background: var(--verde-militar); padding: 15px 20px; color: white;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; max-width: 500px; margin: 0 auto;">
+            
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhQuJ4QfA-MRI3zoMZ369g2bR010Oo5zbObK9ESGcNWq2TMO197DYMjXXdICjeYi4l_8DwNCuPzpso6-M_6ED22uWkLtzU7sId9nj6KzfnvY2-oHXpKXypBYkCL4BU3P17UXbIvj_vDu1d57d5j82KSv7zv7mDdKJpncS18bn4KpKhcGjjwHEse2-CgWzQ/s320/logo2.png" 
+                 alt="Pão do Ciso" style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); flex-shrink: 0;">
+            
+            <div style="display: flex; flex-direction: column; justify-content: center; text-align: left;">
+                <h1 style="margin: 0; font-size: 1.3rem; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 900; line-height: 1.2;">Pão do Ciso</h1>
+                
+                <div style="display: flex; flex-direction: column; gap: 3px; margin-top: 5px;">
+                    <a href="https://instagram.com/paodociso" target="_blank" style="color: white; text-decoration: none; font-size: 0.8rem; opacity: 0.8; display: flex; align-items: center; gap: 6px;">
+                        <i class="fab fa-instagram"></i> @paodociso
+                    </a>
+                    <a href="https://wa.me/5511982391781" target="_blank" style="color: white; text-decoration: none; font-size: 0.8rem; opacity: 0.8; display: flex; align-items: center; gap: 6px;">
+                        <i class="fab fa-whatsapp"></i> (11) 98239-1781
+                    </a>
+                </div>
+            </div>
         </div>
     </header>
 
-<!-- BANNER QUE EXIBE A PRÓXIMA DATA DE FORNADA E LIMITE DE PEDIDOS (CLICÁVEL PARA ABRIR MODAL) -->
-<div class="banner-fornada" onclick="abrirModalFornada()">
-    <h2 id="txt-data-fornada">PRÓXIMA FORNADA: --/--</h2>
-    <p id="txt-limite-pedido">Pedidos até --/--</p>
-</div>
-
-<!-- ÁREA PRINCIPAL DE ROLAGEM ONDE OS PRODUTOS DO CARDÁPIO SERÃO RENDERIZADOS -->
-<div class="main-scroll">
-    <div class="container-grid" id="render-cli"></div>
-</div>
-
-<!-- MODAL QUE EXIBE DETALHES DA FORNADA (DATA, HORÁRIO, INFORMAÇÕES) -->
-<div id="modalFornada" class="modal-pedido" style="text-align: center;">
-    <div class="fechar-modal-x" onclick="fecharModais()"><i class="fas fa-times"></i></div>
-    <h3>Informações da Fornada</h3>
-    <div id="conteudoFornada" style="font-size: 0.95rem; line-height: 1.6; color: var(--text);"></div>
-    <div class="info-tag">
-        <i class="fas fa-info-circle"></i> Produção artesanal e limitada. <br>Os pães são assados no dia da entrega.
-    </div>
-    <button class="btn-prosseguir" style="margin-top: 15px;" onclick="fecharModais()">PROSSEGUIR ></button>
-</div>
-
-<!-- MODAL QUE EXIBE DETALHES DE UM PRODUTO ESPECÍFICO (INGREDIENTES, PREÇO, ADICIONAR AO CARRINHO) -->
-<div id="modalProduto" class="modal-pedido modal-scroll">
-    <div class="fechar-modal-x" onclick="fecharModais()"><i class="fas fa-times"></i></div>
-    <div id="conteudo-produto-modal"></div>
-</div>
-
-<!-- MODAL DE REVISÃO DO PEDIDO (CARRINHO DE COMPRAS) -->
-<div id="modalRevisao" class="modal-pedido">
-    <div class="fechar-modal-x" onclick="fecharModais()">
-        <i class="fas fa-times"></i>
-    </div>
-
-    <h3>Minha Cesta</h3>
-    <!-- LISTA DE ITENS DO CARRINHO SERÁ INSERIDA AQUI DINAMICAMENTE -->
-    <div id="lista-revisao-completa"></div>
-    
-    <!-- SEÇÃO PARA APLICAÇÃO DE CUPOM DE DESCONTO -->
-    <div class="cupom-section">
-        <p>POSSUI UM CUPOM?</p>
-        <div style="display: flex; gap: 8px;">
-            <input type="text" id="inputCupom" placeholder="CÓDIGO">
-            <button onclick="aplicarCupom()" class="btn-cupom">APLICAR</button>
-        </div>
-        <!-- MENSAGEM DE RETORNO DA APLICAÇÃO DO CUPOM -->
-        <div id="msgCupom"></div>
-    </div>
-
-    <!-- SELEÇÃO DO MÉTODO DE ENTREGA (RETIRADA NO LOCAL OU ENTREGA COM TAXA) -->
-    <div style="margin-top:20px;">
-        <p style="font-weight: bold; font-size: 0.85rem; margin-bottom: 5px;">COMO DESEJA RECEBER?</p>
-        <div class="opcao-entrega" onclick="selEntrega('Retirada', this)">Vou retirar no local</div>
-        <div class="opcao-entrega" onclick="selEntrega('Entrega', this)">
-            Entrega em domicílio
-            <div class="entrega-info-frame">
-                <div class="aviso-taxa-entrega">
-                    <i class="fas fa-truck"></i>
-                    <div><b>Taxa de entrega:</b><br>R$ 10,00 adicionados ao total.</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- EXIBIÇÃO DO VALOR TOTAL DO PEDIDO (COM DESCONTOS E TAXAS) -->
-    <div id="revisao-total-txt"></div>
-    
-    <!-- BOTÕES PARA CONTINUAR COMPRANDO OU PROSSEGUIR PARA OS DADOS DO CLIENTE -->
-    <button class="btn-prosseguir" style="margin-top:20px; background: var(--a-brown);" onclick="fecharModais()">+ ADICIONAR MAIS ITENS +</button>
-    <button class="btn-prosseguir" style="margin-top:10px;" onclick="abrirDados()">PROSSEGUIR ></button>
-</div>
-
-<div id="modalDados" class="modal-pedido">
-    <div class="fechar-modal-x" onclick="fecharModais()">
-        <i class="fas fa-times"></i>
-    </div>
-
-    <div class="modal-body">
-        <h3 style="margin-bottom: 15px;">Meus Dados</h3>
-        
-        <input type="text" id="nomeCli" placeholder="Seu Nome Completo">
-        
-        <input type="tel" id="telCli" placeholder="WhatsApp (ex: 11999999999)">
-
-        <div id="campo-endereco" style="display:none; margin-top: 10px;">
-            <p style="font-weight: bold; font-size: 0.85rem; color: var(--a-brown); margin-bottom: 5px;">ENDEREÇO PARA ENTREGA:</p>
-            <input type="text" id="endCliDados" placeholder="Ex: Rua das Flores, 123 - Bairro">
-        </div>
-
-        <button class="btn-prosseguir" style="margin-top: 20px;" onclick="prosseguirParaPagamento()">ESCOLHER PAGAMENTO</button>
-        <button class="btn-voltar" onclick="abrirRevisao()">VOLTAR PARA A CESTA</button>
-    </div>
-</div>
-
-<div id="modalPagamento" class="modal-pedido">
-    <div class="fechar-modal-x" onclick="fecharModais()">
-        <i class="fas fa-times"></i>
-    </div>
-
-    <div class="modal-body" style="padding: 20px;">
-        <h3 style="margin-bottom: 15px;">Forma de Pagamento</h3>
-
-        <div class="opcao-pagamento" onclick="selPgto('Pix', this)" style="border-radius: 12px; border: 2px solid #ddd; background: #f9f9f9; padding: 15px; cursor: pointer; margin-bottom: 12px;">
-            <span class="selo-rec">RECOMENDADO</span>
-            <span style="color: var(--p-green); font-size: 1.1rem; font-weight: bold; margin-right: 4px;">❖</span> PIX
-            
-            <div class="pagamento-info-frame" style="display:none; margin-top: 15px;">
-                <div class="pix-valor-destaque" style="background: #fdf8f3; border: 1px solid var(--p-green); padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; text-align: center; color: var(--p-green);">
-                    VALOR: <span id="pix-valor-txt" style="color: inherit;"></span>
-                </div>
-                
-                <div class="qr-container" style="display: flex; justify-content: center; align-items: center; background: #fff; padding: 10px; border-radius: 10px; border: 1px solid #eee; width: fit-content; margin: 0 auto 15px auto;">
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhAdMMy5OknVHvs1RNFM3tik8FXT0lwM1JmYjJmtnZJrFb46pcwkOdTMCsRA5wx3whHPeXFm_8Ql6iZCFGmoKLrQiM0lCuVDc5YFLGEwhNplENrWlYhKFGG1ONARuy8VgZR0ROpGK9MT123ng1aL69gz-rmRXGejVZqeUqDwKf81nmxOZ5RqTqJV_Lqw3g/s1000/qrcode-paodociso.png" style="width:160px;">
-                </div>
-
-                <p style="text-align: center; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px;">CHAVE PIX (E-MAIL):</p>
-                <div onclick="copiarPix()" style="border: 2px dashed var(--p-green); background: #fff; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; position: relative;">
-                    <span id="chave-pix-texto" style="font-family: monospace; font-size: 1rem; color: var(--p-green);">paodociso@gmail.com</span>
-                    <span style="font-size: 1.2rem;">📋</span>
-                </div>
-
-                <div id="aviso-copiado" style="display:none; text-align: center; color: #25d366; font-size: 0.75rem; font-weight: bold; margin-top: 5px;">
-                    ✅ Chave copiada com sucesso!
-                </div>
-            </div>
-        </div>        
-        
-
-        <div class="opcao-pagamento" onclick="selPgto('Cartão', this)" style="border-radius: 12px; border: 2px solid #ddd; background: #f9f9f9; padding: 15px; cursor: pointer; margin-bottom: 12px;">
-            <i class="fas fa-credit-card" style="margin-right: 8px; color: #555;"></i> CARTÃO (Crédito)
-            <div class="pagamento-info-frame" style="display:none; font-size: 0.85rem; margin-top: 10px; color: #444;">
-                <p>Pague por aproximação na entrega ou link via WhatsApp.</p>
+        <div class="container" style="margin-top: -10px; position: relative; z-index: 10;">
+            <div class="banner-fornada" onclick="abrirModal('modalFornada')" 
+                 style="background: #f4f4f4; color: #555; text-align: center; padding: 12px; cursor: pointer; border-radius: 12px; border: 1px solid #ddd; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin: 0 15px;">
+                <h2 id="txt-data-fornada" style="margin: 0; font-size: 0.85rem; font-weight: 900; color: var(--marrom-cafe);">
+                    <i class="fas fa-calendar-alt"></i> PRÓXIMA FORNADA: 30/01
+                </h2>
+                <p id="txt-limite-pedido" style="margin: 2px 0 0 0; font-size: 0.75rem; opacity: 0.8;">Pedidos até 28/01 às 18h</p>
             </div>
         </div>
 
-        <div class="opcao-pagamento" onclick="selPgto('Dinheiro', this)" style="border-radius: 12px; border: 2px solid #ddd; background: #f9f9f9; padding: 15px; cursor: pointer; margin-bottom: 12px;">
-            <i class="fas fa-money-bill-wave" style="margin-right: 8px; color: #555;"></i> DINHEIRO
-            <div class="pagamento-info-frame" style="display:none; font-size: 0.85rem; margin-top: 10px; color: #444;">
-                Pagamento em espécie na entrega.
-            </div>
-        </div>
+    <!-- ===================== BLOCO 2: ÁREA PRINCIPAL (PRODUTOS) ===================== -->
+    <main id="app-container" class="container">
+        <!-- Área onde os produtos do cardápio serão carregados dinamicamente -->
+    </main>
 
-        <button class="btn-prosseguir" style="margin-top: 20px;" onclick="finalizar()">FINALIZAR PEDIDO ></button>
-        <button class="btn-voltar" onclick="abrirDados()">VOLTAR PARA DADOS</button>
-    </div>
-</div>
-
-    <div id="modalSucesso" class="modal-pedido" style="text-align:center; display:none;">
-        <i class="fas fa-spinner fa-spin" style="font-size: 3rem; color: var(--p-green); margin-bottom: 15px;"></i>
-        <h3>Pedido Registrado!</h3>
-        <p>Aguarde o redirecionamento para o WhatsApp...</p>
-    </div>
-
-    <div id="modalPosEnvio" class="modal-pedido" style="text-align:center; display:none;">
-        <h3>Pedido Enviado!</h3>
-        <p style="font-size: 0.9rem; margin-bottom: 20px;">O que deseja fazer agora?</p>
-        <button class="btn-prosseguir" onclick="reenviarWhats()" style="background:#25d366; margin-bottom:10px;">
-            <i class="fab fa-whatsapp"></i> REENVIAR PARA WHATSAPP
-        </button>
-        <button class="btn-prosseguir" onclick="location.reload()" style="background:var(--a-brown); margin-bottom:10px;">
-            FAZER NOVO PEDIDO
-        </button>
-        <button class="btn-voltar" onclick="fecharModais()">ENCERRAR</button>
-    </div>
-
-    <div id="modalImg" onclick="fecharModais()"><img id="imgExpandida" src=""></div>
-    <div id="modalOverlay" class="modal-overlay" onclick="fecharModais()"></div>
-
-    <div id="cesta-rodape">
-        <div class="rodape-content">
-            <div class="rodape-info">
-                <span class="item-count" id="count-txt">0 itens</span>
-                <span class="item-total" id="total-txt">R$ 0,00</span>
-            </div>
-            <button class="btn-ver-cesta" onclick="abrirRevisao()">Ver Cesta</button>
-        </div>
-    </div>
-
-    <div id="barra-carrinho" style="display: none;" onclick="abrirRevisao()">
+    <!-- ===================== BLOCO 3: BARRA FIXA DO CARRINHO ===================== -->
+    <div id="barra-carrinho" onclick="abrirCesta()" style="display: none;">
         <div class="carrinho-info-esquerda">
-            <span id="carrinho-qtd-fixo" class="qtd-cesta">0 itens</span>
-            <span id="carrinho-total-fixo" class="valor-subtotal">R$ 0,00</span>
+            <span class="qtd-cesta" id="resumo-qtd">0 itens</span>
+            <span class="valor-subtotal" id="resumo-total">R$ 0,00</span>
         </div>
         <div class="carrinho-botao-direita">
-            VER MINHA CESTA <i class="fas fa-shopping-basket"></i>
+            VER CESTA <i class="fas fa-shopping-basket"></i>
         </div>
     </div>
 
-    <script src="cardapio.js"></script>
+    <!-- ===================== BLOCO 4: OVERLAY DOS MODAIS ===================== -->
+    <div id="modal-overlay" onclick="fecharModalTudo()"></div>
+
+    <!-- ===================== BLOCO 5: CONJUNTO DE MODAIS ===================== -->
+    <!-- 
+        Este bloco contém todos os modais do sistema.
+        Cada modal representa uma etapa diferente do fluxo de pedido.
+    -->
+
+    <div id="modalFornada" class="modal">
+        <button class="btn-fechar" onclick="fecharModal('modalFornada')">&times;</button>
+        
+        <div style="padding: 20px; text-align: center;">
+            <i class="fas fa-bread-slice" style="font-size: 2.5rem; color: var(--marrom-cafe); margin-bottom: 15px;"></i>
+            
+            <h3 style="color: var(--marrom-cafe); font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Informações da Fornada</h3>
+            
+            <div id="conteudoFornada" style="font-size: 1rem; line-height: 1.6; color: #444; margin: 20px 0; text-align: left; background: #fdfdfd; padding: 15px; border-radius: 10px; border: 1px solid #eee;">
+                🥖 <b>Produção Artesanal:</b> Nossos pães são feitos com fermentação natural (Levain).<br><br>
+                ⏰ <b>Frescor:</b> Assamos tudo na manhã do dia da entrega.<br><br>
+                📦 <b>Pedidos:</b> Como nossa capacidade é limitada, encerramos as vendas assim que atingimos o limite da fornada.
+            </div>
+
+            <div style="background: #fff4e5; padding: 12px; border-radius: 8px; font-size: 0.85rem; color: #a35200; border: 1px solid #ffe3bc; margin-bottom: 20px;">
+                <i class="fas fa-clock"></i> <b>Dica:</b> Garanta o seu quanto antes!
+            </div>
+
+            <button class="btn-acao-cesta primario" onclick="fecharModal('modalFornada')">ENTENDI, VAMOS ÀS COMPRAS! ></button>
+        </div>
+    </div>
+
+    <!-- Modal 5.1: Detalhes do Produto -->
+    <div id="modalProduto" class="modal">
+        <button class="btn-fechar" onclick="fecharModal('modalProduto')">&times;</button>
+        <div id="corpoModalProduto"></div>
+    </div>
+
+    <!-- Modal 5.2: Carrinho de Compras -->
+    <div id="modalCesta" class="modal">
+        <button class="btn-fechar" onclick="fecharModal('modalCesta')">&times;</button>
+        <div id="itensCesta"></div>
+    </div>
+
+    <!-- Modal 5.3: Modal dos clientes -->
+    <div id="modalCesta" class="modal">
+        <button class="btn-fechar" onclick="fecharModal('modalCesta')">&times;</button>
+        <div id="itensCesta"></div>
+    </div>
+
+    <div id="modalDadosDoCliente" class="modal">
+        <button class="btn-fechar" onclick="fecharModal('modalDadosDoCliente')">&times;</button>
+        
+        <div id="corpoDadosCliente" style="padding: 15px;">
+            <h3 style="text-align:center; font-weight:900; text-transform:uppercase; color:var(--marrom-cafe); margin-bottom:20px; letter-spacing:1px;">Seus Dados</h3>
+            
+            <div style="display:flex; flex-direction:column; gap:15px;">
+                <div class="campo-grupo">
+                    <label style="font-size:0.75rem; font-weight:900; color:#666; display:block; margin-bottom:5px;">NOME COMPLETO *</label>
+                    <input type="text" id="nomeCliente" placeholder="Como te chamamos?" 
+                        style="width:100%; padding:14px; border-radius:10px; border:1px solid #ddd; font-size:1rem; outline:none; background:#fdfdfd; box-sizing: border-box;">
+                </div>
+
+                <div class="campo-grupo">
+                    <label style="font-size:0.75rem; font-weight:900; color:#666; display:block; margin-bottom:5px;">WHATSAPP *</label>
+                    <input type="tel" id="telefoneCliente" placeholder="(00) 00000-0000" 
+                        style="width:100%; padding:14px; border-radius:10px; border:1px solid #ddd; font-size:1rem; outline:none; background:#fdfdfd; box-sizing: border-box;">
+                </div>
+
+                <div id="wrapper-endereco" style="display:none; border-top: 1px dashed #ddd; padding-top:15px; margin-top:5px;">
+                    <label style="font-size:0.75rem; font-weight:900; color:#cc0000; display:block; margin-bottom:5px;">ENDEREÇO DE ENTREGA *</label>
+                    <input type="text" id="enderecoCliente" placeholder="Rua, número e bairro" 
+                        style="width:100%; padding:14px; border-radius:10px; border:1px solid #cc000033; font-size:1rem; outline:none; background:#fffcfc; box-sizing: border-box;">
+                </div>
+            </div>
+
+            <div style="margin-top:25px;">
+                <button class="btn-acao-cesta primario" onclick="validarDadosCliente()">ESCOLHER PAGAMENTO ></button>
+                <button class="btn-acao-cesta secundario" style="margin-top:10px; border:none; background:transparent; color:#888; cursor:pointer;" onclick="fecharModal('modalDadosDoCliente')">Voltar à cesta</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalFormaDePagamento" class="modal">
+        <button class="btn-fechar" onclick="fecharModais()">&times;</button>
+
+        <div class="modal-body" style="padding: 20px;">
+            <h3 style="margin-bottom: 25px; color: var(--marrom-cafe); text-align: center; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Forma de Pagamento</h3>
+
+            <div class="opcao-pagamento" onclick="selPgto('Pix', this)" style="position: relative; border-radius: 12px; border: 2px solid #eee; background: #fff; padding: 15px; cursor: pointer; margin-bottom: 12px; transition: 0.3s; text-align: center;">
+                <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--verde-militar); color: white; font-size: 0.6rem; padding: 3px 10px; border-radius: 4px; font-weight: bold;">RECOMENDADO</span>
+                <div style="font-weight: 900; color: #333; font-size: 1rem;"><i class="fas fa-pix" style="color: #32bcad; margin-right: 8px;"></i> PIX</div>
+                
+                <div class="pagamento-info-frame" style="display:none; margin-top: 15px;">
+                    <div style="background: #fdf8f3; border: 1px solid var(--verde-militar); padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; color: var(--verde-militar);">
+                        TOTAL: <span id="pix-valor-txt"></span>
+                    </div>
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhAdMMy5OknVHvs1RNFM3tik8FXT0lwM1JmYjJmtnZJrFb46pcwkOdTMCsRA5wx3whHPeXFm_8Ql6iZCFGmoKLrQiM0lCuVDc5YFLGEwhNplENrWlYhKFGG1ONARuy8VgZR0ROpGK9MT123ng1aL69gz-rmRXGejVZqeUqDwKf81nmxOZ5RqTqJV_Lqw3g/s1000/qrcode-paodociso.png" style="width:160px; margin-bottom: 10px; border: 1px solid #eee; padding: 5px; border-radius: 10px;">
+                    <p style="font-weight: bold; font-size: 0.75rem; color: #666;">CLIQUE PARA COPIAR A CHAVE:</p>
+                    <div onclick="copiarPix()" style="border: 2px dashed var(--verde-militar); background: #f9fdfa; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 5px;">
+                        <span id="chave-pix-texto" style="font-family: monospace; font-size: 0.85rem; color: var(--verde-militar); font-weight: bold;">paodociso@gmail.com</span>
+                        <i class="far fa-copy" style="color: var(--verde-militar);"></i>
+                    </div>
+                    <div id="aviso-copiado" style="display:none; color: #28a745; font-size: 0.75rem; font-weight: bold; margin-top: 5px;">✅ Chave copiada!</div>
+                </div>
+            </div>
+
+            <div class="opcao-pagamento" onclick="selPgto('Cartão', this)" style="border-radius: 12px; border: 2px solid #eee; background: #fff; padding: 15px; cursor: pointer; margin-bottom: 12px; text-align: center;">
+                <div style="font-weight: 900; color: #333;"><i class="fas fa-credit-card" style="margin-right: 8px; color: #555;"></i> CARTÃO (CRÉDITO/DÉBITO)</div>
+                <div class="pagamento-info-frame" style="display:none; font-size: 0.8rem; margin-top: 10px; color: #666; border-top: 1px solid #eee; pt: 10px;">
+                    Pague por aproximação na entrega ou peça o link via WhatsApp.
+                </div>
+            </div>
+
+            <div class="opcao-pagamento" onclick="selPgto('Dinheiro', this)" style="border-radius: 12px; border: 2px solid #eee; background: #fff; padding: 15px; cursor: pointer; margin-bottom: 25px; text-align: center;">
+                <div style="font-weight: 900; color: #333;"><i class="fas fa-money-bill-wave" style="margin-right: 8px; color: #555;"></i> DINHEIRO</div>
+                <div class="pagamento-info-frame" style="display:none; font-size: 0.8rem; margin-top: 10px; color: #666; border-top: 1px solid #eee; pt: 10px;">
+                    Pagamento em espécie no ato da entrega.
+                </div>
+            </div>
+
+            <button class="btn-acao-cesta primario" style="width: 100%; height: 50px; font-size: 1rem;" onclick="finalizarPedido()">
+                FINALIZAR PEDIDO <i class="fab fa-whatsapp" style="margin-left: 8px;"></i>
+            </button>
+            
+            <button onclick="abrirModal('modalDadosDoCliente')" style="width: 100%; background: none; border: none; color: #888; margin-top: 15px; cursor: pointer; font-weight: bold; text-decoration: underline; font-size: 0.85rem;">
+                <i class="fas fa-arrow-left"></i> VOLTAR PARA MEUS DADOS
+            </button>
+        </div>
+    </div>
+
+    <!-- ===================== FIM DO BLOCO DE MODAIS ===================== -->
+
+    <!-- ===================== BLOCO 6: SCRIPTS JAVASCRIPT ===================== -->
+    <script src="dados.js"></script>
+    <!-- Provavelmente contém: dados dos produtos, categorias, preços, etc. -->
+    
     <script src="script.js"></script>
+    <!-- Provavelmente contém: lógica do carrinho, manipulação dos modais, 
+         funções de pedido, interações com usuário, etc. -->
+    <!-- ===================== FIM DO BLOCO DE SCRIPTS ===================== -->
+
 </body>
 </html>
