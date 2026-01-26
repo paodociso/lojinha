@@ -39,12 +39,17 @@ function render() {
         secao.itens.forEach((item, iIdx) => {
             html += `
                 <div class="card" onclick="configurarProduto(${sIdx}, ${iIdx})">
-                    <img src="${item.imagem}" alt="${item.nome}">
+                    <div class="card-imagem-wrapper">
+                        <img src="${item.imagem}" alt="${item.nome}">
+                    </div>
+                    
                     <div class="card-content">
                         <div class="card-nome">${item.nome}</div>
+                        
                         <hr class="divisor-card">
+                        
                         <div class="card-desc">${item.descricao}</div>
-                        <hr class="divisor-card">
+                        
                         <div class="card-footer">
                             <span class="card-preco">${fmtMoeda(item.preco)}</span>
                         </div>

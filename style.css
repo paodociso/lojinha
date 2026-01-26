@@ -8,7 +8,7 @@
     --texto: #3e2723;
     --red: #b22222;
     --branco: #ffffff;
-    --bg-container-modal: #f9f9f9; /* Cinza gelo discreto */
+    --bg-container-modal: #f9f9f9;
 }
 
 /* --- 2. CONFIGURAÇÃO GLOBAL --- */
@@ -31,7 +31,6 @@ body {
 }
 
 .logo { max-height: 80px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
-
 .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
 
 /* --- 4. TÍTULOS E GRIDS --- */
@@ -51,7 +50,9 @@ body {
     color: var(--marrom-detalhe);
     text-transform: uppercase;
     letter-spacing: 2px;
-    white-space: nowrap;
+    text-align: center;
+    white-space: normal; /* Permite quebra de linha para não cortar no celular */
+    flex-shrink: 0;
     position: relative;
 }
 
@@ -73,9 +74,6 @@ body {
     justify-content: center;
 }
 
-@media (max-width: 1100px) { .grid-produtos { grid-template-columns: repeat(3, 1fr) !important; } }
-@media (max-width: 768px) { .grid-produtos { grid-template-columns: repeat(2, 1fr) !important; gap: 12px; } }
-
 /* --- 5. CARDS DE PRODUTO --- */
 .card {
     background: var(--branco);
@@ -85,22 +83,46 @@ body {
     flex-direction: column;
     cursor: pointer;
     width: 100%;
-    max-width: 230px;
-    min-height: 460px;
     overflow: hidden;
     transition: transform 0.3s, box-shadow 0.3s;
     box-shadow: 0 3px 6px rgba(0,0,0,0.05);
 }
 
 .card:hover { transform: translateY(-8px); box-shadow: 0 12px 25px rgba(0,0,0,0.15); border-color: var(--marrom-detalhe); }
-.card img { width: 100%; height: 200px; object-fit: cover; }
-.card-content { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; text-align: center; }
-.card-nome { font-size: 0.95rem; font-weight: 900; color: var(--marrom-cafe); min-height: 2.4em; display: flex; align-items: center; justify-content: center; }
-.divisor-card { height: 1px; background: linear-gradient(to right, transparent, var(--borda-nav), transparent); border: none; margin: 10px 0; }
-.card-desc { font-size: 0.8rem; color: #666; line-height: 1.4; flex-grow: 1; }
-.card-preco { font-size: 1.1rem; font-weight: 900; color: var(--verde-militar); }
 
-/* --- 6. MODAL E INTERFACE DE COMPRA --- */
+/* Moldura para suportar qualquer tamanho de imagem */
+.card-imagem-wrapper {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: #f0f0f0;
+}
+
+.card-imagem-wrapper img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; /* Ajusta a imagem sem distorcer */
+}
+
+.card-content { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; text-align: center; }
+
+.card-nome { 
+    font-size: 0.95rem; 
+    font-weight: 900; 
+    color: var(--marrom-cafe); 
+    min-height: 2.4em; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+.divisor-card { height: 1px; background: linear-gradient(to right, transparent, var(--borda-nav), transparent); border: none; margin: 10px 0; }
+
+.card-desc { font-size: 0.8rem; color: #666; line-height: 1.4; flex-grow: 1; }
+
+.card-preco { font-size: 1.1rem; font-weight: 900; color: var(--verde-militar); margin-top: auto; }
+
+/* --- 6. MODAL E INTERFACE --- */
 #modal-overlay {
     display: none;
     position: fixed;
@@ -136,7 +158,7 @@ body {
     display: flex; align-items: center; justify-content: center;
 }
 
-/* --- 7. BOTÕES DE QUANTIDADE (CORREÇÃO DEFINITIVA) --- */
+/* --- 7. BOTÕES DE QUANTIDADE --- */
 .btn-qtd-moderno {
     width: 34px !important;
     height: 34px !important;
@@ -144,28 +166,16 @@ body {
     background-color: var(--verde-militar) !important;
     color: #ffffff !important;
     border: none !important;
-    outline: none !important;
     font-weight: 900 !important;
     font-size: 1.3rem !important;
     cursor: pointer !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 0 !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
 
-.btn-qtd-moderno:active { transform: scale(0.95); }
-
-/* Container que envolvia os botões com moldura indesejada */
-.opc-controles {
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    border: none !important;
-    background: none !important;
-    padding: 0 !important;
-}
+.opc-controles { display: flex !important; align-items: center !important; gap: 12px !important; }
 
 /* --- 8. BOTÕES DE AÇÃO E CARRINHO --- */
 .btn-acao-cesta {
@@ -196,4 +206,37 @@ body {
     z-index: 900;
     border-top: 3px solid var(--marrom-detalhe);
     cursor: pointer;
+}
+
+/* --- 9. RESPONSIVIDADE (MOBILE) --- */
+@media (max-width: 1100px) { 
+    .grid-produtos { grid-template-columns: repeat(3, 1fr) !important; } 
+}
+
+@media (max-width: 768px) {
+    .titulo-secao { font-size: 1.1rem; }
+    
+    .grid-produtos { 
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 12px; 
+    }
+
+    /* Esconde a descrição no celular conforme solicitado */
+    .card-desc, .divisor-card {
+        display: none !important;
+    }
+
+    .card {
+        min-height: auto; /* Remove a altura mínima fixa no celular */
+    }
+
+    .card-imagem-wrapper {
+        height: 140px; /* Foto menor no celular para otimizar espaço */
+    }
+
+    .card-nome {
+        font-size: 0.85rem;
+        min-height: auto;
+        margin-bottom: 5px;
+    }
 }
