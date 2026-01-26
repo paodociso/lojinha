@@ -37,19 +37,22 @@ function render() {
             <div class="grid-produtos">`;
             
         secao.itens.forEach((item, iIdx) => {
+            const idBadge = `badge-prod-${sIdx}-${iIdx}`;
+
             html += `
                 <div class="card" onclick="configurarProduto(${sIdx}, ${iIdx})">
-                    <div class="card-imagem-wrapper">
+                    <div class="card-imagem-wrapper" style="position: relative;">
+                        <div id="${idBadge}" style="display:none; position:absolute; top:10px; right:10px; background:#2e7d32; color:white; width:30px; height:30px; border-radius:50%; display:none; align-items:center; justify-content:center; font-weight:900; font-size:0.9rem; z-index:10; box-shadow:0 2px 5px rgba(0,0,0,0.3); border: 2px solid white;">
+                            0
+                        </div>
+                        
                         <img src="${item.imagem}" alt="${item.nome}">
                     </div>
                     
                     <div class="card-content">
                         <div class="card-nome">${item.nome}</div>
-                        
                         <hr class="divisor-card">
-                        
                         <div class="card-desc">${item.descricao}</div>
-                        
                         <div class="card-footer">
                             <span class="card-preco">${fmtMoeda(item.preco)}</span>
                         </div>
@@ -85,14 +88,21 @@ function fecharModalTudo() {
 // --- 4. LÓGICA DO PRODUTO (MODAL 5.1) - VERSÃO FINAL CORRIGIDA ---
 function configurarProduto(sIdx, iIdx) {
     const produto = dadosIniciais.secoes[sIdx].itens[iIdx];
+    const chave = produto.id || `item-${sIdx}-${iIdx}`;
     
-    itemAtual = {
-        sessaoIndex: sIdx,
-        itemIndex: iIdx,
-        id: produto.id || `item-${sIdx}-${iIdx}`,
-        qtd: 0,
-        opcionais: {}
-    };
+    // VERIFICAÇÃO: Se o item já existe na cesta, carrega os dados dele. 
+    // Se não existir, inicia um novo com qtd 0.
+    if (cesta[chave]) {
+        itemAtual = JSON.parse(JSON.stringify(cesta[chave]));
+    } else {
+        itemAtual = {
+            sessaoIndex: sIdx,
+            itemIndex: iIdx,
+            id: chave,
+            qtd: 0,
+            opcionais: {}
+        };
+    }
 
     const corpo = el('corpoModalProduto');
     
@@ -101,13 +111,16 @@ function configurarProduto(sIdx, iIdx) {
 
     if (listaOpcionais.length > 0) {
         htmlOpcionais = `
-            <div id="container-opcionais" style="display:none; margin-top:15px; padding:15px; border:1px solid #eee; border-radius:12px; background:#f9f9f9;">
+            <div id="container-opcionais" style="${itemAtual.qtd > 0 ? 'block' : 'none'}; margin-top:15px; padding:15px; border:1px solid #eee; border-radius:12px; background:#f9f9f9;">
                 <h4 style="font-size: 0.9rem; font-weight: 900; margin-bottom:10px; color:#333; text-align:center; text-transform:uppercase;">OPCIONAIS</h4>
                 <hr style="border:0; border-top:1px solid #ddd; margin-bottom:15px;">
         `;
         
         listaOpcionais.forEach(opc => {
             const idOpc = opc.nome.replace(/\s+/g, '');
+            // Verifica se este opcional já estava selecionado para manter a quantidade dele
+            const qtdOpcSalva = itemAtual.opcionais[opc.nome] ? itemAtual.opcionais[opc.nome].qtd : 0;
+            
             htmlOpcionais += `
                 <div class="linha-opcional" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                     <div class="opc-info">
@@ -116,14 +129,17 @@ function configurarProduto(sIdx, iIdx) {
                     </div>
                     <div class="opc-controles">
                         <button type="button" class="btn-qtd-moderno" onclick="alterarQtdOpcional('${opc.nome}', ${opc.preco}, -1)">-</button>
-                        <span id="qtd-opc-${idOpc}" style="font-weight:900; min-width:25px; text-align:center; color:#111;">0</span>
+                        <span id="qtd-opc-${idOpc}" style="font-weight:900; min-width:25px; text-align:center; color:#111;">${qtdOpcSalva}</span>
                         <button type="button" class="btn-qtd-moderno" onclick="alterarQtdOpcional('${opc.nome}', ${opc.preco}, 1)">+</button>
                     </div>
                 </div>`;
         });
+        htmlOpcionais += `</div>`;
     }
 
     corpo.innerHTML = `
+        <div id="status-adicionado" style="${itemAtual.qtd > 0 ? 'block' : 'none'}; text-align:center; background:#e8f5e9; color:#2e7d32; padding:8px; border-radius:8px; font-weight:bold; margin-bottom:10px;">✓ Item adicionado à cesta</div>
+
         <div style="display: flex; justify-content: center; margin-bottom: 20px;">
             <div style="width: 200px; height: 200px; border: 1px solid #eee; border-radius: 12px; overflow: hidden; background: #fff; padding: 5px;">
                 <img src="${produto.imagem}" alt="${produto.nome}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
@@ -142,7 +158,7 @@ function configurarProduto(sIdx, iIdx) {
             
             <div style="display:flex; align-items:center; gap:12px;">
                 <button class="btn-qtd-moderno" onclick="atualizarQtdPrincipal(-1)">-</button>
-                <span id="qtd-display-principal" style="font-size:1.3rem; font-weight:900; min-width:25px; text-align:center; color:#000;">0</span>
+                <span id="qtd-display-principal" style="font-size:1.3rem; font-weight:900; min-width:25px; text-align:center; color:#000;">${itemAtual.qtd}</span>
                 <button class="btn-qtd-moderno" onclick="atualizarQtdPrincipal(1)">+</button>
             </div>
         </div>
@@ -151,7 +167,7 @@ function configurarProduto(sIdx, iIdx) {
 
         <div id="frame-subtotal" style="background:#ffeded; padding:12px; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; margin:15px 0; border:1px solid #ffcccc;">
             <span style="font-size:0.7rem; color:#cc0000; letter-spacing:1px; font-weight:bold; text-transform:uppercase;">SUBTOTAL DO ITEM</span>
-            <span id="valor-subtotal-display" style="font-size:1.4rem; font-weight:900; color:#cc0000;">R$ 0,00</span>
+            <span id="valor-subtotal-display" style="font-size:1.4rem; font-weight:900; color:#cc0000;">${fmtMoeda(0)}</span>
         </div>
 
         <button class="btn-acao-cesta secundario" onclick="fecharModal('modalProduto')">+ ADICIONAR MAIS +</button>
@@ -159,6 +175,7 @@ function configurarProduto(sIdx, iIdx) {
     `;
 
     abrirModal('modalProduto');
+    recalcularSubtotal(); // Atualiza o subtotal assim que abre
 }
 
 function atualizarQtdPrincipal(val) {
@@ -167,6 +184,22 @@ function atualizarQtdPrincipal(val) {
 
     itemAtual.qtd = novaQtd;
     el('qtd-display-principal').innerText = novaQtd;
+
+    // 1. Notificação de texto no Modal (opcional, se quiser manter)
+    const msgStatus = el('status-adicionado');
+    if (msgStatus) msgStatus.style.display = novaQtd > 0 ? 'block' : 'none';
+
+    // 2. Atualiza o Círculo de Quantidade no Card do Produto
+    const idBadge = `badge-prod-${itemAtual.sessaoIndex}-${itemAtual.itemIndex}`;
+    const badge = el(idBadge);
+    if (badge) {
+        if (novaQtd > 0) {
+            badge.innerText = novaQtd;
+            badge.style.display = 'flex'; // Exibe como flex para centralizar o número
+        } else {
+            badge.style.display = 'none'; // Esconde se a quantidade for zero
+        }
+    }
 
     const containerOpc = el('container-opcionais');
     if (containerOpc) {
