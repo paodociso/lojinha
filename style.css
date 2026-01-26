@@ -65,17 +65,6 @@ body {
     flex-shrink: 2;           /* Faz o texto ter prioridade sobre as linhas */
 }
 
-.titulo-secao::after {
-    content: "";
-    position: absolute;
-    bottom: -8px;
-    left: 25%;
-    width: 50%;
-    height: 3px;
-    background: var(--verde-militar);
-    border-bottom: 1px solid var(--red);
-}
-
 .grid-produtos {
     display: grid !important;
     grid-template-columns: repeat(5, 1fr) !important;
