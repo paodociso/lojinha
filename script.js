@@ -90,8 +90,7 @@ function configurarProduto(sIdx, iIdx) {
     const produto = dadosIniciais.secoes[sIdx].itens[iIdx];
     const chave = produto.id || `item-${sIdx}-${iIdx}`;
     
-    // VERIFICAÇÃO: Se o item já existe na cesta, carrega os dados dele. 
-    // Se não existir, inicia um novo com qtd 0.
+    // 1. Persistência: Verifica se o item já existe na cesta para não zerar a contagem
     if (cesta[chave]) {
         itemAtual = JSON.parse(JSON.stringify(cesta[chave]));
     } else {
@@ -107,38 +106,47 @@ function configurarProduto(sIdx, iIdx) {
     const corpo = el('corpoModalProduto');
     
     let htmlOpcionais = "";
-    const listaOpcionais = dadosIniciais.opcionais[produto.opcionais] || [];
+    const listaOpcionaisGeral = dadosIniciais.opcionais[produto.opcionais] || [];
 
-    if (listaOpcionais.length > 0) {
-        htmlOpcionais = `
-            <div id="container-opcionais" style="${itemAtual.qtd > 0 ? 'block' : 'none'}; margin-top:15px; padding:15px; border:1px solid #eee; border-radius:12px; background:#f9f9f9;">
-                <h4 style="font-size: 0.9rem; font-weight: 900; margin-bottom:10px; color:#333; text-align:center; text-transform:uppercase;">OPCIONAIS</h4>
-                <hr style="border:0; border-top:1px solid #ddd; margin-bottom:15px;">
-        `;
-        
-        listaOpcionais.forEach(opc => {
-            const idOpc = opc.nome.replace(/\s+/g, '');
-            // Verifica se este opcional já estava selecionado para manter a quantidade dele
-            const qtdOpcSalva = itemAtual.opcionais[opc.nome] ? itemAtual.opcionais[opc.nome].qtd : 0;
-            
-            htmlOpcionais += `
-                <div class="linha-opcional" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <div class="opc-info">
-                        <div style="font-size:1rem; font-weight:normal; color:#111;">${opc.nome}</div>
-                        <div style="font-size:0.85rem; font-weight:bold; color:var(--verde-militar);">${fmtMoeda(opc.preco)}</div>
-                    </div>
-                    <div class="opc-controles">
-                        <button type="button" class="btn-qtd-moderno" onclick="alterarQtdOpcional('${opc.nome}', ${opc.preco}, -1)">-</button>
-                        <span id="qtd-opc-${idOpc}" style="font-weight:900; min-width:25px; text-align:center; color:#111;">${qtdOpcSalva}</span>
-                        <button type="button" class="btn-qtd-moderno" onclick="alterarQtdOpcional('${opc.nome}', ${opc.preco}, 1)">+</button>
-                    </div>
-                </div>`;
+    // 2. Lógica de Opcionais Ativos
+    if (listaOpcionaisGeral.length > 0) {
+        // Filtramos a lista geral para manter apenas o que está no array 'opcionais_ativos' do produto
+        const opcionaisParaExibir = listaOpcionaisGeral.filter(opc => {
+            return produto.opcionais_ativos && produto.opcionais_ativos.includes(opc.nome);
         });
-        htmlOpcionais += `</div>`;
+
+        // Só monta o container se houver opcionais ativos para este produto
+        if (opcionaisParaExibir.length > 0) {
+            htmlOpcionais = `
+                <div id="container-opcionais" style="display: ${itemAtual.qtd > 0 ? 'block' : 'none'}; margin-top:15px; padding:15px; border:1px solid #eee; border-radius:12px; background:#f9f9f9;">
+                    <h4 style="font-size: 0.9rem; font-weight: 900; margin-bottom:10px; color:#333; text-align:center; text-transform:uppercase;">OPCIONAIS</h4>
+                    <hr style="border:0; border-top:1px solid #ddd; margin-bottom:15px;">
+            `;
+            
+            opcionaisParaExibir.forEach(opc => {
+                const idOpc = opc.nome.replace(/\s+/g, '');
+                const qtdOpcSalva = itemAtual.opcionais[opc.nome] ? itemAtual.opcionais[opc.nome].qtd : 0;
+                
+                htmlOpcionais += `
+                    <div class="linha-opcional" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <div class="opc-info">
+                            <div style="font-size:1rem; font-weight:normal; color:#111;">${opc.nome}</div>
+                            <div style="font-size:0.85rem; font-weight:bold; color:var(--verde-militar);">${fmtMoeda(opc.preco)}</div>
+                        </div>
+                        <div class="opc-controles">
+                            <button type="button" class="btn-qtd-moderno" onclick="alterarQtdOpcional('${opc.nome}', ${opc.preco}, -1)">-</button>
+                            <span id="qtd-opc-${idOpc}" style="font-weight:900; min-width:25px; text-align:center; color:#111;">${qtdOpcSalva}</span>
+                            <button type="button" class="btn-qtd-moderno" onclick="alterarQtdOpcional('${opc.nome}', ${opc.preco}, 1)">+</button>
+                        </div>
+                    </div>`;
+            });
+            htmlOpcionais += `</div>`;
+        }
     }
 
+    // 3. Renderização do HTML do Modal
     corpo.innerHTML = `
-        <div id="status-adicionado" style="${itemAtual.qtd > 0 ? 'block' : 'none'}; text-align:center; background:#e8f5e9; color:#2e7d32; padding:8px; border-radius:8px; font-weight:bold; margin-bottom:10px;">✓ Item adicionado à cesta</div>
+        <div id="status-adicionado" style="display: ${itemAtual.qtd > 0 ? 'block' : 'none'}; text-align:center; background:#e8f5e9; color:#2e7d32; padding:8px; border-radius:8px; font-weight:bold; margin-bottom:10px;">✓ Item adicionado à cesta</div>
 
         <div style="display: flex; justify-content: center; margin-bottom: 20px;">
             <div style="width: 200px; height: 200px; border: 1px solid #eee; border-radius: 12px; overflow: hidden; background: #fff; padding: 5px;">
@@ -175,7 +183,7 @@ function configurarProduto(sIdx, iIdx) {
     `;
 
     abrirModal('modalProduto');
-    recalcularSubtotal(); // Atualiza o subtotal assim que abre
+    recalcularSubtotal();
 }
 
 function atualizarQtdPrincipal(val) {

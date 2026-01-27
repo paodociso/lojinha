@@ -2,518 +2,359 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Gestão Pão do Ciso - Painel Administrativo</title>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Cardápio - Pão do Ciso</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <script src="dados.js"></script>
     <style>
-        :root { 
-            --p-green: #2d3a27; --a-brown: #7d4f39; --bg: #f5f5f5; 
-            --white: #ffffff; --text: #333; --border: #ddd;
-            --blue-modern: #007bff;
+        :root {
+            --primary: #2d3a27;
+            --accent: #7d4f39;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); padding: 20px; color: var(--text); margin: 0; }
-        .container { max-width: 1100px; margin: 0 auto; }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; color: #333; }
         
-        header { background: var(--p-green); color: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
-
-        .nav-aba-container { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--border); margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
-        .nav-abas { display: flex; gap: 5px; }
-        .aba { padding: 12px 20px; cursor: pointer; border-radius: 8px 8px 0 0; font-weight: bold; background: #ddd; color: #666; transition: 0.2s; }
-        .aba.ativa { background: var(--white); color: var(--p-green); border: 2px solid var(--border); border-bottom: none; position: relative; top: 2px; }
-
-        .btn-baixar { background: var(--p-green); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-
-        /* AJUSTE DOS CONTROLES TOPO PARA ALINHAR À DIREITA */
-        .controles-topo { margin-bottom: 15px; display: flex; gap: 10px; justify-content: flex-start; align-items: center; }
-        .controles-topo.flex-end { justify-content: flex-end; }
+        header { background: var(--primary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); }
         
-        /* BOTÃO NOVA SEÇÃO MODERNO */
-        .btn-nova-secao {
-            background: var(--blue-modern);
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
-            font-size: 13px;
-        }
-        .btn-nova-secao:hover {
-            background: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,123,255,0.4);
-        }
+        .toolbar { background: var(--white); padding: 12px 20px; border-bottom: 1px solid #ddd; display: flex; gap: 12px; align-items: center; }
 
-        .card { background: var(--white); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; overflow: hidden; }
-        .card-header { padding: 15px 20px; background: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid #eee; }
-        .card-header:hover { background: #f9f9f9; }
-        .card-body { padding: 20px; display: none; }
-        .card.aberto .card-body { display: block; }
-        .card.aberto .icon-chevr { transform: rotate(180deg); }
-
-        .item-row { 
-            display: flex; 
-            align-items: stretch; 
-            border-bottom: 1px solid #eee; 
-            background: #fff; 
-            min-height: 120px;
-            transition: 0.2s;
-        }
-        .item-row.oculto { opacity: 0.5; background: #ebebeb; }
-
-        .acoes-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            justify-content: center;
-            padding: 10px;
-            background: #fdfdfd; 
-            border-left: 1px solid #eee;
-            min-width: 160px;
-        }
-
-        .btn-status-cmd {
-            padding: 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 10px;
-            text-transform: uppercase;
-            border: 2px solid #ddd;
-            background: white;
-            color: #666;
-        }
-
-        .btn-status-cmd.ativo-esgotado { background: #ff9800 !important; color: white !important; border-color: #e68900 !important; }
-        .btn-status-cmd.ativo-oculto { background: #9e9e9e !important; color: white !important; border-color: #757575 !important; }
-
-        .btn-acao-card { padding: 7px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; font-size: 10px; text-transform: uppercase; }
-        .btn-azul { background: #2196F3; }
-        .btn-duplicar { background: #28a745; }
-        .btn-vermelho { background: #dc3545; }
-
-        .divisor-botoes { height: 1px; background: #ddd; margin: 4px 0; }
+        main { display: grid; grid-template-columns: 320px 1fr; gap: 20px; padding: 20px; flex: 1; overflow: hidden; }
         
-        .btn-add-mini { padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; background: #e8f5e9; color: var(--p-green); border: 1px solid var(--p-green); }
+        .sidebar { overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+        .content { background: var(--white); border-radius: 12px; overflow-y: auto; padding: 25px; box-shadow: var(--shadow); }
 
-        .handle-secao { cursor: grab; color: #999; margin-right: 10px; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .modal-content h2 { margin-top: 0; color: var(--p-green); }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-        input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        .balao-opcional { padding: 6px 12px; border: 1px solid #ccc; border-radius: 20px; font-size: 12px; cursor: pointer; background: #fff; }
-        .balao-opcional.selecionado { background: var(--p-green); color: white; border-color: var(--p-green); }
-        .btn-edit { background: #eee; border: 1px solid #ccc; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-        .btn-del { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        /* Estilo dos Cards */
+        .card { background: var(--white); border-radius: 10px; border: 1px solid #e0e0e0; margin-bottom: 12px; overflow: hidden; }
+        .card-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fdfdfd; font-weight: 600; }
+        .card-body { padding: 15px; border-top: 1px solid #eee; background: #fff; }
 
+        /* Botões */
+        .btn { border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; font-size: 14px; }
+        .btn-save { background: var(--primary); color: white; }
+        .btn-save:hover { opacity: 0.9; }
+        .btn-add { background: #e8f5e9; color: #2e7d32; }
+        .btn-del { background: #ffebee; color: #c62828; }
+
+        /* Inputs */
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0 18px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        input:focus { border-color: var(--primary); outline: none; }
+
+        /* Layout do Item */
+        .item-row { display: grid; grid-template-columns: 100px 1fr 140px; gap: 20px; padding: 20px; border-bottom: 1px solid #f0f0f0; align-items: start; }
+        .img-preview-lista { width: 100px; height: 100px; border-radius: 10px; object-fit: cover; background: #eee; border: 1px solid #ddd; }
+        
+        .badge-opt { background: #f0f4f0; color: #444; padding: 4px 10px; border-radius: 6px; font-size: 11px; border: 1px solid #dce3dc; display: inline-block; margin: 2px; }
+        .badge-esgotado { background: #d32f2f; color: white; font-size: 10px; padding: 3px 8px; border-radius: 4px; margin-left: 10px; vertical-align: middle; }
+
+        /* Modal Alinhado */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal-content { background: white; padding: 30px; border-radius: 16px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        
+        .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .full-span { grid-column: span 2; }
+
+        .opc-container-modal { background: #f9f9f9; border: 1px solid #eee; border-radius: 10px; padding: 15px; max-height: 250px; overflow-y: auto; }
+        .opc-row-check { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; }
+        .opc-row-check:hover { background: #f0f4f0; }
+        .opc-row-check input { width: auto; margin: 0; height: 18px; width: 18px; }
+
+        #json-viewer { position: fixed; right: -100%; top: 0; width: 450px; height: 100%; background: #1e1e1e; color: #75beff; padding: 25px; transition: 0.4s; z-index: 2000; box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
+        #json-viewer.active { right: 0; }
+        pre { background: #252526; padding: 15px; border-radius: 8px; overflow: auto; height: 80%; font-size: 12px; color: #d4d4d4; border: 1px solid #333; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>Gestão Pão do Ciso - Painel Administrativo</h1>
-        <div id="subtitulo-arquivo" style="font-size: 0.9em; opacity: 0.8; margin-top: 10px; font-weight: normal;">
-            <i class="fas fa-file-code"></i> Arquivo: <span id="caminho-arquivo" style="color: #FFD700; cursor: pointer; text-decoration: underline;" onclick="definirCaminho()">Clique para configurar o endereço completo do cardapio.js</span>
-        </div>
-    </header>
-
-    <div class="nav-aba-container">
-        <div class="nav-abas">
-            <div class="aba ativa" id="aba-cardapio" onclick="mudarAba('cardapio')">PRODUTOS</div>
-            <div class="aba" id="aba-opcionais" onclick="mudarAba('opcionais')">TABELAS DE OPCIONAIS</div>
-            <div class="aba" id="aba-secoes" onclick="mudarAba('secoes')">GERENCIAR SEÇÕES</div>
-        </div>
-        <button class="btn-baixar" onclick="baixar()"><i class="fas fa-download"></i> baixar cardapio.js</button>
+<header>
+    <div style="display:flex; align-items:center; gap:12px;">
+        <i class="fas fa-store"></i>
+        <h1 style="margin:0; font-size: 1.3rem;">Editor Pão do Ciso</h1>
     </div>
-
-    <div id="conteudo-cardapio">
-        <div class="controles-topo flex-end">
-            <button class="btn" style="margin-right:auto" onclick="toggleTodos(true, 'lista-secoes')">Expandir Todos</button>
-            <button class="btn" style="margin-right:10px" onclick="toggleTodos(false, 'lista-secoes')">Recolher Todos</button>
-            <button class="btn-nova-secao" onclick="abrirModalSecao()"><i class="fas fa-plus"></i> Nova Seção</button>
-        </div>
-        <div id="lista-secoes"></div>
+    <div style="display:flex; gap:12px;">
+        <button class="btn btn-save" style="background:#444;" onclick="toggleJSON()"><i class="fas fa-code"></i> VER JSON</button>
+        <button class="btn btn-save" onclick="baixarArquivo()"><i class="fas fa-download"></i> BAIXAR DADOS.JS</button>
     </div>
+</header>
 
-    <div id="conteudo-opcionais" style="display:none;">
-        <div class="controles-topo">
-            <button class="btn" onclick="toggleTodos(true, 'lista-precos-opcionais')">Expandir Todos</button>
-            <button class="btn" onclick="toggleTodos(false, 'lista-precos-opcionais')">Recolher Todos</button>
-        </div>
-        <div id="lista-precos-opcionais"></div>
-    </div>
-
-    <div id="conteudo-secoes" style="display:none;">
-        <div class="controles-topo flex-end">
-            <button class="btn-nova-secao" onclick="abrirModalSecao()"><i class="fas fa-plus"></i> Nova Seção</button>
-        </div>
-        <div id="lista-gerenciamento-secoes"></div>
-    </div>
+<div class="toolbar">
+    <button class="btn btn-add" onclick="novaSecao()"><i class="fas fa-plus"></i> Nova Seção</button>
+    <button class="btn btn-add" onclick="novoCupom()"><i class="fas fa-ticket-alt"></i> Novo Cupom</button>
 </div>
 
-<div id="modal-secao" class="modal">
-    <div class="modal-content">
-        <h3 id="titulo-modal-secao">Nova Seção</h3>
-        <input type="hidden" id="secao-indice">
-        <input type="text" id="campo-nome-secao" placeholder="Nome da seção...">
-        <div style="text-align:right; margin-top:15px;">
-            <button class="btn" onclick="fecharModais()">Cancelar</button>
-            <button class="btn" style="background:var(--p-green); color:white;" onclick="salvarSecao()">Salvar</button>
-        </div>
+<main>
+    <aside class="sidebar">
+        <section>
+            <h3 style="margin-top:0;"><i class="fas fa-list"></i> Tabelas de Opcionais</h3>
+            <div id="render-opcionais"></div>
+            <button class="btn btn-add" style="width:100%" onclick="novaTabelaOpcional()">+ Criar Nova Tabela</button>
+        </section>
+
+        <section>
+            <h3><i class="fas fa-percent"></i> Cupons Ativos</h3>
+            <div id="render-cupons"></div>
+        </section>
+    </aside>
+
+    <div class="content">
+        <h2 style="margin-top:0;">Itens do Cardápio</h2>
+        <div id="render-cardapio"></div>
     </div>
-</div>
+</main>
 
 <div id="modal-item" class="modal">
     <div class="modal-content">
-        <h3>Dados do Produto</h3>
-        <input type="hidden" id="item-indice-secao">
-        <input type="hidden" id="item-indice-item">
-        <label style="font-size: 11px; color: #666; font-weight: bold;">SEÇÃO:</label>
-        <input type="text" id="campo-secao-item" readonly style="background: #f0f0f0; color: #666; cursor: not-allowed; border: 1px solid #ddd; margin-bottom: 10px;">
-        <input type="text" id="campo-nome-item" placeholder="Nome">
-        <textarea id="campo-descricao-item" placeholder="Descrição"></textarea>
-        <input type="number" id="campo-valor-item" step="0.01" placeholder="Preço (ex: 25.00)">
-        <div style="display: flex; gap: 5px; align-items: center;">
-            <input type="text" id="campo-imagem-item" placeholder="URL da Imagem" style="margin: 0; flex: 1;">
-            <button class="btn" onclick="buscarImagem()" style="background: #e3f2fd; color: #1565c0; white-space: nowrap; height: 38px;">
-                <i class="fas fa-search"></i> Google
-            </button>
+        <h2 style="margin-top:0; color:var(--primary); border-bottom: 2px solid #eee; padding-bottom:10px;">Editar Produto</h2>
+        
+        <input type="hidden" id="edit-s-idx">
+        <input type="hidden" id="edit-i-idx">
+
+        <div class="modal-grid">
+            <div class="full-span">
+                <label style="font-size:12px; font-weight:bold;">Nome do Produto</label>
+                <input type="text" id="in-nome" placeholder="Ex: Pão Italiano">
+            </div>
+            
+            <div class="full-span">
+                <label style="font-size:12px; font-weight:bold;">Descrição Curta</label>
+                <textarea id="in-desc" rows="2" placeholder="Descreva os ingredientes..."></textarea>
+            </div>
+
+            <div>
+                <label style="font-size:12px; font-weight:bold;">Preço Base (R$)</label>
+                <input type="number" step="0.01" id="in-preco">
+            </div>
+
+            <div>
+                <label style="font-size:12px; font-weight:bold;">Vínculo de Opcionais</label>
+                <input type="text" id="in-vinculo" readonly style="background:#f5f5f5;">
+            </div>
+
+            <div class="full-span">
+                <label style="font-size:12px; font-weight:bold;">URL da Imagem</label>
+                <input type="text" id="in-img" placeholder="https://...">
+            </div>
         </div>
-        <div id="render-opcionais-selecao" style="display:flex; flex-wrap:wrap; gap:5px; margin-top:15px; border: 1px dashed #ccc; padding: 10px; border-radius: 8px;"></div>
-        <div style="text-align:right; margin-top:20px;">
-            <button class="btn" onclick="fecharModais()">Cancelar</button>
-            <button class="btn" style="background:var(--p-green); color:white;" onclick="salvarItem()">Confirmar</button>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display:flex; align-items:center; gap:10px; color: #c62828; font-weight:bold; cursor:pointer;">
+                <input type="checkbox" id="in-esgotado" style="width:20px; height:20px;"> PRODUTO ESGOTADO
+            </label>
+        </div>
+
+        <label style="font-size:12px; font-weight:bold; color:var(--primary);">SELECIONE OS OPCIONAIS DISPONÍVEIS:</label>
+        <div id="modal-lista-opcionais" class="opc-container-modal"></div>
+
+        <div style="display:flex; justify-content: flex-end; gap:12px; margin-top:25px; border-top:1px solid #eee; padding-top:20px;">
+            <button class="btn" onclick="fecharModal()">Cancelar</button>
+            <button class="btn btn-save" onclick="salvarItem()">Salvar Alterações</button>
         </div>
     </div>
 </div>
 
-<div id="modal-opcional-direto" class="modal">
-    <div class="modal-content">
-        <h3>Adicionar Opcional</h3>
-        <input type="hidden" id="opc-direto-key">
-        <label>Nome do Opcional:</label>
-        <input type="text" id="campo-nome-opc-direto" placeholder="Ex: Queijo Extra">
-        <label>Valor (R$):</label>
-        <input type="number" id="campo-valor-opc-direto" step="0.01" value="0.00">
-        <div class="modal-footer">
-            <button class="btn" onclick="fecharModais()">Cancelar</button>
-            <button class="btn" style="background:var(--p-green); color:white;" onclick="confirmarOpcionalDireto()">Salvar Opcional</button>
-        </div>
+<div id="json-viewer">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="margin:0; color:white;">dados.js atualizado</h3>
+        <button class="btn btn-del" onclick="toggleJSON()">Fechar</button>
     </div>
+    <pre id="json-content"></pre>
 </div>
 
-<script id="script-cardapio" src="cardapio.js"></script>
 <script>
-let db = { secoes: [] };
-let primeiraCarga = true;
+    // Inicializa o banco de dados a partir do arquivo dados.js
+    let db = typeof dadosIniciais !== 'undefined' ? JSON.parse(JSON.stringify(dadosIniciais)) : { cupons: [], opcionais: {}, secoes: [] };
 
-window.onload = () => {
-    if (typeof dadosIniciais !== 'undefined') db = JSON.parse(JSON.stringify(dadosIniciais));
-    renderizarTudo();
-    primeiraCarga = false;
-    carregarCaminhoSalvo();
-};
-
-function carregarCaminhoSalvo() {
-    const salvo = localStorage.getItem('caminhoCardapio');
-    if (salvo) document.getElementById('caminho-arquivo').innerText = salvo;
-}
-
-function definirCaminho() {
-    const novo = prompt("Cole o caminho completo do arquivo cardapio.js:");
-    if (novo) {
-        localStorage.setItem('caminhoCardapio', novo);
-        document.getElementById('caminho-arquivo').innerText = novo;
+    function init() {
+        renderTudo();
     }
-}
 
-function encontrarChaveOpcional(nomeSecao) {
-    let tentativa1 = "opcionais" + nomeSecao;
-    if (db[tentativa1]) return tentativa1;
-    let tentativa2 = "opcionais" + nomeSecao.replace(/\s/g, '');
-    if (db[tentativa2]) return tentativa2;
-    let tentativa3 = "opcionais" + nomeSecao.normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
-    if (db[tentativa3]) return tentativa3;
-    return tentativa1;
-}
+    function renderTudo() {
+        renderOpcionais();
+        renderCupons();
+        renderCardapio();
+        document.getElementById('json-content').textContent = `const dadosIniciais = ${JSON.stringify(db, null, 2)};`;
+    }
 
-function mudarAba(aba) {
-    document.querySelectorAll('.aba').forEach(a => a.classList.remove('ativa'));
-    document.getElementById(`aba-${aba}`).classList.add('ativa');
-    document.getElementById('conteudo-cardapio').style.display = 'none';
-    document.getElementById('conteudo-opcionais').style.display = 'none';
-    document.getElementById('conteudo-secoes').style.display = 'none';
-    document.getElementById(`conteudo-${aba}`).style.display = 'block';
-    renderizarTudo();
-}
+    // --- RENDERIZAÇÃO ---
 
-function toggleTodos(abrir, containerId) {
-    const container = document.getElementById(containerId);
-    if(container) container.querySelectorAll('.card').forEach(c => abrir ? c.classList.add('aberto') : c.classList.remove('aberto'));
-}
+    function renderOpcionais() {
+        const container = document.getElementById('render-opcionais');
+        container.innerHTML = Object.keys(db.opcionais).map(titulo => `
+            <div class="card">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <span>${titulo}</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="card-body" style="display:none">
+                    ${db.opcionais[titulo].map((op, idx) => `
+                        <div style="display:flex; gap:5px; margin-bottom:8px;">
+                            <input type="text" value="${op.nome}" onchange="db.opcionais['${titulo}'][${idx}].nome = this.value; renderTudo();" style="margin:0; padding:5px;">
+                            <input type="number" value="${op.preco}" onchange="db.opcionais['${titulo}'][${idx}].preco = parseFloat(this.value);" style="width:70px; margin:0; padding:5px;">
+                            <button onclick="removerOp('${titulo}', ${idx})" class="btn-del" style="padding:5px 10px;"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `).join('')}
+                    <button class="btn btn-add" style="width:100%; font-size:12px;" onclick="addLinhaOp('${titulo}')">+ Item</button>
+                </div>
+            </div>
+        `).join('');
+    }
 
-function toggleCard(el) { 
-    const card = el.closest('.card');
-    card.classList.toggle('aberto'); 
-}
-
-function fecharModais() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
-
-function renderizarTudo() {
-    renderSecoes();
-    renderOpcionaisPrecos();
-    renderGerenciamentoSecoes();
-}
-
-function renderGerenciamentoSecoes() {
-    const container = document.getElementById('lista-gerenciamento-secoes');
-    if (!container) return;
-    
-    container.innerHTML = db.secoes.map((s, sIdx) => {
-        const keyOpc = encontrarChaveOpcional(s.nome);
-        const opcionaisDaSecao = db[keyOpc] || [];
-
-        return `
-        <div class="card aberto" style="margin-bottom: 15px; border: 1px solid var(--border); border-radius:12px; background: white;">
-            <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee;">
+    function renderCardapio() {
+        const container = document.getElementById('render-cardapio');
+        container.innerHTML = db.secoes.map((secao, sIdx) => `
+            <div style="margin-bottom:40px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--primary); padding-bottom:8px; margin-bottom:15px;">
+                    <h2 style="margin:0; color:var(--primary);">${secao.nome}</h2>
+                    <div>
+                        <button class="btn btn-add" onclick="abrirModal(${sIdx}, -1)">+ Novo Produto</button>
+                        <button class="btn btn-del" onclick="removerSecao(${sIdx})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
                 <div>
-                    <strong style="font-size: 18px; color: var(--p-green);">${s.nome}</strong><br>
-                    <small style="color: #666;">${s.itens.length} produtos | Tabela: ${keyOpc}</small>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-add-mini" onclick="abrirModalOpcionalDireto('${keyOpc}')">
-                        <i class="fas fa-plus"></i> Criar Opcional
-                    </button>
-                    <button class="btn btn-edit" onclick="abrirModalSecao(${sIdx})">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-del" onclick="removerSecao(${sIdx})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-            <div style="padding: 12px 15px; background: #fdfdfd;">
-                <label style="font-size: 11px; font-weight: bold; color: #999; text-transform: uppercase;">Itens na tabela de opcionais:</label>
-                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
-                    ${opcionaisDaSecao.length > 0 
-                        ? opcionaisDaSecao.map((op, opIdx) => `
-                            <div class="balao-opcional" style="cursor: default; background: #eee; display: flex; align-items: center; gap: 8px;">
-                                <span>${op[0]} (R$ ${op[1]})</span>
-                                <i class="fas fa-times" onclick="removerOpcionalBase('${keyOpc}', ${opIdx})" style="cursor: pointer; color: #c62828; font-size: 10px;"></i>
-                            </div>
-                        `).join('')
-                        : '<small style="color: #ccc;">Nenhuma tabela ou itens encontrados.</small>'
-                    }
-                </div>
-            </div>
-        </div>`;
-    }).join('');
-}
-
-function abrirModalOpcionalDireto(key) {
-    document.getElementById('opc-direto-key').value = key;
-    document.getElementById('campo-nome-opc-direto').value = "";
-    document.getElementById('campo-valor-opc-direto').value = "0.00";
-    document.getElementById('modal-opcional-direto').style.display = 'flex';
-}
-
-function confirmarOpcionalDireto() {
-    const key = document.getElementById('opc-direto-key').value;
-    const nome = document.getElementById('campo-nome-opc-direto').value.trim();
-    const valor = parseFloat(document.getElementById('campo-valor-opc-direto').value || 0).toFixed(2);
-
-    if (!nome) return alert("Digite o nome do opcional");
-
-    if (!db[key]) db[key] = [];
-    db[key].push([nome, valor]);
-
-    fecharModais();
-    renderizarTudo();
-}
-
-function renderSecoes() {
-    const container = document.getElementById('lista-secoes');
-    if (!container) return;
-    const classeAberto = primeiraCarga ? "" : "aberto";
-    
-    container.innerHTML = db.secoes.map((s, sIdx) => `
-        <div class="card ${classeAberto}" data-idx="${sIdx}">
-            <div class="card-header" onclick="toggleCard(this)">
-                <div><span class="handle-secao">⠿</span> <strong>${s.nome}</strong></div>
-                <div style="display:flex; gap:10px; align-items:center;" onclick="event.stopPropagation()">
-                    <button class="btn-add-mini" onclick="abrirModalItem(${sIdx}, -1)">+ Novo Produto</button>
-                    <i class="fas fa-chevron-down icon-chevr"></i>
-                </div>
-            </div>
-            <div class="card-body" style="padding: 0;">
-                <div class="sortable-itens" data-secao="${sIdx}">
-                    ${s.itens.map((it, iIdx) => `
-                        <div class="item-row ${it[6] ? 'oculto' : ''}" data-idx="${iIdx}" style="display: flex; align-items: stretch; border-bottom: 1px solid #eee; background: #fff;">
-                            <div style="display: flex; align-items: center; padding: 0 8px; color: #ccc; cursor: grab;">☰</div>
-                            <div style="flex: 1; display: flex; padding: 15px; gap: 15px;">
-                                <img src="${it[3]}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" onerror="this.src='https://via.placeholder.com/80'">
-                                <div style="flex: 1;">
-                                    <strong style="font-size: 1.1em; color: var(--p-green);">${it[0]}</strong>
-                                    <p style="margin: 4px 0; color: #666; font-size: 0.9em;">${it[1] || '<i>Sem descrição</i>'}</p>
-                                    <div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">
-                                        ${(it[4] || []).map(opc => `<span style="font-size:10px; background:#e9ecef; padding:2px 8px; border-radius:10px; border:1px solid #dee2e6;">${opc}</span>`).join('')}
-                                    </div>
-                                    <strong style="font-size: 1.1em;">R$ ${it[2]}</strong>
+                    ${secao.itens.map((it, iIdx) => `
+                        <div class="item-row">
+                            <img src="${it.imagem}" class="img-preview-lista" onerror="this.src='https://via.placeholder.com/100'">
+                            <div>
+                                <strong style="font-size:1.1rem;">${it.nome}</strong> 
+                                ${it.esgotado ? '<span class="badge-esgotado">ESGOTADO</span>' : ''}
+                                <p style="margin:5px 0; color:#666; font-size:13px;">${it.descricao}</p>
+                                <div style="margin-top:5px;">
+                                    ${(it.opcionais_ativos || []).map(o => `<span class="badge-opt">${typeof o === 'string' ? o : o.nome}</span>`).join('')}
                                 </div>
+                                <div style="margin-top:10px; font-weight:bold; color:var(--primary);">R$ ${parseFloat(it.preco).toFixed(2)}</div>
                             </div>
-                            <div class="acoes-item" onclick="event.stopPropagation()">
-                                <button class="btn-status-cmd ${it[5] ? 'ativo-esgotado' : ''}" onclick="toggleStatus(${sIdx}, ${iIdx}, 5)">${it[5] ? 'ESTÁ ESGOTADO' : 'MARCAR ESGOTADO'}</button>
-                                <button class="btn-status-cmd ${it[6] ? 'ativo-oculto' : ''}" onclick="toggleStatus(${sIdx}, ${iIdx}, 6)">${it[6] ? 'ESTÁ OCULTO' : 'OCULTAR PRODUTO'}</button>
-                                <div class="divisor-botoes"></div>
-                                <button class="btn-acao-card btn-azul" onclick="abrirModalItem(${sIdx}, ${iIdx})">EDITAR</button>
-                                <button class="btn-acao-card btn-duplicar" onclick="duplicarItem(${sIdx}, ${iIdx})">DUPLICAR</button>
-                                <button class="btn-acao-card btn-vermelho" onclick="removerItem(${sIdx}, ${iIdx})">EXCLUIR</button>
+                            <div style="display:flex; flex-direction:column; gap:8px;">
+                                <button class="btn btn-save" onclick="abrirModal(${sIdx}, ${iIdx})"><i class="fas fa-edit"></i> Editar</button>
+                                <button class="btn btn-del" onclick="removerItem(${sIdx}, ${iIdx})"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
                     `).join('')}
                 </div>
             </div>
-        </div>`).join('');
-}
-
-function renderOpcionaisPrecos() {
-    const container = document.getElementById('lista-precos-opcionais');
-    if (!container) return;
-    let html = "";
-    for (let key in db) {
-        if (key.startsWith("opcionais")) {
-            html += `
-            <div class="card aberto">
-                <div class="card-header">
-                    <strong>Tabela: ${key}</strong>
-                    <div style="display:flex; gap:10px; align-items:center;" onclick="event.stopPropagation()">
-                        <button class="btn-add-mini" onclick="addOpcionalBase('${key}')">+ Novo Item</button>
-                        <i class="fas fa-chevron-down icon-chevr" onclick="toggleCard(this.parentElement.parentElement)"></i>
-                    </div>
-                </div>
-                <div class="card-body" style="padding:10px;">
-                    <div class="sortable-opcionais" data-tabela="${key}">
-                        ${db[key].map((op, opIdx) => `
-                            <div class="item-row" style="display:flex; gap:10px; margin-bottom:5px; align-items:center; padding:5px; min-height:auto;">
-                                <span style="cursor:grab; color:#ccc; padding: 0 5px;">☰</span>
-                                <input type="text" value="${op[0]}" oninput="db['${key}'][${opIdx}][0] = this.value" style="flex: 2; margin:0;">
-                                <input type="number" step="0.01" value="${op[1]}" oninput="db['${key}'][${opIdx}][1] = parseFloat(this.value || 0).toFixed(2)" style="flex: 1; margin:0; width:80px;">
-                                <button class="btn-azul" title="Copiar" onclick="copiarOpcional('${key}', ${opIdx})" style="padding:5px 10px; border-radius:4px; border:none; color:white; cursor:pointer;"><i class="fas fa-copy"></i></button>
-                                <button class="btn-vermelho" onclick="removerOpcionalBase('${key}', ${opIdx})" style="padding:5px 10px; border-radius:4px; border:none; color:white; cursor:pointer;"><i class="fas fa-times"></i></button>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            </div>`;
-        }
+        `).join('');
     }
-    container.innerHTML = html;
-    initSortableOpcionais();
-}
 
-function abrirModalItem(sIdx, iIdx) {
-    if (event) event.stopPropagation();
-    document.getElementById('item-indice-secao').value = sIdx;
-    document.getElementById('item-indice-item').value = iIdx;
-    const nomeSecao = db.secoes[sIdx].nome;
-    document.getElementById('campo-secao-item').value = nomeSecao;
-    const item = iIdx === -1 ? ["", "", "0.00", "", [], false, false] : db.secoes[sIdx].itens[iIdx];
-    document.getElementById('campo-nome-item').value = item[0];
-    document.getElementById('campo-descricao-item').value = item[1];
-    document.getElementById('campo-valor-item').value = item[2];
-    document.getElementById('campo-imagem-item').value = item[3];
-    const keyOpc = encontrarChaveOpcional(nomeSecao);
-    const baseOpc = db[keyOpc] || [];
-    const selecionados = item[4] || [];
-    const containerOpc = document.getElementById('render-opcionais-selecao');
-    containerOpc.innerHTML = baseOpc.length === 0 ? '<small style="color: #999;">Sem opcionais.</small>' : baseOpc.map(op => `
-        <div class="balao-opcional ${selecionados.includes(op[0]) ? 'selecionado' : ''}" onclick="this.classList.toggle('selecionado')">${op[0]}</div>
-    `).join('');
-    document.getElementById('modal-item').style.display = 'flex';
-}
+    function renderCupons() {
+        const container = document.getElementById('render-cupons');
+        container.innerHTML = db.cupons.map((c, i) => `
+            <div class="card" style="padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <strong style="color:var(--primary)">${c.codigo}</strong><br>
+                    <small>${c.tipo === 'porcentagem' ? c.valor+'%' : 'R$ '+c.valor} de desconto</small>
+                </div>
+                <button class="btn-del" onclick="db.cupons.splice(${i},1); renderTudo();" style="border:none; background:none; cursor:pointer;"><i class="fas fa-times"></i></button>
+            </div>
+        `).join('');
+    }
 
-function salvarItem() {
-    const sIdx = document.getElementById('item-indice-secao').value;
-    const iIdx = parseInt(document.getElementById('item-indice-item').value);
-    const opcs = Array.from(document.querySelectorAll('.balao-opcional.selecionado')).map(b => b.innerText);
-    const item = [document.getElementById('campo-nome-item').value, document.getElementById('campo-descricao-item').value, parseFloat(document.getElementById('campo-valor-item').value || 0).toFixed(2), document.getElementById('campo-imagem-item').value, opcs, (iIdx !== -1) ? db.secoes[sIdx].itens[iIdx][5] : false, (iIdx !== -1) ? db.secoes[sIdx].itens[iIdx][6] : false];
-    if(iIdx === -1) db.secoes[sIdx].itens.push(item); else db.secoes[sIdx].itens[iIdx] = item;
-    fecharModais(); renderizarTudo();
-}
+    // --- LÓGICA DO MODAL ---
 
-function salvarSecao() {
-    const idx = parseInt(document.getElementById('secao-indice').value);
-    const nome = document.getElementById('campo-nome-secao').value.trim();
-    if (!nome) return;
-    if (idx === -1) {
-        db.secoes.push({ nome, itens: [] });
-        const key = "opcionais" + nome;
-        if (!db[key]) db[key] = [];
-    } else { db.secoes[idx].nome = nome; }
-    fecharModais(); renderizarTudo();
-}
+    function abrirModal(sIdx, iIdx) {
+        const secao = db.secoes[sIdx];
+        const it = iIdx === -1 
+            ? { nome: '', descricao: '', preco: 0, imagem: '', opcionais: secao.nome, opcionais_ativos: [], esgotado: false }
+            : secao.itens[iIdx];
 
-function abrirModalSecao(idx = -1) {
-    document.getElementById('secao-indice').value = idx;
-    document.getElementById('titulo-modal-secao').innerText = idx === -1 ? "Nova Seção" : "Editar Seção";
-    document.getElementById('campo-nome-secao').value = idx === -1 ? "" : db.secoes[idx].nome;
-    document.getElementById('modal-secao').style.display = 'flex';
-}
+        document.getElementById('edit-s-idx').value = sIdx;
+        document.getElementById('edit-i-idx').value = iIdx;
+        document.getElementById('in-nome').value = it.nome;
+        document.getElementById('in-desc').value = it.descricao;
+        document.getElementById('in-preco').value = it.preco;
+        document.getElementById('in-img').value = it.imagem;
+        document.getElementById('in-vinculo').value = secao.nome;
+        document.getElementById('in-esgotado').checked = it.esgotado || false;
 
-function removerSecao(idx) { if(confirm("Apagar seção?")) { db.secoes.splice(idx, 1); renderizarTudo(); } }
-function duplicarItem(sIdx, iIdx) { const clone = JSON.parse(JSON.stringify(db.secoes[sIdx].itens[iIdx])); clone[0] += " (Cópia)"; db.secoes[sIdx].itens.splice(iIdx + 1, 0, clone); renderizarTudo(); }
-function removerItem(sIdx, iIdx) { if(confirm("Remover?")) { db.secoes[sIdx].itens.splice(iIdx, 1); renderizarTudo(); } }
+        // Renderiza lista de checkboxes baseada na tabela que tem o nome da seção
+        const containerOpc = document.getElementById('modal-lista-opcionais');
+        const tabelaReferencia = db.opcionais[secao.nome];
 
-function addOpcionalBase(key) {
-    if (!db[key]) db[key] = [];
-    db[key].push(["Novo Item", "0.00"]);
-    renderizarTudo();
-}
+        if (tabelaReferencia) {
+            containerOpc.innerHTML = tabelaReferencia.map(op => {
+                // Checa se o opcional já está ativo no item
+                const check = (it.opcionais_ativos || []).some(a => (typeof a === 'string' ? a : a.nome) === op.nome);
+                return `
+                    <label class="opc-row-check">
+                        <span>${op.nome} <small style="color:green;">(+ R$ ${op.preco})</small></span>
+                        <input type="checkbox" class="check-opc-modal" data-nome="${op.nome}" data-preco="${op.preco}" ${check ? 'checked' : ''}>
+                    </label>
+                `;
+            }).join('');
+        } else {
+            containerOpc.innerHTML = `<p style="font-size:12px; color:#999; text-align:center;">Nenhuma tabela de opcionais vinculada à seção "${secao.nome}".</p>`;
+        }
 
-function copiarOpcional(origemKey, idx) {
-    const item = JSON.parse(JSON.stringify(db[origemKey][idx]));
-    const tabelas = Object.keys(db).filter(k => k.startsWith("opcionais") && k !== origemKey);
-    let escolha = prompt("Copiar para qual tabela?\n" + tabelas.map((t, i) => (i+1)+"- "+t).join("\n"));
-    if (escolha && tabelas[escolha-1]) { db[tabelas[escolha-1]].push(item); renderOpcionaisPrecos(); alert("Copiado!"); }
-}
+        document.getElementById('modal-item').style.display = 'flex';
+    }
 
-function removerOpcionalBase(key, idx) {
-    if (confirm("Remover este item?")) { db[key].splice(idx, 1); renderizarTudo(); }
-}
+    function salvarItem() {
+        const sIdx = document.getElementById('edit-s-idx').value;
+        const iIdx = parseInt(document.getElementById('edit-i-idx').value);
 
-function initSortableOpcionais() {
-    document.querySelectorAll('.sortable-opcionais').forEach(el => {
-        new Sortable(el, {
-            animation: 150, handle: 'span',
-            onEnd: (evt) => {
-                const tabela = el.getAttribute('data-tabela');
-                const [movedItem] = db[tabela].splice(evt.oldIndex, 1);
-                db[tabela].splice(evt.newIndex, 0, movedItem);
-            }
+        const novosAtivos = [];
+        document.querySelectorAll('.check-opc-modal:checked').forEach(input => {
+            // CORREÇÃO: Salva apenas o nome (string) para evitar o vício de salvar objetos
+            novosAtivos.push(input.dataset.nome);
         });
-    });
-}
 
-function toggleStatus(sIdx, iIdx, indexArray) { db.secoes[sIdx].itens[iIdx][indexArray] = !db.secoes[sIdx].itens[iIdx][indexArray]; renderizarTudo(); }
+        const novoObj = {
+            nome: document.getElementById('in-nome').value,
+            descricao: document.getElementById('in-desc').value,
+            preco: parseFloat(document.getElementById('in-preco').value || 0),
+            imagem: document.getElementById('in-img').value,
+            opcionais: document.getElementById('in-vinculo').value,
+            opcionais_ativos: novosAtivos,
+            esgotado: document.getElementById('in-esgotado').checked
+        };
 
-function baixar() {
-    const conteudoJS = `const dadosIniciais = ${JSON.stringify(db, null, 2)};`;
-    const blob = new Blob([conteudoJS], {type: 'text/javascript'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = "cardapio.js";
-    a.click();
-}
+        if (iIdx === -1) db.secoes[sIdx].itens.push(novoObj);
+        else db.secoes[sIdx].itens[iIdx] = novoObj;
 
+        fecharModal();
+        renderTudo();
+    }
+
+    // --- FUNÇÕES DE APOIO ---
+
+    function fecharModal() { document.getElementById('modal-item').style.display = 'none'; }
+    function toggleCard(el) { const b = el.nextElementSibling; b.style.display = b.style.display === 'none' ? 'block' : 'none'; }
+    function toggleJSON() { document.getElementById('json-viewer').classList.toggle('active'); }
+    
+    function addLinhaOp(t) { db.opcionais[t].push({nome: "Novo Item", preco: 0}); renderTudo(); }
+    function removerOp(t, i) { db.opcionais[t].splice(i, 1); renderTudo(); }
+    
+    function novaSecao() { 
+        const n = prompt("Nome da nova seção:"); 
+        if(n) { db.secoes.push({nome: n, itens: []}); renderTudo(); } 
+    }
+    function removerSecao(idx) { if(confirm("Apagar toda a seção?")) { db.secoes.splice(idx, 1); renderTudo(); } }
+    function removerItem(s, i) { if(confirm("Apagar este produto?")) { db.secoes[s].itens.splice(i, 1); renderTudo(); } }
+
+    function novaTabelaOpcional() {
+        const n = prompt("Nome da tabela (Dica: Use o mesmo nome de uma Seção):");
+        if(n) { db.opcionais[n] = []; renderTudo(); }
+    }
+
+    function novoCupom() {
+        const cod = prompt("Código do Cupom:").toUpperCase();
+        const val = parseFloat(prompt("Valor do desconto:"));
+        const tipo = confirm("OK para Porcentagem (%) | Cancelar para Valor Fixo (R$)") ? "porcentagem" : "fixo";
+        if(cod && val) { db.cupons.push({codigo: cod, valor: val, tipo: tipo}); renderTudo(); }
+    }
+
+    function baixarArquivo() {
+        const conteudo = `const dadosIniciais = ${JSON.stringify(db, null, 2)};`;
+        const blob = new Blob([conteudo], {type: 'text/javascript'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'dados.js';
+        a.click();
+    }
+
+    window.onload = init;
 </script>
+
 </body>
 </html>

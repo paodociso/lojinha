@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Cardápio Pro - Pão do Ciso</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="dados.js"></script>
+    <style>
+        :root {
+            --primary: #2d3a27;
+            --accent: #7d4f39;
+            --bg: #f0f2f5;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        header { background: var(--primary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); }
+        .toolbar { background: var(--white); padding: 10px 20px; border-bottom: 1px solid #ddd; display: flex; gap: 10px; align-items: center; }
+
+        main { display: grid; grid-template-columns: 300px 1fr; gap: 20px; padding: 20px; flex: 1; overflow: hidden; }
+        .sidebar { overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+        .content { background: var(--white); border-radius: 12px; overflow-y: auto; padding: 20px; box-shadow: var(--shadow); }
+
+        .card { background: var(--white); border-radius: 8px; border: 1px solid #eee; margin-bottom: 10px; transition: 0.2s; }
+        .card-header { padding: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fafafa; border-radius: 8px 8px 0 0; }
+        .card-body { padding: 15px; border-top: 1px solid #eee; }
+
+        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        .btn { border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; }
+        .btn-save { background: var(--primary); color: white; }
+        .btn-download { background: #2e7d32; color: white; }
+        .btn-view { background: #546e7a; color: white; }
+        .btn-add { background: #e8f5e9; color: #2e7d32; }
+        .btn-del { background: #ffebee; color: #c62828; }
+
+        .item-row { display: grid; grid-template-columns: 80px 1fr 120px; gap: 15px; padding: 15px; border-bottom: 1px solid #eee; align-items: center; }
+        .img-preview { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; background: #eee; }
+
+        .badge-opt { background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 12px; font-size: 11px; border: 1px solid #c8e6c9; display: inline-block; margin-right: 4px; margin-bottom: 4px; }
+        .badge-out { background: #ffcdd2; color: #b71c1c; font-size: 10px; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+
+        /* MODAL ALINHADO */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 100; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 550px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        
+        .form-row { display: flex; gap: 15px; }
+        .form-row > div { flex: 1; }
+
+        .opc-list-container {
+            background: #f9f9f9; border: 1px solid #eee; border-radius: 8px;
+            padding: 10px; max-height: 200px; overflow-y: auto; margin-top: 5px;
+        }
+        .opc-item-check {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px; border-bottom: 1px solid #f0f0f0; cursor: pointer;
+        }
+        .opc-item-check:last-child { border-bottom: none; }
+        .opc-item-check input { width: auto; margin: 0 10px 0 0; }
+
+        #code-viewer { position: fixed; top: 0; right: -100%; width: 40%; height: 100%; background: #1e1e1e; color: #d4d4d4; z-index: 200; transition: 0.3s; padding: 20px; box-shadow: -5px 0 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+        #code-viewer.active { right: 0; }
+        #code-area { background: #252526; color: #9cdcfe; border: 1px solid #3e3e42; padding: 10px; flex-grow: 1; font-family: 'Courier New', monospace; font-size: 12px; overflow: auto; white-space: pre; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display:flex; align-items:center; gap:15px;">
+        <i class="fas fa-bread-slice fa-2x"></i>
+        <h1 style="margin:0; font-size: 1.2rem;">Painel Pão do Ciso</h1>
+    </div>
+    <div style="display:flex; gap:10px;">
+        <button class="btn btn-view" onclick="toggleCodeViewer()">
+            <i class="fas fa-code"></i> VER JSON ATUAL
+        </button>
+        <button class="btn btn-download" onclick="exportarDados()">
+            <i class="fas fa-file-download"></i> BAIXAR DADOS.JS
+        </button>
+    </div>
+</header>
+
+<div class="toolbar">
+    <button class="btn btn-add" onclick="novaSecao()"><i class="fas fa-folder-plus"></i> Nova Seção</button>
+    <button class="btn btn-add" onclick="novoCupom()"><i class="fas fa-ticket-alt"></i> Novo Cupom</button>
+    <div style="flex-grow: 1;"></div>
+    <span style="font-size: 11px; color: #888;">As alterações aparecem em tempo real no visualizador de código.</span>
+</div>
+
+<main>
+    <div class="sidebar">
+        <section>
+            <h3><i class="fas fa-ticket-alt"></i> Cupons</h3>
+            <div id="lista-cupons"></div>
+        </section>
+        <section>
+            <h3><i class="fas fa-list-ul"></i> Tabelas de Opcionais</h3>
+            <div id="lista-opcionais"></div>
+            <button class="btn btn-add" style="width:100%" onclick="novaTabelaOpcional()">+ Nova Tabela</button>
+        </section>
+    </div>
+
+    <div class="content">
+        <h3><i class="fas fa-utensils"></i> Itens do Cardápio</h3>
+        <div id="cardapio-render"></div>
+    </div>
+</main>
+
+<div id="code-viewer">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h3 style="margin:0; color:white;">Consultar dados.js</h3>
+        <button class="btn btn-del" onclick="toggleCodeViewer()">Fechar [X]</button>
+    </div>
+    <div id="code-area"></div>
+</div>
+
+<div id="modal-item" class="modal">
+    <div class="modal-content">
+        <h2 style="margin-top:0; border-bottom: 2px solid #eee; padding-bottom:10px;">Editar Produto</h2>
+        
+        <input type="hidden" id="edit-secao-idx">
+        <input type="hidden" id="edit-item-idx">
+        
+        <label>Nome do Produto</label>
+        <input type="text" id="in-item-nome">
+        
+        <label>Descrição</label>
+        <textarea id="in-item-desc" rows="2"></textarea>
+        
+        <div class="form-row">
+            <div>
+                <label>Preço Base (R$)</label>
+                <input type="number" step="0.01" id="in-item-preco">
+            </div>
+            <div>
+                <label>Seção Vinculada</label>
+                <input type="text" id="in-item-opc" readonly style="background:#f0f0f0; color:#666; font-weight:bold;">
+            </div>
+        </div>
+
+        <label>URL da Imagem</label>
+        <input type="text" id="in-item-img">
+        
+        <div style="margin: 5px 0 20px 0;">
+            <label style="color: #c62828; font-weight: bold; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="in-item-esgotado" style="width:18px; height:18px;"> PRODUTO ESGOTADO
+            </label>
+        </div>
+
+        <hr style="border:0; border-top:1px solid #eee; margin: 20px 0;">
+        
+        <h4 style="margin:0; color:var(--primary); font-size: 14px;">ESCOLHER OPCIONAIS DA CATEGORIA:</h4>
+        <div id="modal-opc-container" class="opc-list-container">
+            </div>
+
+        <div style="display:flex; justify-content: flex-end; gap:10px; margin-top:25px;">
+            <button class="btn" onclick="fecharModal()" style="background:#eee;">Cancelar</button>
+            <button class="btn btn-save" onclick="salvarItem()">Gravar no Arquivo</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let db = typeof dadosIniciais !== 'undefined' ? JSON.parse(JSON.stringify(dadosIniciais)) : { cupons: [], opcionais: {}, secoes: [] };
+
+    function init() { renderTudo(); }
+
+    function renderTudo() {
+        renderCupons();
+        renderOpcionais();
+        renderCardapio();
+        atualizarVisualizadorCodigo();
+    }
+
+    function toggleCodeViewer() {
+        document.getElementById('code-viewer').classList.toggle('active');
+        atualizarVisualizadorCodigo();
+    }
+
+    function atualizarVisualizadorCodigo() {
+        const area = document.getElementById('code-area');
+        area.textContent = `const dadosIniciais = ${JSON.stringify(db, null, 2)};`;
+    }
+
+    function renderCupons() {
+        const container = document.getElementById('lista-cupons');
+        container.innerHTML = (db.cupons || []).map((c, i) => `
+            <div class="card" style="padding:10px; font-size:0.9rem;">
+                <div style="display:flex; justify-content:space-between;">
+                    <strong>${c.codigo}</strong>
+                    <i class="fas fa-times" onclick="removerCupom(${i})" style="color:red; cursor:pointer"></i>
+                </div>
+                <div>${c.tipo == 'porcentagem' ? c.valor+'%' : 'R$ '+c.valor}</div>
+            </div>
+        `).join('');
+    }
+
+    function renderOpcionais() {
+        const container = document.getElementById('lista-opcionais');
+        container.innerHTML = Object.keys(db.opcionais || {}).map(titulo => `
+            <div class="card">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <span>${titulo}</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="card-body" style="display:none">
+                    ${db.opcionais[titulo].map((op, idx) => `
+                        <div style="display:flex; gap:5px; margin-bottom:5px;">
+                            <input type="text" value="${op.nome}" onchange="db.opcionais['${titulo}'][${idx}].nome = this.value; atualizarVisualizadorCodigo();" style="margin:0; font-size:12px; height:30px;">
+                            <input type="number" value="${op.preco}" onchange="db.opcionais['${titulo}'][${idx}].preco = parseFloat(this.value); atualizarVisualizadorCodigo();" style="width:70px; margin:0; font-size:12px; height:30px;">
+                            <button onclick="removerOpcional('${titulo}', ${idx})" class="btn-del" style="border:none; border-radius:4px; padding: 0 8px;"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `).join('')}
+                    <button class="btn btn-add" style="width:100%; font-size:11px; margin-top:5px;" onclick="addLinhaOpcional('${titulo}')">+ Add Linha</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderCardapio() {
+        const container = document.getElementById('cardapio-render');
+        container.innerHTML = (db.secoes || []).map((secao, sIdx) => `
+            <div class="secao-group" style="margin-bottom:30px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--primary); padding-bottom:5px;">
+                    <h2 style="margin:0; color:var(--primary)">${secao.nome}</h2>
+                    <div>
+                        <button class="btn btn-add" onclick="abrirModalItem(${sIdx}, -1)">+ Produto</button>
+                        <button class="btn btn-del" onclick="removerSecao(${sIdx})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="sortable-itens" data-secao="${sIdx}">
+                    ${secao.itens.map((it, iIdx) => `
+                        <div class="item-row">
+                            <img src="${it.imagem}" class="img-preview" onerror="this.src='https://via.placeholder.com/80'">
+                            <div>
+                                <strong>${it.nome}</strong> ${it.esgotado ? '<span class="badge-out">Esgotado</span>' : ''}
+                                <div style="font-size:0.8rem; color:#666; margin-bottom:5px;">${it.descricao}</div>
+                                <div>${(it.opcionais_ativos || []).map(o => `<span class="badge-opt">${o.nome}</span>`).join('')}</div>
+                                <div style="margin-top:8px; font-weight:bold;">R$ ${parseFloat(it.preco || 0).toFixed(2)}</div>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:5px;">
+                                <button class="btn btn-save" onclick="abrirModalItem(${sIdx}, ${iIdx})"><i class="fas fa-edit"></i> Editar</button>
+                                <button class="btn btn-del" onclick="removerItem(${sIdx}, ${iIdx})"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // LOGICA DO MODAL MELHORADA
+    function abrirModalItem(sIdx, iIdx) {
+        const secaoNome = db.secoes[sIdx].nome;
+        const it = iIdx === -1 ? { nome: '', descricao: '', preco: 0, imagem: '', opcionais: secaoNome, esgotado: false, opcionais_ativos: [] } : db.secoes[sIdx].itens[iIdx];
+        
+        document.getElementById('edit-secao-idx').value = sIdx;
+        document.getElementById('edit-item-idx').value = iIdx;
+        document.getElementById('in-item-nome').value = it.nome;
+        document.getElementById('in-item-desc').value = it.descricao;
+        document.getElementById('in-item-preco').value = it.preco;
+        document.getElementById('in-item-img').value = it.imagem;
+        document.getElementById('in-item-esgotado').checked = it.esgotado;
+        document.getElementById('in-item-opc').value = secaoNome;
+
+        const container = document.getElementById('modal-opc-container');
+        
+        // Se existir uma tabela de opcionais com o nome da seção
+        if (db.opcionais[secaoNome]) {
+            container.innerHTML = db.opcionais[secaoNome].map(opBase => {
+                const isChecked = (it.opcionais_ativos || []).some(a => a.nome === opBase.nome);
+                return `
+                <label class="opc-item-check">
+                    <div style="display:flex; align-items:center;">
+                        <input type="checkbox" class="modal-opc-check" ${isChecked ? 'checked' : ''} data-nome="${opBase.nome}" data-preco="${opBase.preco}">
+                        <span style="font-size:14px;">${opBase.nome}</span>
+                    </div>
+                    <span style="color:green; font-weight:bold; font-size:12px;">+ R$ ${opBase.preco.toFixed(2)}</span>
+                </label>`;
+            }).join('');
+        } else {
+            container.innerHTML = `<p style="text-align:center; color: #999; font-size:12px; padding: 20px;">Nenhuma tabela de opcionais chamada "${secaoNome}" encontrada.</p>`;
+        }
+
+        document.getElementById('modal-item').style.display = 'flex';
+    }
+
+    function salvarItem() {
+        const sIdx = document.getElementById('edit-secao-idx').value;
+        const iIdx = parseInt(document.getElementById('edit-item-idx').value);
+        const secaoNome = db.secoes[sIdx].nome;
+
+        let ativos = [];
+        document.querySelectorAll('.modal-opc-check:checked').forEach(check => {
+            ativos.push({ nome: check.dataset.nome, preco: parseFloat(check.dataset.preco) });
+        });
+
+        const obj = {
+            nome: document.getElementById('in-item-nome').value,
+            descricao: document.getElementById('in-item-desc').value,
+            preco: parseFloat(document.getElementById('in-item-preco').value || 0),
+            imagem: document.getElementById('in-item-img').value,
+            opcionais: secaoNome,
+            opcionais_ativos: ativos,
+            esgotado: document.getElementById('in-item-esgotado').checked
+        };
+
+        if(iIdx === -1) db.secoes[sIdx].itens.push(obj);
+        else db.secoes[sIdx].itens[iIdx] = obj;
+
+        fecharModal();
+        renderTudo();
+    }
+
+    function fecharModal() { document.getElementById('modal-item').style.display = 'none'; }
+    function toggleCard(el) { const b = el.nextElementSibling; b.style.display = b.style.display === 'none' ? 'block' : 'none'; }
+    function exportarDados() {
+        const blob = new Blob([`const dadosIniciais = ${JSON.stringify(db, null, 2)};`], {type: 'text/javascript'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'dados.js'; a.click();
+    }
+    function removerSecao(idx) { if(confirm("Excluir seção?")) { db.secoes.splice(idx,1); renderTudo(); } }
+    function removerItem(s, i) { if(confirm("Excluir item?")) { db.secoes[s].itens.splice(i,1); renderTudo(); } }
+    function novaSecao() { const n = prompt("Nome da seção:"); if(n) { db.secoes.push({nome:n, itens:[]}); renderTudo(); } }
+    function novaTabelaOpcional() { const n = prompt("Nome da tabela:"); if(n) { db.opcionais[n] = []; renderTudo(); } }
+    function removerCupom(idx) { db.cupons.splice(idx, 1); renderTudo(); }
+    function addLinhaOpcional(t) { db.opcionais[t].push({nome:"Novo", preco:0}); renderTudo(); }
+    function removerOpcional(t, i) { db.opcionais[t].splice(i, 1); renderTudo(); }
+    function novoCupom() {
+        const c = prompt("Código:").toUpperCase(); if(!c) return;
+        const v = parseFloat(prompt("Valor:"));
+        const t = confirm("OK para % ou Cancelar para R$") ? "porcentagem" : "fixo";
+        db.cupons.push({codigo:c, valor:v, tipo:t}); renderTudo();
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>
