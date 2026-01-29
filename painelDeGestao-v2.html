@@ -22,6 +22,17 @@
             padding: 15px 10px;
         }
 
+        /* No seu bloco de <style>, adicione se não houver: */
+        .card-admin input[type="date"],
+        .card-admin input[type="number"],
+        .card-admin input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box; /* Garante que o padding não aumente o tamanho do campo */
+}
+
         /* Estilo para a mini descrição */
         .mini-descricao {
             display: block;
@@ -52,6 +63,35 @@
         }
 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; background: #f4f1ea; color: var(--texto); }
+
+        /* Cards que funcionam como botões */
+.stats-grid .card-button {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.stats-grid .card-button:hover {
+    transform: translateY(-5px);
+    border-color: var(--verde-militar);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+.stats-grid .card-button i {
+    font-size: 2rem;
+    color: var(--verde-militar);
+    margin-bottom: 10px;
+}
+
+.stats-grid .card-button h2 {
+    margin: 10px 0 0 0;
+    color: var(--marrom-cafe);
+}
 
         /* Força o layout da tabela a ser fixo para respeitar as larguras definidas */
         .card-admin table {
@@ -160,12 +200,17 @@
 
         const CRUD = {
             // --- GESTÃO DA FORNADA ---
-            salvarFornada: (novoTexto) => {
-                db.diaFornada = novoTexto;
+            salvarFornada: (dados) => {
+                db.fornada = {
+                    dataISO: dados.dataISO,
+                    diasAntecedencia: parseInt(dados.diasAntecedencia),
+                    horaLimite: dados.horaLimite
+                };
                 persistir();
-                alert("Dia da fornada atualizado!");
                 renderizarAtual();
+                alert("Configurações da fornada atualizadas!");
             },
+
             adicionarProduto: (sIdx, data) => {
                 db.secoes[sIdx].itens.push({ ...data, esgotado: false });
                 persistir(); 
@@ -252,28 +297,61 @@
         };
 
 function renderDashboard(target) {
-    let total = 0; 
-    db.secoes.forEach(s => total += s.itens.length);
+    let totalProd = 0; 
+    db.secoes.forEach(s => totalProd += s.itens.length);
     
+    const f = db.fornada || { dataISO: '', diasAntecedencia: 2, horaLimite: '12h' };
+
     target.innerHTML = `
         <h1>Dashboard</h1>
         
         <div class="card-admin" style="border-bottom: 4px solid var(--marrom-detalhe); margin-bottom: 30px;">
-            <h3 style="margin-top:0"><i class="fas fa-calendar-alt"></i> Próxima Fornada</h3>
-            <div style="display:flex; gap:10px;">
-                <input type="text" id="f-dia-fornada" value="${db.diaFornada || ''}" 
-                       placeholder="Ex: Quinta-feira, 25/10" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:8px;">
-                <button class="btn-adm btn-verde-personalizado" 
-                        onclick="CRUD.salvarFornada(document.getElementById('f-dia-fornada').value)">
-                    Atualizar Data
+            <h3 style="margin-top:0"><i class="fas fa-clock"></i> Configuração da Próxima Fornada</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr auto; gap:15px; align-items: end;">
+                <div class="form-group" style="margin:0">
+                    <label>Data da Fornada</label>
+                    <input type="date" id="f-data-iso" value="${f.dataISO}">
+                </div>
+                <div class="form-group" style="margin:0">
+                    <label>Dias de Antecedência</label>
+                    <input type="number" id="f-antecedencia" value="${f.diasAntecedencia}">
+                </div>
+                <div class="form-group" style="margin:0">
+                    <label>Hora Limite</label>
+                    <input type="text" id="f-hora-limite" value="${f.horaLimite}" placeholder="Ex: 12h">
+                </div>
+                <button class="btn-adm btn-verde-personalizado" style="height: 42px;" 
+                    onclick="CRUD.salvarFornada({
+                        dataISO: document.getElementById('f-data-iso').value,
+                        diasAntecedencia: document.getElementById('f-antecedencia').value,
+                        horaLimite: document.getElementById('f-hora-limite').value
+                    })">
+                    Atualizar Fornada
                 </button>
             </div>
         </div>
 
         <div class="stats-grid">
-            <div class="card-admin"><h3>📦 Produtos</h3><h2>${total}</h2></div>
-            <div class="card-admin"><h3>📂 Sessões</h3><h2>${db.secoes.length}</h2></div>
-            <div class="card-admin"><h3>🎫 Cupons</h3><h2>${db.cupons.length}</h2></div>
+            <div class="card-button" onclick="navegarPara('produtos')">
+                <i class="fas fa-bread-slice"></i>
+                <h3>Produtos</h3>
+                <h2>${totalProd}</h2>
+                <small>Gerenciar itens</small>
+            </div>
+            
+            <div class="card-button" onclick="navegarPara('sessoes')">
+                <i class="fas fa-folder-open"></i>
+                <h3>Sessões</h3>
+                <h2>${db.secoes.length}</h2>
+                <small>Organizar categorias</small>
+            </div>
+            
+            <div class="card-button" onclick="navegarPara('cupons')">
+                <i class="fas fa-ticket-alt"></i>
+                <h3>Cupons</h3>
+                <h2>${db.cupons ? db.cupons.length : 0}</h2>
+                <small>Editar descontos</small>
+            </div>
         </div>`;
 }
 
