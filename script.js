@@ -444,19 +444,31 @@ function removerDaCarrinho(id) {
 
 function irParaCheckout() {
     const radioSel = document.querySelector('input[name="opcaoEntrega"]:checked');
+    
     if(!radioSel) {
         alert("Por favor, selecione se deseja Receber em Casa ou Retirada.");
         return;
     }
 
-    // SALVA NO ESTADO GLOBAL (Segurança)
+    // 1. Atualiza o estado global
     appState.modoEntrega = radioSel.value;
 
-    // Use a variável do estado daqui pra frente
-    el('wrapper-endereco').style.display = (appState.modoEntrega === 'retirada') ? 'none' : 'block';
+    // 2. Prepara o visual do modal (mostra/esconde campos de endereço)
+    renderizarCamposDadosCliente(); 
+    
+    // 3. Ativa a validação em tempo real 
+    // DICA: O ideal é que esta função limpe ouvintes antigos ou verifique se já foi chamada
+    configurarValidacaoRealTime();
 
+    // 4. Faz a transição de modais
     fecharModal('modalCarrinho');
     abrirModal('modalDadosDoCliente');
+
+    // 5. UX: Foca automaticamente no primeiro campo (Nome) para facilitar pro cliente
+    setTimeout(() => {
+        const inputNome = el('nomeCliente');
+        if(inputNome) inputNome.focus();
+    }, 300);
 }
 
 // 1. ESSA FUNÇÃO ENVIA PARA O GOOGLE (Adicione ao final do seu JS)
@@ -556,32 +568,66 @@ function enviarParaWhatsApp(metodoPagamento) {
 
     window.open("https://api.whatsapp.com/send?phone=5511982391781&text=" + encodeURIComponent(texto), '_blank');
 }
+
 function validarDadosCliente() {
     const nome = el('nomeCliente').value.trim();
-    const tel = el('telefoneCliente').value.trim();
-    const modoRadio = document.querySelector('input[name="opcaoEntrega"]:checked');
-    
-    if (!modoRadio) {
-        alert("Selecione Entrega ou Retirada na carrinho!");
+    const telRaw = el('telefoneCliente').value.replace(/\D/g, '');
+    const dddsValidos = ["11", "12", "13", "14", "15", "16", "17", "18", "19"];
+
+    // 1. Validação de Nome
+    if (nome.length < 3) {
+        alert("Por favor, digite seu nome completo.");
+        el('nomeCliente').focus();
         return;
     }
 
-    const modo = modoRadio.value;
-    const end = el('enderecoCliente').value.trim();
-
-    if (!nome || !tel) {
-        alert("Nome e WhatsApp são obrigatórios!");
+    // 2. Validação de Telefone (Trava de 11 dígitos)
+    if (telRaw.length !== 11) {
+        alert("O WhatsApp deve ter exatamente 11 números (DDD + Número).");
+        el('telefoneCliente').focus();
+        return;
+    }
+    if (!dddsValidos.includes(telRaw.substring(0, 2))) {
+        alert("Por favor, use um DDD válido de SP (11 a 19).");
         return;
     }
 
-    if (modo === 'entrega' && !end) {
-        alert("Informe o endereço para entrega!");
-        return;
+    let enderecoFinal = "Retirada no Local";
+
+    // 3. Validação de Endereço Detalhado (Se for Entrega)
+    if (appState.modoEntrega === 'entrega') {
+        const cep = el('cepCliente').value.trim();
+        const rua = el('ruaCliente').value.trim();
+        const num = el('numCliente').value.trim();
+        const comp = el('compCliente').value.trim();
+        const ref = el('refCliente').value.trim();
+
+        if (cep.length < 8 || rua === "" || num === "") {
+            alert("Para entrega, os campos CEP, Rua e Número são obrigatórios.");
+            return;
+        }
+
+        // Monta a frase que será enviada no WhatsApp/Planilha
+        enderecoFinal = `${rua}, nº ${num}${comp ? ' ('+comp+')' : ''} - CEP: ${cep}${ref ? ' [Ref: '+ref+']' : ''}`;
     }
 
+    // 4. Sincronização com o campo oculto (que o restante do script usa)
+    if(!el('enderecoCliente')) {
+        const input = document.createElement('input');
+        input.id = 'enderecoCliente';
+        input.type = 'hidden';
+        document.body.appendChild(input);
+    }
+    el('enderecoCliente').value = enderecoFinal;
+
+    // 5. Avançar para o pagamento
     fecharModal('modalDadosDoCliente');
     abrirModal('modalFormaDePagamento');
-    renderizarOpcoesPagamento(); // Essa função cria os botões de Pix, Cartão, etc.
+
+    // Atualiza o valor do PIX caso a função exista
+    if (typeof renderizarOpcoesPagamento === 'function') {
+        renderizarOpcoesPagamento();
+    }
 }
 
 function selPgto(tipo, elemento) {
@@ -726,4 +772,145 @@ function atualizarBotaoCesta() {
     } else {
         btnCesta.style.display = 'none';
     }
+}
+
+// ======== CRIAÇÃO DOS CONTAINERS PONTILHADOS DE SEUS DADOS =================== //
+
+function renderizarCamposDadosCliente() {
+    // Usamos o ID que está no seu HTML (wrapper-endereco)
+    const wrapper = el('wrapper-endereco');
+    if (!wrapper) return;
+
+    if (appState.modoEntrega === 'entrega') {
+        wrapper.style.display = 'block';
+    } else {
+        wrapper.style.display = 'none';
+    }
+}
+
+async function buscarCEP(valor) {
+    const cep = valor.replace(/\D/g, '');
+    if (cep.length !== 8) return;
+    try {
+        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const dados = await response.json();
+        if (!dados.erro) {
+            el('ruaCliente').value = `${dados.logradouro}, ${dados.bairro} - ${dados.localidade}/${dados.uf}`;
+            el('numCliente').focus();
+        }
+    } catch (e) { console.error("Erro CEP"); }
+}
+
+function validarDadosCliente() {
+    const nome = el('nomeCliente').value.trim();
+    const telRaw = el('telefoneCliente').value.replace(/\D/g, '');
+    const dddsValidos = ["11", "12", "13", "14", "15", "16", "17", "18", "19"];
+
+    // 1. Validação de Nome
+    if (nome.length < 3) {
+        alert("Por favor, digite seu nome completo.");
+        el('nomeCliente').focus();
+        return;
+    }
+
+    // 2. Validação de Telefone (11 dígitos)
+    if (telRaw.length !== 11) {
+        alert("O WhatsApp deve ter exatamente 11 números (DDD + Número).");
+        el('telefoneCliente').focus();
+        return;
+    }
+    if (!dddsValidos.includes(telRaw.substring(0, 2))) {
+        alert("Por favor, use um DDD válido de SP (11 a 19).");
+        return;
+    }
+
+    let enderecoFinal = "Retirada no Local";
+
+    // 3. Validação de Endereço (Só se for Entrega)
+    if (appState.modoEntrega === 'entrega') {
+        const cep = el('cepCliente').value.trim();
+        const rua = el('ruaCliente').value.trim();
+        const num = el('numCliente').value.trim();
+        const comp = el('compCliente').value.trim();
+        const ref = el('refCliente').value.trim();
+
+        if (cep.length < 8 || rua === "" || num === "") {
+            alert("Para entrega, os campos CEP, Rua e Número são obrigatórios.");
+            return;
+        }
+
+        // Monta a string única que será usada no resumo do pedido
+        enderecoFinal = `${rua}, nº ${num}${comp ? ' (' + comp + ')' : ''} - CEP: ${cep}${ref ? ' [Ref: ' + ref + ']' : ''}`;
+    }
+
+    // 4. Salva no campo oculto que o seu sistema de WhatsApp já utiliza
+    const campoOculto = el('enderecoCliente');
+    if (campoOculto) {
+        campoOculto.value = enderecoFinal;
+    }
+
+    // 5. Avança para a próxima etapa
+    fecharModal('modalDadosDoCliente');
+    abrirModal('modalFormaDePagamento');
+
+    // Atualiza o valor do PIX no próximo modal
+    if (typeof renderizarOpcoesPagamento === 'function') {
+        renderizarOpcoesPagamento();
+    }
+}
+
+// Ativa a escuta de erros em tempo real
+function configurarValidacaoRealTime() {
+    const campos = [
+        { id: 'nomeCliente', validar: v => v.trim().length >= 3, msg: "Digite seu nome completo." },
+        { id: 'telefoneCliente', validar: v => v.replace(/\D/g, '').length === 11, msg: "O WhatsApp precisa de 11 números." },
+        { id: 'cepCliente', validar: v => v.replace(/\D/g, '').length === 8, msg: "CEP inválido." },
+        { id: 'ruaCliente', validar: v => v.trim().length > 3, msg: "Preencha a rua." },
+        { id: 'numCliente', validar: v => v.trim().length > 0, msg: "Nº obrigatório." }
+    ];
+
+    campos.forEach(campo => {
+        const input = el(campo.id);
+        if (!input) return;
+
+        // VALIDAÇÃO AO SAIR DO CAMPO (BLUR)
+        input.addEventListener('blur', () => {
+            const wrapperEndereco = el('wrapper-endereco');
+            // Se o campo for de endereço mas o modo for retirada (escondido), ignora
+            if (input.closest('#wrapper-endereco') && wrapperEndereco && wrapperEndereco.style.display === 'none') {
+                return;
+            }
+
+            if (!campo.validar(input.value)) {
+                input.style.borderColor = 'var(--red)';
+                input.style.backgroundColor = '#fff0f0';
+                console.log("Erro: " + campo.msg);
+            } else {
+                input.style.borderColor = '#ddd';
+                input.style.backgroundColor = '#fdfdfd';
+            }
+        });
+    });
+
+    // MÁSCARA EM TEMPO REAL NO TELEFONE
+    const inputTel = el('telefoneCliente');
+    if (inputTel) {
+        inputTel.addEventListener('input', (e) => {
+            let num = e.target.value.replace(/\D/g, ""); // Pega só números
+            if (num.length > 11) num = num.slice(0, 11); // Trava em 11
+            e.target.value = aplicarMascaraTelefone(num); // Aplica a máscara (xx) x.xxxx.xxxx
+        });
+    }
+}
+
+function aplicarMascaraTelefone(valor) {
+    if (!valor) return "";
+    valor = valor.replace(/\D/g, ""); // Remove tudo que não é número
+    
+    // Aplica o formato: (XX) X.XXXX.XXXX
+    if (valor.length > 0) valor = valor.replace(/^(\d{2})/, "($1) ");
+    if (valor.length > 2) valor = valor.replace(/(\d{2})\s(\d{1})/, "($1) $2.");
+    if (valor.length > 7) valor = valor.replace(/(\d{2})\s(\d{1})\.(\d{4})/, "($1) $2.$3.");
+    
+    return valor;
 }

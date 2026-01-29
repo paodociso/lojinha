@@ -130,22 +130,34 @@
             
             <div style="display:flex; flex-direction:column; gap:15px;">
                 <div class="campo-grupo">
-                    <label style="font-size:0.75rem; font-weight:900; color:#666; display:block; margin-bottom:5px;">NOME COMPLETO *</label>
+                    <label style="font-size:0.75rem; font-weight:900; color:#cc0000; display:block; margin-bottom:5px;">NOME COMPLETO *</label>
                     <input type="text" id="nomeCliente" placeholder="Como te chamamos?" 
                         style="width:100%; padding:14px; border-radius:10px; border:1px solid #ddd; font-size:1rem; outline:none; background:#fdfdfd; box-sizing: border-box;">
                 </div>
 
                 <div class="campo-grupo">
-                    <label style="font-size:0.75rem; font-weight:900; color:#666; display:block; margin-bottom:5px;">WHATSAPP *</label>
+                    <label style="font-size:0.75rem; font-weight:900; color:#cc0000; display:block; margin-bottom:5px;">WHATSAPP *</label>
                     <input type="tel" id="telefoneCliente" placeholder="(00) 00000-0000" 
                         style="width:100%; padding:14px; border-radius:10px; border:1px solid #ddd; font-size:1rem; outline:none; background:#fdfdfd; box-sizing: border-box;">
                 </div>
 
                 <div id="wrapper-endereco" style="display:none; border-top: 1px dashed #ddd; padding-top:15px; margin-top:5px;">
                     <label style="font-size:0.75rem; font-weight:900; color:#cc0000; display:block; margin-bottom:5px;">ENDEREÇO DE ENTREGA *</label>
-                    <input type="text" id="enderecoCliente" placeholder="Rua, número e bairro" 
-                        style="width:100%; padding:14px; border-radius:10px; border:1px solid #cc000033; font-size:1rem; outline:none; background:#fffcfc; box-sizing: border-box;">
+                    
+                    <input type="text" id="cepCliente" placeholder="CEP (00000000)" maxlength="8" onblur="buscarCEP(this.value)" style="width:100%; padding:12px; margin-bottom:8px; border-radius:8px; border:1px solid #ddd; box-sizing: border-box;">
+                    
+                    <input type="text" id="ruaCliente" placeholder="Rua e Bairro" style="width:100%; padding:12px; margin-bottom:8px; border-radius:8px; border:1px solid #ddd; box-sizing: border-box;">
+                    
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="numCliente" placeholder="Nº" style="width:30%; padding:12px; border-radius:8px; border:1px solid #ddd; box-sizing: border-box;">
+                        <input type="text" id="compCliente" placeholder="Apto/Bloco" style="width:70%; padding:12px; border-radius:8px; border:1px solid #ddd; box-sizing: border-box;">
+                    </div>
+                    
+                    <input type="text" id="refCliente" placeholder="Ponto de referência" style="width:100%; padding:12px; margin-top:8px; border-radius:8px; border:1px solid #ddd; box-sizing: border-box;">
+                    
+                    <input type="hidden" id="enderecoCliente">
                 </div>
+
             </div>
 
             <div style="margin-top:25px;">
@@ -167,7 +179,7 @@
             <h3 style="margin-bottom: 25px; color: var(--marrom-cafe); text-align: center; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Forma de Pagamento</h3>
 
             <div class="opcao-pagamento" onclick="selPgto('Pix', this)" style="position: relative; border-radius: 12px; border: 2px solid #eee; background: #fff; padding: 15px; cursor: pointer; margin-bottom: 12px; transition: 0.3s; text-align: center;">
-                <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--verde-militar); color: white; font-size: 0.6rem; padding: 3px 10px; border-radius: 4px; font-weight: bold;">RECOMENDADO</span>
+                <span style="position: absolute; top: -10px; left: 80%; transform: translateX(-50%); background: var(--verde-militar); color: white; font-size: 0.6rem; padding: 3px 10px; border-radius: 4px; font-weight: bold;">RECOMENDADO</span>
                 
 <div style="font-weight: 900; color: #333; font-size: 1rem; display: flex; align-items: center; justify-content: center;">
     <i class="fa-brands fa-pix" style="color: #555; margin-right: 8px;"></i> PIX
