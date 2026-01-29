@@ -179,7 +179,7 @@ function configurarProduto(sIdx, iIdx) {
     const produto = dadosIniciais.secoes[sIdx].itens[iIdx];
     const chave = produto.id || `item-${sIdx}-${iIdx}`;
     
-    // 1. Persistência: Verifica se o item já existe na carrinho para não zerar a contagem
+    // Mantém o estado do carrinho para o item
     if (carrinho[chave]) {
         itemAtual = JSON.parse(JSON.stringify(carrinho[chave]));
     } else {
@@ -193,50 +193,59 @@ function configurarProduto(sIdx, iIdx) {
     }
 
     const corpo = el('corpoModalProduto');
-    
-    let htmlOpcionais = "";
-    const listaOpcionaisGeral = dadosIniciais.opcionais[produto.opcionais] || [];
+    let listaParaExibir = [];
 
-    // 2. Lógica de Opcionais Ativos
-    if (listaOpcionaisGeral.length > 0) {
-        // Filtramos a lista geral para manter apenas o que está no array 'opcionais_ativos' do produto
-        const opcionaisParaExibir = listaOpcionaisGeral.filter(opc => {
-            return produto.opcionais_ativos && produto.opcionais_ativos.includes(opc.nome);
+    // --- LÓGICA DE PRIORIDADE ---
+    // 1. Tenta usar os opcionais escolhidos no painel (opcionais_ativos)
+    if (produto.opcionais_ativos && produto.opcionais_ativos.length > 0) {
+        produto.opcionais_ativos.forEach(nomeOpc => {
+            // Varre o banco de dados global para achar o preço de cada nome
+            for (let cat in dadosIniciais.opcionais) {
+                const busca = dadosIniciais.opcionais[cat].find(o => o.nome === nomeOpc);
+                if (busca) {
+                    listaParaExibir.push(busca);
+                    break;
+                }
+            }
         });
-
-        // Só monta o container se houver opcionais ativos para este produto
-        if (opcionaisParaExibir.length > 0) {
-            htmlOpcionais = `
-                <div id="container-opcionais" style="display: ${itemAtual.qtd > 0 ? 'block' : 'none'}; margin-top:15px; padding:15px; border:1px solid #eee; border-radius:12px; background:#f9f9f9;">
-                    <h4 style="font-size: 0.9rem; font-weight: 900; margin-bottom:10px; color:#333; text-align:center; text-transform:uppercase;">OPCIONAIS</h4>
-                    <hr style="border:0; border-top:1px solid #ddd; margin-bottom:15px;">
-            `;
-            
-            opcionaisParaExibir.forEach(opc => {
-                const idOpc = opc.nome.replace(/\s+/g, '');
-                const qtdOpcSalva = itemAtual.opcionais[opc.nome] ? itemAtual.opcionais[opc.nome].qtd : 0;
-                
-                htmlOpcionais += `
-                    <div class="linha-opcional" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                        <div class="opc-info">
-                            <div style="font-size:1rem; font-weight:normal; color:#111;">${opc.nome}</div>
-                            <div style="font-size:0.85rem; font-weight:bold; color:var(--verde-militar);">${fmtMoeda(opc.preco)}</div>
-                        </div>
-                        <div class="opc-controles">
-                            <button type="button" class="btn-qtd-moderno" onclick="alterarQtdOpcional('${opc.nome}', ${opc.preco}, -1)">-</button>
-                            <span id="qtd-opc-${idOpc}" style="font-weight:900; min-width:25px; text-align:center; color:#111;">${qtdOpcSalva}</span>
-                            <button type="button" class="btn-qtd-moderno" onclick="alterarQtdOpcional('${opc.nome}', ${opc.preco}, 1)">+</button>
-                        </div>
-                    </div>`;
-            });
-            htmlOpcionais += `</div>`;
-        }
+    } 
+    // 2. Se não houver ativos, usa a categoria antiga (compatibilidade)
+    else if (produto.opcionais && dadosIniciais.opcionais[produto.opcionais]) {
+        listaParaExibir = dadosIniciais.opcionais[produto.opcionais];
     }
 
-    // 3. Renderização do HTML do Modal
-    corpo.innerHTML = `
-        <div id="status-adicionado" style="display: ${itemAtual.qtd > 0 ? 'block' : 'none'}; text-align:center; background:#e8f5e9; color:#2e7d32; padding:8px; border-radius:8px; font-weight:bold; margin-bottom:10px;">✓ Item adicionado à carrinho</div>
+    let htmlOpcionais = "";
+    if (listaParaExibir.length > 0) {
+        htmlOpcionais = `
+            <div id="container-opcionais" style="display: ${itemAtual.qtd > 0 ? 'block' : 'none'}; margin-top:15px; padding:15px; border:1px solid #eee; border-radius:12px; background:#f9f9f9;">
+                <h4 style="font-size: 0.9rem; font-weight: 900; margin-bottom:10px; color:#333; text-align:center; text-transform:uppercase;">OPCIONAIS</h4>
+                <hr style="border:0; border-top:1px solid #ddd; margin-bottom:15px;">
+        `;
+        
+        listaParaExibir.forEach(opc => {
+            const idOpc = opc.nome.replace(/\s+/g, '');
+            const qtdOpcSalva = itemAtual.opcionais[opc.nome] ? itemAtual.opcionais[opc.nome].qtd : 0;
+            
+            htmlOpcionais += `
+                <div class="linha-opcional" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <div class="opc-info">
+                        <div style="font-size:1rem; font-weight:normal; color:#111;">${opc.nome}</div>
+                        <div style="font-size:0.85rem; font-weight:bold; color:var(--verde-militar);">${fmtMoeda(opc.preco)}</div>
+                    </div>
+                    <div class="opc-controles">
+                        <button type="button" class="btn-qtd-moderno" onclick="alterarQtdOpcional('${opc.nome}', ${opc.preco}, -1)">-</button>
+                        <span id="qtd-opc-${idOpc}" style="font-weight:900; min-width:25px; text-align:center; color:#111;">${qtdOpcSalva}</span>
+                        <button type="button" class="btn-qtd-moderno" onclick="alterarQtdOpcional('${opc.nome}', ${opc.preco}, 1)">+</button>
+                    </div>
+                </div>`;
+        });
+        htmlOpcionais += `</div>`;
+    }
 
+    // Renderização do HTML do Modal
+    corpo.innerHTML = `
+        <div id="status-adicionado" style="display: ${itemAtual.qtd > 0 ? 'block' : 'none'}; text-align:center; background:#e8f5e9; color:#2e7d32; padding:8px; border-radius:8px; font-weight:bold; margin-bottom:10px;">✓ Item adicionado</div>
+        
         <div style="display: flex; justify-content: center; margin-bottom: 20px;">
             <div style="width: 200px; height: 200px; border: 1px solid #eee; border-radius: 12px; overflow: hidden; background: #fff; padding: 5px;">
                 <img src="${produto.imagem}" alt="${produto.nome}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
@@ -245,14 +254,11 @@ function configurarProduto(sIdx, iIdx) {
 
         <div style="padding:15px; background:#f9f9f9; border-radius:12px; border:1px solid #eee; margin-bottom:15px;">
             <h2 style="font-size:0.95rem; font-weight:900; text-transform:uppercase; color:#000; margin:0;">${produto.nome}</h2>
-            <p style="font-size:0.85rem; color:#444; margin-top:8px; line-height:1.4; font-weight:500;">${produto.descricao}</p>
+            <p style="font-size:0.85rem; color:#444; margin-top:8px; line-height:1.4; font-weight:500;">${produto.descricao || ''}</p>
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; background:#f9f9f9; border-radius:12px; border:1px solid #eee;">
-            <div style="font-size:1.4rem; font-weight:900; color:var(--verde-militar);">
-                ${fmtMoeda(produto.preco)}
-            </div>
-            
+            <div style="font-size:1.4rem; font-weight:900; color:var(--verde-militar);">${fmtMoeda(produto.preco)}</div>
             <div style="display:flex; align-items:center; gap:12px;">
                 <button class="btn-qtd-moderno" onclick="atualizarQtdPrincipal(-1)">-</button>
                 <span id="qtd-display-principal" style="font-size:1.3rem; font-weight:900; min-width:25px; text-align:center; color:#000;">${itemAtual.qtd}</span>
@@ -266,11 +272,11 @@ function configurarProduto(sIdx, iIdx) {
             <span style="font-size:0.7rem; color:#cc0000; letter-spacing:1px; font-weight:bold; text-transform:uppercase;">SUBTOTAL DO ITEM</span>
             <span id="valor-subtotal-display" style="font-size:1.4rem; font-weight:900; color:#cc0000;">${fmtMoeda(0)}</span>
         </div>
-    `; // O INNERHTML FECHA AQUI
+    `;
 
     abrirModal('modalProduto');
     recalcularSubtotal();
-    atualizarBotaoCesta(); // Adicionamos esta chamada para verificar se o botão verde deve aparecer
+    atualizarBotaoCesta();
 }
 
 function atualizarQtdPrincipal(val) {

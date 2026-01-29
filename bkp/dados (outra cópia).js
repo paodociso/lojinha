@@ -1,29 +1,19 @@
 const dadosIniciais = {
   "fornada": {
-    "dataISO": "2026-02-09",
-    "diasAntecedencia": 2,
-    "horaLimite": "12h"
+    "dataISO": "2026-02-09",     // A data da fornada (Ano-Mês-Dia)
+    "diasAntecedencia": 2,       // Dias antes para encerrar pedidos
+    "horaLimite": "12h"          // Hora do encerramento
   },
   "cupons": [
     {
-      "codigo": "PROMO10",
-      "valor": 10,
-      "tipo": "porcentagem"
+      "codigo": "PRIMEIRACOMPRA",
+      "desconto": 10.00,         // Valor fixo em Reais
+      "tipo": "fixo"             // Pode ser "fixo" ou "percentual"
     },
     {
-      "codigo": "BEMVINDO",
-      "valor": 5,
+      "codigo": "BEMVINDO5",
+      "desconto": 5.00,
       "tipo": "fixo"
-    },
-    {
-      "codigo": "MATHILDE15",
-      "tipo": "porcentagem",
-      "valor": 15
-    },
-    {
-      "codigo": "TESTE50",
-      "tipo": "porcentagem",
-      "valor": 50
     }
   ],
   "opcionais": {
@@ -347,11 +337,12 @@ const dadosIniciais = {
           "descricao": "Pão rústico de longa fermentação, com blend de trigo italiano refinado, trigo integral orgânico e centeio integral orgânico. Casca crocante e miolo úmido e saboroso.",
           "preco": 35,
           "imagem": "img/paodecampanha.jpg",
+          "opcionais": "Pães de fermentação natural",
           "opcionais_ativos": [
             "Alichella (100g)",
             "Sardella (100g)",
             "Melanzane sottolio (100g)",
-            "Potinho de vidro"
+            "Manteiga temperada (100g)"
           ],
           "esgotado": false
         },
@@ -360,11 +351,11 @@ const dadosIniciais = {
           "descricao": "Pão artesanal de fermentação lenta, feito com farinha de trigo italiana refinada. Casca fina e dourada, miolo alveolado e úmido, com sabor autêntico.",
           "preco": 35,
           "imagem": "img/paoitaliano.jpeg",
+          "opcionais": "Pães de fermentação natural",
           "opcionais_ativos": [
             "Alichella (100g)",
             "Sardella (100g)",
-            "Melanzane sottolio (100g)",
-            "Potinho de vidro"
+            "Melanzane sottolio (100g)"
           ],
           "esgotado": false
         },
@@ -373,11 +364,11 @@ const dadosIniciais = {
           "descricao": "Sabor rústico e autêntico em cada mordida com nossa Demi-Baguete de Campanha artesanal. A união equilibrada entre uma crosta crocante e o miolo macio com toque de farinha integral.",
           "preco": 20,
           "imagem": "img/demibaguete.jpeg",
+          "opcionais": "Pães de fermentação natural",
           "opcionais_ativos": [
             "Alichella (100g)",
             "Sardella (100g)",
-            "Melanzane sottolio (100g)",
-            "Potinho de vidro"
+            "Melanzane sottolio (100g)"
           ],
           "esgotado": false
         },
@@ -386,10 +377,15 @@ const dadosIniciais = {
           "descricao": "Este pão rústico combina casca crocante e miolo leve, de sabor profundo. Simples, autêntica e feita para quem valoriza pão de verdade.",
           "preco": 15,
           "imagem": "img/ciabatta.jpeg",
+          "opcionais": "Pães de fermentação natural",
           "opcionais_ativos": [
             "Alichella (100g)",
             "Sardella (100g)",
             "Melanzane sottolio (100g)",
+            "Manteiga temperada (100g)",
+            "Confit de alho (100g)",
+            "Confit de alho e tomates cereja (100g)",
+            "Picles de cebola (100g)",
             "Potinho de vidro"
           ],
           "esgotado": false
@@ -495,33 +491,24 @@ const dadosIniciais = {
       "nome": "Bebidas",
       "itens": [
         {
-          "nome": "Vinho Casillero del Diablo",
-          "descricao": "Vinho tinto",
-          "preco": 55,
-          "imagem": "img/vinhocasillerodeldiabo.webp",
+          "nome": "Vinho Casillero del Diabo",
+          "descricao": "Apresenta um perfil estruturado, com taninos presentes e notas de frutas escuras. Originário de vinhedos tradicionais do Chile, resulta em um vinho de caráter definido.",
+          "preco": 65,
+          "imagem": "img/vinhocasillerodeldiabo.jpeg",
+          "opcionais": "Bebidas",
           "opcionais_ativos": [
             "Taça de vidro",
-            "Taça champangne",
-            "Alichella (100g)",
-            "Sardella (100g)",
-            "Melanzane sottolio (100g)",
-            "Manteiga temperada (100g)",
-            "Confit de alho (100g)"
+            "Taça champangne"
           ]
         },
         {
           "nome": "Vinho Gato Negro",
-          "descricao": "Vinho tinto",
-          "preco": 55,
-          "imagem": "img/vinhogatonegro.webp",
+          "descricao": "Oferece um estilo acessível, com corpo médio e caráter frutado. Sua produção é voltada para a consistência e fácil harmonização.",
+          "preco": 65,
+          "imagem": "img/vinhogatonegro.jpeg",
+          "opcionais": "Bebidas",
           "opcionais_ativos": [
-            "Taça de vidro",
-            "Taça champangne",
-            "Alichella (100g)",
-            "Sardella (100g)",
-            "Melanzane sottolio (100g)",
-            "Manteiga temperada (100g)",
-            "Confit de alho (100g)"
+            "Taça de vidro"
           ]
         },
         {
@@ -529,16 +516,10 @@ const dadosIniciais = {
           "descricao": "Com aroma de frutas frescas como abacaxi e pera. Elaborado na França, exemplar jovem, moderno e fácil de beber.",
           "preco": 85,
           "imagem": "img/espumanteveuvedargentblancdeblancsdemisec.jpeg",
+          "opcionais": "Bebidas",
           "opcionais_ativos": [
-            "Taça champangne",
-            "Alichella (100g)",
-            "Sardella (100g)",
-            "Melanzane sottolio (100g)",
-            "Confit de alho (100g)",
-            "Manteiga temperada (100g)",
-            "Taça de vidro"
-          ],
-          "esgotado": true
+            "Taça champangne"
+          ]
         }
       ]
     }

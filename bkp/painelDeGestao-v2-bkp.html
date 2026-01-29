@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo | Pão do Ciso</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-creme: #fdf5e6;
+            --verde-militar: #2d3a27;
+            --marrom-cafe: #2e2610;
+            --marrom-detalhe: #7d4f39;
+            --texto: #3e2723;
+            --branco: #ffffff;
+            --red: #b22222;
+        }
+
+        /* Garante que o conteúdo das células esteja alinhado ao topo e tenha espaçamento */
+        table td {
+            vertical-align: top;
+            padding: 15px 10px;
+        }
+
+        .card-admin input[type="date"],
+        .card-admin input[type="number"],
+        .card-admin input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        /* Estilo para a mini descrição */
+        .mini-descricao {
+            display: block;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Container de balões dentro da tabela */
+        .opcionais-lista-tabela {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .badge-opcional-micro {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            background: #eee;
+            border-radius: 10px;
+            color: var(--verde-militar);
+            border: 1px solid #ddd;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            background: #f4f1ea;
+            color: var(--texto);
+        }
+
+        /* Cards que funcionam como botões */
+        .stats-grid .card-button {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .stats-grid .card-button:hover {
+            transform: translateY(-5px);
+            border-color: var(--verde-militar);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-grid .card-button i {
+            font-size: 2rem;
+            color: var(--verde-militar);
+            margin-bottom: 10px;
+        }
+
+        .stats-grid .card-button h2 {
+            margin: 10px 0 0 0;
+            color: var(--marrom-cafe);
+        }
+
+        /* Força o layout da tabela a ser fixo para respeitar as larguras definidas */
+        .card-admin table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        /* Definição exata de largura para cada coluna */
+        .col-img { width: 70px; }
+        .col-produto { width: auto; }
+        .col-preco { width: 110px; }
+        .col-status { width: 110px; }
+        .col-acoes { width: 140px; }
+
+        /* Ajuste fino nas células */
+        .card-admin td,
+        .card-admin th {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
+        /* Sidebar e Navegação */
+        .sidebar {
+            width: 260px;
+            background: var(--verde-militar);
+            height: 100vh;
+            position: fixed;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header img {
+            width: 90px;
+            border-radius: 50%;
+            border: 3px solid var(--bg-creme);
+            margin-bottom: 15px;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: 0.3s;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 5px solid var(--bg-creme);
+        }
+
+        /* Área Principal */
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        /* Cards e Layout */
+        .card-admin {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Tabelas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            background: #f8f9fa;
+            color: var(--marrom-cafe);
+            font-weight: 600;
+            border-bottom: 2px solid #eee;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        /* Botões Estilo Original */
+        .btn-adm {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-verde-personalizado { background: var(--verde-militar) !important; color: white !important; }
+        .btn-bege-personalizado { background: var(--bg-creme) !important; color: var(--verde-militar) !important; border: 1px solid #dccbb0 !important; }
+        .btn-red { background: var(--red); color: white; }
+
+        /* Opcionais (Balões) */
+        .opcionais-badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .badge-opcional {
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+            background: #fff;
+        }
+
+        .badge-opcional.selected {
+            background: var(--verde-militar);
+            color: white;
+            border-color: var(--verde-militar);
+        }
+
+        /* Modais */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            background: white;
+            width: 550px;
+            padding: 40px;
+            border-radius: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .badge { padding: 5px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://cdn3.emoji.gg/emojis/2637-settings.png" alt="Logo">
+            <h3>Pão do Ciso Admin</h3>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item" id="nav-dashboard" onclick="navegarPara('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</div>
+            <div class="nav-item" id="nav-produtos" onclick="navegarPara('produtos')"><i class="fas fa-bread-slice"></i> Gestão de Produtos</div>
+            <div class="nav-item" id="nav-sessoes" onclick="navegarPara('sessoes')"><i class="fas fa-folder-open"></i> Sessões e Categorias</div>
+            <div class="nav-item" id="nav-cupons" onclick="navegarPara('cupons')"><i class="fas fa-ticket-alt"></i> Cupons de Desconto</div>
+            <div style="margin-top: 50px; padding: 0 25px;">
+                <button class="btn-adm btn-bege-personalizado" style="width:100%" onclick="visualizarCodigo()"><i class="fas fa-code"></i> Ver Código</button>
+                <button class="btn-adm btn-verde-personalizado" style="width:100%; margin-top: 10px;" onclick="baixarDados()"><i class="fas fa-download"></i> Baixar dados.js</button>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <div id="content-area"></div>
+    </main>
+
+    <div id="modal-container" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="modal-title"></h2>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="dados.js"></script>
+
+    <script>
+        let db = JSON.parse(localStorage.getItem('pao_do_ciso_db')) || dadosIniciais;
+        let opcionaisTemp = [];
+
+        const persistir = () => localStorage.setItem('pao_do_ciso_db', JSON.stringify(db));
+
+        const CRUD = {
+            // --- GESTÃO DA FORNADA ---
+            salvarFornada: (dados) => {
+                db.fornada = {
+                    dataISO: dados.dataISO,
+                    diasAntecedencia: parseInt(dados.diasAntecedencia),
+                    horaLimite: dados.horaLimite
+                };
+                persistir();
+                renderizarAtual();
+                alert("Configurações da fornada atualizadas!");
+            },
+
+            adicionarProduto: (sIdx, data) => {
+                db.secoes[sIdx].itens.push({ ...data, esgotado: false });
+                persistir();
+                renderizarAtual();
+            },
+            editarProduto: (sIdx, iIdx, data) => {
+                db.secoes[sIdx].itens[iIdx] = { ...db.secoes[sIdx].itens[iIdx], ...data };
+                persistir();
+                renderizarAtual();
+            },
+            removerProduto: (sIdx, iIdx) => {
+                if (confirm("Excluir produto?")) {
+                    db.secoes[sIdx].itens.splice(iIdx, 1);
+                    persistir();
+                    renderizarAtual();
+                }
+            },
+
+            // --- GESTÃO DE PRODUTOS ---
+            salvarProduto: (sIdx, iIdx) => {
+                const nome = document.getElementById('f-nome').value;
+                const preco = parseFloat(document.getElementById('f-preco').value);
+                const imagem = document.getElementById('f-imagem').value;
+                const descricao = document.getElementById('f-descricao').value;
+
+                const dadosProduto = {
+                    nome: nome,
+                    descricao: descricao,
+                    preco: preco,
+                    imagem: imagem,
+                    opcionais_ativos: [...opcionaisTemp],
+                    esgotado: (iIdx !== null && db.secoes[sIdx].itens[iIdx]) ? db.secoes[sIdx].itens[iIdx].esgotado : false
+                };
+
+                if (iIdx !== null) {
+                    db.secoes[sIdx].itens[iIdx] = dadosProduto;
+                } else {
+                    db.secoes[sIdx].itens.push(dadosProduto);
+                }
+
+                persistir();
+                fecharModal();
+                renderProdutos(document.getElementById('admin-content'));
+            },
+
+            toggleEstoque: (sIdx, iIdx) => {
+                db.secoes[sIdx].itens[iIdx].esgotado = !db.secoes[sIdx].itens[iIdx].esgotado;
+                persistir();
+                renderizarAtual();
+            },
+            salvarSessao: (idx, nome) => {
+                if (idx !== null) db.secoes[idx].nome = nome;
+                else db.secoes.push({ nome: nome, itens: [] });
+                persistir();
+                renderizarAtual();
+            },
+            removerSessao: (idx) => {
+                if (confirm("Excluir sessão e todos os produtos nela?")) {
+                    db.secoes.splice(idx, 1);
+                    persistir();
+                    renderizarAtual();
+                }
+            },
+            // --- FUNÇÕES DE OPCIONAIS ---
+            adicionarOpcional: (nomeSessao, sIdx) => {
+                if (!db.opcionais[nomeSessao]) db.opcionais[nomeSessao] = [];
+                db.opcionais[nomeSessao].push({ nome: "Novo Opcional", preco: 0 });
+                persistir();
+                abrirModalSessao(sIdx);
+            },
+            editarOpcional: (nomeSessao, oIdx, campo, valor) => {
+                if (campo === 'preco') valor = parseFloat(valor) || 0;
+                db.opcionais[nomeSessao][oIdx][campo] = valor;
+                persistir();
+            },
+            removerOpcional: (nomeSessao, oIdx, sIdx) => {
+                if (confirm("Remover este opcional?")) {
+                    db.opcionais[nomeSessao].splice(oIdx, 1);
+                    persistir();
+                    abrirModalSessao(sIdx);
+                }
+            },
+
+            // --- FUNÇÕES DE CUPONS ---
+            adicionarCupom: (data) => {
+                db.cupons.push(data);
+                persistir();
+                renderizarAtual();
+            },
+            removerCupom: (idx) => {
+                if (confirm("Excluir este cupom?")) {
+                    db.cupons.splice(idx, 1);
+                    persistir();
+                    renderizarAtual();
+                }
+            }
+        };
+
+        const navegarPara = (secao) => {
+            secaoAtiva = secao;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('nav-' + secao).classList.add('active');
+            renderizarAtual();
+        };
+
+        const renderizarAtual = () => {
+            const container = document.getElementById('content-area');
+            if (secaoAtiva === 'dashboard') renderDashboard(container);
+            else if (secaoAtiva === 'produtos') renderProdutos(container);
+            else if (secaoAtiva === 'cupons') renderCupons(container);
+            else if (secaoAtiva === 'sessoes') renderSessoes(container);
+        };
+
+        function renderDashboard(target) {
+            let totalProd = 0;
+            db.secoes.forEach(s => totalProd += s.itens.length);
+
+            const f = db.fornada || { dataISO: '', diasAntecedencia: 2, horaLimite: '12h' };
+
+            target.innerHTML = `
+                <h1>Dashboard</h1>
+                
+                <div class="card-admin" style="border-bottom: 4px solid var(--marrom-detalhe); margin-bottom: 30px;">
+                    <h3 style="margin-top:0"><i class="fas fa-clock"></i> Configuração da Próxima Fornada</h3>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr auto; gap:15px; align-items: end;">
+                        <div class="form-group" style="margin:0">
+                            <label>Data da Fornada</label>
+                            <input type="date" id="f-data-iso" value="${f.dataISO}">
+                        </div>
+                        <div class="form-group" style="margin:0">
+                            <label>Dias de Antecedência</label>
+                            <input type="number" id="f-antecedencia" value="${f.diasAntecedencia}">
+                        </div>
+                        <div class="form-group" style="margin:0">
+                            <label>Hora Limite</label>
+                            <input type="text" id="f-hora-limite" value="${f.horaLimite}" placeholder="Ex: 12h">
+                        </div>
+                        <button class="btn-adm btn-verde-personalizado" style="height: 42px;" 
+                            onclick="CRUD.salvarFornada({
+                                dataISO: document.getElementById('f-data-iso').value,
+                                diasAntecedencia: document.getElementById('f-antecedencia').value,
+                                horaLimite: document.getElementById('f-hora-limite').value
+                            })">
+                            Atualizar Fornada
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="card-button" onclick="navegarPara('produtos')">
+                        <i class="fas fa-bread-slice"></i>
+                        <h3>Produtos</h3>
+                        <h2>${totalProd}</h2>
+                        <small>Gerenciar itens</small>
+                    </div>
+                    
+                    <div class="card-button" onclick="navegarPara('sessoes')">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>Sessões</h3>
+                        <h2>${db.secoes.length}</h2>
+                        <small>Organizar categorias</small>
+                    </div>
+                    
+                    <div class="card-button" onclick="navegarPara('cupons')">
+                        <i class="fas fa-ticket-alt"></i>
+                        <h3>Cupons</h3>
+                        <h2>${db.cupons ? db.cupons.length : 0}</h2>
+                        <small>Editar descontos</small>
+                    </div>
+                </div>`;
+        }
+
+        function renderProdutos(target) {
+            let html = `<div class="header-actions"><h1>Gestão de Produtos</h1></div>`;
+
+            db.secoes.forEach((secao, sIdx) => {
+                html += `
+                    <div class="card-admin" style="margin-bottom: 40px; border-left: 8px solid var(--verde-militar);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                            <h2 style="margin:0; color:var(--verde-militar)">${secao.nome}</h2>
+                            <button class="btn-adm btn-verde-personalizado" onclick="abrirModalProduto(${sIdx})">
+                                <i class="fas fa-plus"></i> Novo Produto
+                            </button>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="col-img">Imagem</th>
+                                    <th class="col-produto">Produto / Opcionais</th>
+                                    <th class="col-preco">Preço</th>
+                                    <th class="col-status">Status</th>
+                                    <th class="col-acoes">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${secao.itens.map((item, iIdx) => `
+                                    <tr>
+                                        <td>
+                                            <img src="${item.imagem || 'img/placeholder.jpg'}" 
+                                                 style="width:50px; height:50px; border-radius:5px; object-fit:cover;">
+                                        </td>
+                                        <td>
+                                            <div style="font-weight:bold; font-size: 1.1rem; color: var(--marrom-cafe);">${item.nome}</div>
+                                            <div style="font-size: 11px; color: #666; margin-bottom: 8px;">${item.descricao || 'Sem descrição...'}</div>
+                                            
+                                            <div style="display: flex; flex-wrap: wrap; gap: 4px; width: 100%;">
+                                                ${(item.opcionais_ativos || []).map(opt => 
+                                                    `<span class="badge-opcional-micro">${opt}</span>`
+                                                ).join('')}
+                                            </div>
+                                        </td>
+                                        <td><span style="font-weight:600">R$ ${item.preco.toFixed(2)}</span></td>
+                                        <td>
+                                            <span class="badge ${item.esgotado ? 'badge-error' : 'badge-success'}">
+                                                ${item.esgotado ? 'ESGOTADO' : 'ATIVO'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div style="display:flex; gap:5px;">
+                                                <button class="btn-adm btn-bege-personalizado" title="Estoque" onclick="CRUD.toggleEstoque(${sIdx}, ${iIdx})">
+                                                    <i class="fas fa-sync"></i>
+                                                </button>
+                                                <button class="btn-adm btn-bege-personalizado" title="Editar" onclick="abrirModalProduto(${sIdx}, ${iIdx})">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn-adm btn-red" title="Excluir" onclick="CRUD.removerProduto(${sIdx}, ${iIdx})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            });
+
+            target.innerHTML = html;
+        }
+
+        function renderSessoes(target) {
+            target.innerHTML = `
+                <div class="header-actions"><h1>Sessões</h1><button class="btn-adm btn-verde-personalizado" onclick="abrirModalSessao()">+ Nova Sessão</button></div>
+                <div class="card-admin"><table>
+                    <thead><tr><th>Nome</th><th>Produtos</th><th>Ações</th></tr></thead>
+                    <tbody>${db.secoes.map((s, idx) => `
+                        <tr><td><strong>${s.nome}</strong></td><td>${s.itens.length}</td>
+                        <td>
+                            <button class="btn-adm btn-bege-personalizado" onclick="abrirModalSessao(${idx})"><i class="fas fa-edit"></i></button>
+                            <button class="btn-adm btn-red" onclick="CRUD.removerSessao(${idx})"><i class="fas fa-trash"></i></button>
+                        </td></tr>`).join('')}
+                    </tbody></table></div>`;
+        }
+
+        function renderCupons(target) {
+            target.innerHTML = `
+                <div class="header-actions">
+                    <h1>Cupons de Desconto</h1>
+                    <button class="btn-adm btn-verde-personalizado" onclick="abrirModalCupom()">
+                        <i class="fas fa-plus"></i> Novo Cupom
+                    </button>
+                </div>
+                <div class="card-admin">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Valor</th>
+                                <th>Tipo</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${db.cupons.map((c, idx) => `
+                                <tr>
+                                    <td><code>${c.codigo}</code></td>
+                                    <td>${c.valor}</td>
+                                    <td>${c.tipo === 'porcentagem' ? 'Porcentagem (%)' : 'Fixo (R$)'}</td>
+                                    <td>
+                                        <button class="btn-adm btn-red" onclick="CRUD.removerCupom(${idx})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
+        }
+
+        const fecharModal = () => document.getElementById('modal-container').style.display = 'none';
+
+        function toggleBadge(nome, elemento) {
+            const index = opcionaisTemp.indexOf(nome);
+            if (index > -1) {
+                opcionaisTemp.splice(index, 1);
+                elemento.classList.remove('selected');
+            } else {
+                opcionaisTemp.push(nome);
+                elemento.classList.add('selected');
+            }
+        }
+
+        function abrirModalProduto(sIdx, iIdx = null) {
+            const item = iIdx !== null ? db.secoes[sIdx].itens[iIdx] : { nome: '', preco: 0, imagem: '', descricao: '', opcionais_ativos: [] };
+            opcionaisTemp = [...(item.opcionais_ativos || [])];
+            const nomeSessao = db.secoes[sIdx].nome;
+            const listaDeOpcionaisDaSessao = db.opcionais[nomeSessao] || [];
+            const todosOpcionais = listaDeOpcionaisDaSessao.map(opt => opt.nome);
+
+            const html = `
+                <form onsubmit="event.preventDefault(); CRUD.salvarProduto(${sIdx}, ${iIdx})">
+                    <div class="form-group">
+                        <label>Categoria Selecionada</label>
+                        <input type="text" value="${nomeSessao}" disabled style="background:#eee">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Nome do Produto</label>
+                        <input id="f-nome" value="${item.nome}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descrição</label>
+                        <textarea id="f-descricao" rows="2" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">${item.descricao || ''}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Caminho da Imagem</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input id="f-imagem" value="${item.imagem || ''}" placeholder="Ex: img/pao.jpg">
+                            <input type="file" id="file-selector" style="display:none" accept="image/*" 
+                                   onchange="if(this.files.length > 0) { document.getElementById('f-imagem').value = 'img/' + this.files[0].name; }">
+                            <button type="button" class="btn-adm btn-bege-personalizado" 
+                                    style="width: 45px; margin: 0; display: flex; justify-content: center; align-items: center;"
+                                    onclick="document.getElementById('file-selector').click()">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Preço (R$)</label>
+                        <input type="number" step="0.01" id="f-preco" value="${item.preco}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Opcionais Disponíveis (Clique para Ativar)</label>
+                        <div class="opcionais-badge-container">
+                            ${todosOpcionais.map(opt => `
+                                <div class="badge-opcional ${opcionaisTemp.includes(opt) ? 'selected' : ''}" 
+                                     onclick="toggleBadge('${opt}', this)">
+                                     ${opt}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:10px; margin-top:30px;">
+                        <button type="button" class="btn-adm btn-bege-personalizado" onclick="fecharModal()">Cancelar</button>
+                        <button type="submit" class="btn-adm btn-verde-personalizado">
+                            ${iIdx !== null ? 'Atualizar Produto' : 'Criar Produto'}
+                        </button>
+                    </div>
+                </form>`;
+
+            document.getElementById('modal-title').innerText = iIdx !== null ? "Editar Produto" : "Novo Produto";
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal-container').style.display = 'flex';
+        }
+
+        function abrirModalSessao(idx = null) {
+            const nome = idx !== null ? db.secoes[idx].nome : '';
+            const html = `
+                <div class="form-group"><label>Nome da Sessão</label><input id="f-sessao-nome" value="${nome}" required></div>
+                <div style="display:flex; gap:10px">
+                    <button class="btn-adm btn-bege-personalizado" onclick="fecharModal()">Cancelar</button>
+                    <button class="btn-adm btn-verde-personalizado" onclick="CRUD.salvarSessao(${idx}, document.getElementById('f-sessao-nome').value); fecharModal();">Salvar</button>
+                </div>`;
+            document.getElementById('modal-title').innerText = idx !== null ? "Editar Sessão" : "Nova Sessão";
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal-container').style.display = 'flex';
+        }
+
+        function abrirModalCupom() {
+            const html = `
+                <form onsubmit="event.preventDefault(); salvarCupom()">
+                    <div class="form-group">
+                        <label>Código do Cupom</label>
+                        <input id="f-cupom-codigo" placeholder="Ex: PROMO10" required style="text-transform: uppercase">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Desconto</label>
+                        <select id="f-cupom-tipo">
+                            <option value="porcentagem">Porcentagem (%)</option>
+                            <option value="fixo">Valor Fixo (R$)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Valor do Desconto</label>
+                        <input type="number" id="f-cupom-valor" step="0.01" required>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:20px;">
+                        <button type="button" class="btn-adm btn-bege-personalizado" onclick="fecharModal()">Cancelar</button>
+                        <button type="submit" class="btn-adm btn-verde-personalizado">Salvar Cupom</button>
+                    </div>
+                </form>`;
+
+            document.getElementById('modal-title').innerText = "Novo Cupom de Desconto";
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal-container').style.display = 'flex';
+        }
+
+        window.salvarCupom = () => {
+            const novoCupom = {
+                codigo: document.getElementById('f-cupom-codigo').value.toUpperCase(),
+                tipo: document.getElementById('f-cupom-tipo').value,
+                valor: parseFloat(document.getElementById('f-cupom-valor').value)
+            };
+            CRUD.adicionarCupom(novoCupom);
+            fecharModal();
+        };
+
+        window.salvarProduto = (sIdx, iIdx) => {
+            const data = {
+                nome: document.getElementById('f-nome').value,
+                preco: parseFloat(document.getElementById('f-preco').value),
+                opcionais_ativos: [...opcionaisTemp],
+                imagem: "img/placeholder.jpg"
+            };
+            if (sIdx !== null) CRUD.editarProduto(sIdx, iIdx, data);
+            else CRUD.adicionarProduto(document.getElementById('f-sessao').value, data);
+            fecharModal();
+        };
+
+        const visualizarCodigo = () => {
+            const win = window.open("", "_blank");
+            win.document.write(`<pre>const dadosIniciais = ${JSON.stringify(db, null, 2)};</pre>`);
+        };
+
+        const baixarDados = () => {
+            const blob = new Blob([`const dadosIniciais = ${JSON.stringify(db, null, 2)};`], { type: "text/javascript" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "dados.js";
+            a.click();
+        };
+
+        window.onload = () => navegarPara('dashboard');
+
+        /* --- ATUALIZAÇÃO DA FUNÇÃO DE RENDERIZAÇÃO DE PRODUTOS --- */
+
+        /* --- ATUALIZAÇÃO DO MODAL DE PRODUTO (COM CAMPO DE IMAGEM E TAGS) --- */
+
+        function abrirModalProduto(sIdx, iIdx = null) {
+            const item = iIdx !== null ? db.secoes[sIdx].itens[iIdx] : { nome: '', preco: 0, imagem: '', opcionais_ativos: [] };
+            opcionaisTemp = [...(item.opcionais_ativos || [])];
+            const nomeSessao = db.secoes[sIdx].nome;
+            const todosOpcionais = (db.opcionais[nomeSessao] || []).map(opt => opt.nome);
+
+            const html = `
+                <form onsubmit="event.preventDefault(); CRUD.salvarProduto(${sIdx}, ${iIdx})">
+                    <div class="form-group">
+                        <label>Categoria Selecionada</label>
+                        <input type="text" value="${db.secoes[sIdx].nome}" disabled style="background:#eee">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Nome do Produto</label>
+                        <input id="f-nome" value="${item.nome}" required placeholder="Ex: Pão de Campanha">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descrição</label>
+                        <textarea id="f-descricao" rows="2" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">${item.descricao || ''}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Caminho da Imagem</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input id="f-imagem" value="${item.imagem || ''}" placeholder="Ex: img/pao.jpg">
+                            <input type="file" id="file-selector" style="display:none" accept="image/*" 
+                                   onchange="if(this.files.length > 0) { document.getElementById('f-imagem').value = 'img/' + this.files[0].name; }">
+                            <button type="button" class="btn-adm btn-bege-personalizado" 
+                                    style="width: 45px; margin: 0; display: flex; justify-content: center; align-items: center;"
+                                    onclick="document.getElementById('file-selector').click()">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Preço (R$)</label>
+                        <input type="number" step="0.01" id="f-preco" value="${item.preco}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Opcionais Disponíveis (Clique para Ativar)</label>
+                        <div class="opcionais-badge-container">
+                            ${todosOpcionais.map(opt => `
+                                <div class="badge-opcional ${opcionaisTemp.includes(opt) ? 'selected' : ''}" 
+                                     onclick="toggleBadge('${opt}', this)">
+                                     ${opt}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:10px; margin-top:30px;">
+                        <button type="button" class="btn-adm btn-bege-personalizado" onclick="fecharModal()">Cancelar</button>
+                        <button type="submit" class="btn-adm btn-verde-personalizado">
+                            ${iIdx !== null ? 'Atualizar Produto' : 'Criar Produto'}
+                        </button>
+                    </div>
+                </form>`;
+
+            const salvarProduto = (sIdx, iIdx) => {
+                const nome = document.getElementById('f-nome').value;
+                const preco = parseFloat(document.getElementById('f-preco').value);
+                const imagem = document.getElementById('f-imagem').value;
+                const descricao = document.getElementById('f-descricao').value;
+
+                const dadosProduto = {
+                    nome: nome,
+                    descricao: descricao,
+                    preco: preco,
+                    imagem: imagem,
+                    opcionais_ativos: [...opcionaisTemp],
+                    esgotado: (iIdx !== null) ? db.secoes[sIdx].itens[iIdx].esgotado : false
+                };
+
+                if (iIdx !== null) {
+                    db.secoes[sIdx].itens[iIdx] = dadosProduto;
+                } else {
+                    db.secoes[sIdx].itens.push(dadosProduto);
+                }
+
+                persistir();
+                fecharModal();
+                renderProdutos(document.getElementById('admin-content'));
+            };
+
+            document.getElementById('modal-title').innerText = iIdx !== null ? "Editar Produto" : "Novo Produto";
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal-container').style.display = 'flex';
+        }
+
+        /* --- ATUALIZAÇÃO DA FUNÇÃO SALVAR --- */
+
+        window.salvarProduto = (sIdx, iIdx) => {
+            const novoObjeto = {
+                nome: document.getElementById('f-nome').value,
+                imagem: document.getElementById('f-imagem').value,
+                preco: parseFloat(document.getElementById('f-preco').value),
+                opcionais_ativos: [...opcionaisTemp],
+                esgotado: iIdx !== null ? db.secoes[sIdx].itens[iIdx].esgotado : false
+            };
+
+            if (iIdx !== null) {
+                db.secoes[sIdx].itens[iIdx] = novoObjeto;
+            } else {
+                db.secoes[sIdx].itens.push(novoObjeto);
+            }
+
+            persistir();
+            renderizarAtual();
+            fecharModal();
+        }
+
+        function abrirModalSessao(idx = null) {
+            const sessao = idx !== null ? db.secoes[idx] : { nome: '' };
+            const nomeSessao = sessao.nome;
+            const listaOpcionais = db.opcionais[nomeSessao] || [];
+
+            let html = `
+                <div class="form-group">
+                    <label>Nome da Sessão</label>
+                    <input id="f-sessao-nome" value="${nomeSessao}" required>
+                </div>
+                
+                <hr>
+                <h3>Gerenciar Opcionais desta Sessão</h3>
+                <div id="lista-opcionais-sessao">
+                    ${listaOpcionais.map((opc, oIdx) => `
+                        <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center; background:#f9f9f9; padding:10px; border-radius:8px;">
+                            <input type="text" placeholder="Nome" value="${opc.nome}" onchange="CRUD.editarOpcional('${nomeSessao}', ${oIdx}, 'nome', this.value)" style="flex:2">
+                            <input type="number" placeholder="Preço" value="${opc.preco}" onchange="CRUD.editarOpcional('${nomeSessao}', ${oIdx}, 'preco', this.value)" style="flex:1">
+                            <button class="btn-adm btn-red" onclick="CRUD.removerOpcional('${nomeSessao}', ${oIdx}, ${idx})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+                <button class="btn-adm btn-bege-personalizado" style="width:100%; margin-top:10px" onclick="CRUD.adicionarOpcional('${nomeSessao}', ${idx})">
+                    <i class="fas fa-plus"></i> Adicionar Opcional
+                </button>
+
+                <div style="display:flex; gap:10px; margin-top:30px; border-top:1px solid #eee; pt:20px;">
+                    <button class="btn-adm btn-bege-personalizado" onclick="fecharModal()">Cancelar</button>
+                    <button class="btn-adm btn-verde-personalizado" onclick="CRUD.salvarSessao(${idx}, document.getElementById('f-sessao-nome').value); fecharModal();">
+                        Salvar Sessão
+                    </button>
+                </div>`;
+
+            document.getElementById('modal-title').innerText = idx !== null ? "Editar Sessão e Opcionais" : "Nova Sessão";
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal-container').style.display = 'flex';
+        }
+    </script>
+</body>
+
+</html>
