@@ -11,12 +11,13 @@ let itemAtual = {
     opcionais: {} 
 };
 
-let cesta = {}; 
+let carrinho = {}; 
 
 // Adicione junto às suas globais
 let appState = {
     formaPgto: null,
-    totalGeral: 0
+    totalGeral: 0,
+    modoEntrega: null // <--- Adicione isso
 };
 
 // --- 2. INICIALIZAÇÃO ---
@@ -78,7 +79,7 @@ function fecharModal(id) {
 
 function fecharModalTudo() {
     // Certifique-se de que todos os IDs aqui batem com os do seu HTML
-    const modais = ['modalProduto', 'modalCesta', 'modalDadosDoCliente', 'modalFormaDePagamento'];
+    const modais = ['modalProduto', 'modalCarrinho', 'modalDadosDoCliente', 'modalFormaDePagamento'];
     modais.forEach(id => { 
         if(el(id)) el(id).style.display = 'none'; 
     });
@@ -90,9 +91,9 @@ function configurarProduto(sIdx, iIdx) {
     const produto = dadosIniciais.secoes[sIdx].itens[iIdx];
     const chave = produto.id || `item-${sIdx}-${iIdx}`;
     
-    // 1. Persistência: Verifica se o item já existe na cesta para não zerar a contagem
-    if (cesta[chave]) {
-        itemAtual = JSON.parse(JSON.stringify(cesta[chave]));
+    // 1. Persistência: Verifica se o item já existe na carrinho para não zerar a contagem
+    if (carrinho[chave]) {
+        itemAtual = JSON.parse(JSON.stringify(carrinho[chave]));
     } else {
         itemAtual = {
             sessaoIndex: sIdx,
@@ -146,7 +147,7 @@ function configurarProduto(sIdx, iIdx) {
 
     // 3. Renderização do HTML do Modal
     corpo.innerHTML = `
-        <div id="status-adicionado" style="display: ${itemAtual.qtd > 0 ? 'block' : 'none'}; text-align:center; background:#e8f5e9; color:#2e7d32; padding:8px; border-radius:8px; font-weight:bold; margin-bottom:10px;">✓ Item adicionado à cesta</div>
+        <div id="status-adicionado" style="display: ${itemAtual.qtd > 0 ? 'block' : 'none'}; text-align:center; background:#e8f5e9; color:#2e7d32; padding:8px; border-radius:8px; font-weight:bold; margin-bottom:10px;">✓ Item adicionado à carrinho</div>
 
         <div style="display: flex; justify-content: center; margin-bottom: 20px;">
             <div style="width: 200px; height: 200px; border: 1px solid #eee; border-radius: 12px; overflow: hidden; background: #fff; padding: 5px;">
@@ -177,13 +178,11 @@ function configurarProduto(sIdx, iIdx) {
             <span style="font-size:0.7rem; color:#cc0000; letter-spacing:1px; font-weight:bold; text-transform:uppercase;">SUBTOTAL DO ITEM</span>
             <span id="valor-subtotal-display" style="font-size:1.4rem; font-weight:900; color:#cc0000;">${fmtMoeda(0)}</span>
         </div>
-
-        <button class="btn-acao-cesta secundario" onclick="fecharModal('modalProduto')">+ ADICIONAR MAIS +</button>
-        <button class="btn-acao-cesta primario" onclick="abrirCesta()">VER CESTA DE COMPRAS ></button>
-    `;
+    `; // O INNERHTML FECHA AQUI
 
     abrirModal('modalProduto');
     recalcularSubtotal();
+    atualizarBotaoCesta(); // Adicionamos esta chamada para verificar se o botão verde deve aparecer
 }
 
 function atualizarQtdPrincipal(val) {
@@ -193,7 +192,7 @@ function atualizarQtdPrincipal(val) {
     itemAtual.qtd = novaQtd;
     el('qtd-display-principal').innerText = novaQtd;
 
-    // 1. Notificação de texto no Modal (opcional, se quiser manter)
+    // 1. Notificação de texto no Modal
     const msgStatus = el('status-adicionado');
     if (msgStatus) msgStatus.style.display = novaQtd > 0 ? 'block' : 'none';
 
@@ -203,9 +202,9 @@ function atualizarQtdPrincipal(val) {
     if (badge) {
         if (novaQtd > 0) {
             badge.innerText = novaQtd;
-            badge.style.display = 'flex'; // Exibe como flex para centralizar o número
+            badge.style.display = 'flex';
         } else {
-            badge.style.display = 'none'; // Esconde se a quantidade for zero
+            badge.style.display = 'none';
         }
     }
 
@@ -214,8 +213,11 @@ function atualizarQtdPrincipal(val) {
         containerOpc.style.display = novaQtd > 0 ? 'block' : 'none';
     }
 
-    sincronizarCesta();
+    // REMOVEMOS o sincronizarCarrinho daqui para o item só entrar na cesta 
+    // quando clicarmos nos botões novos.
+    
     recalcularSubtotal();
+    atualizarBotaoCesta(); // <-- O GATILHO QUE COMBINAMOS
 }
 
 function alterarQtdOpcional(nome, preco, val) {
@@ -230,7 +232,7 @@ function alterarQtdOpcional(nome, preco, val) {
 
     if (itemAtual.opcionais[nome].qtd === 0) delete itemAtual.opcionais[nome];
 
-    sincronizarCesta();
+    sincronizarCarrinho();
     recalcularSubtotal();
 }
 
@@ -246,14 +248,14 @@ function recalcularSubtotal() {
 
 // --- 5. LÓGICA DA CESTA E BARRA ---
 
-function sincronizarCesta() {
+function sincronizarCarrinho() {
     const chave = itemAtual.id;
     if (itemAtual.qtd > 0) {
-        // Cria uma cópia fiel do item atual para a cesta
-        cesta[chave] = JSON.parse(JSON.stringify(itemAtual)); 
+        // Cria uma cópia fiel do item atual para a carrinho
+        carrinho[chave] = JSON.parse(JSON.stringify(itemAtual)); 
     } else {
-        // Se a quantidade zerar, remove da cesta automaticamente
-        delete cesta[chave];
+        // Se a quantidade zerar, remove da carrinho automaticamente
+        delete carrinho[chave];
     }
     
     // Atualiza a barra do carrinho (se ela existir no HTML)
@@ -266,7 +268,7 @@ function atualizarBarraCarrinho() {
     let total = 0;
     let qtdTotal = 0;
     
-    Object.values(cesta).forEach(item => {
+    Object.values(carrinho).forEach(item => {
         const prod = dadosIniciais.secoes[item.sessaoIndex].itens[item.itemIndex];
         let somaOpc = 0;
         Object.values(item.opcionais).forEach(o => somaOpc += (o.qtd * o.preco));
@@ -283,28 +285,28 @@ function atualizarBarraCarrinho() {
     }
 }
 
-function abrirCesta() {
+function abrirCarrinho() {
     fecharModal('modalProduto');
-    renderizarCesta();
-    abrirModal('modalCesta');
+    renderizarCarrinho();
+    abrirModal('modalCarrinho');
 }
 
-function renderizarCesta() {
-    const corpoCesta = el('itensCesta');
-    const itens = Object.values(cesta);
+function renderizarCarrinho() {
+    const corpoCarrinho = el('itensCarrinho');
+    const itens = Object.values(carrinho);
     let html = "";
     let totalProdutos = 0;
 
     if (itens.length === 0) {
-        corpoCesta.innerHTML = `
+        corpoCarrinho.innerHTML = `
             <div style="text-align:center; padding:40px 20px;">
-                <p style="color:#888; font-weight:500;">Sua cesta está vazia no momento.</p>
-                <button class="btn-acao-cesta primario" style="margin-top:20px;" onclick="fecharModal('modalCesta')">VOLTAR AO CARDÁPIO</button>
+                <p style="color:#888; font-weight:500;">Sua carrinho está vazia no momento.</p>
+                <button class="btn-acao-carrinho primario" style="margin-top:20px;" onclick="fecharModal('modalCarrinho')">VOLTAR AO CARDÁPIO</button>
             </div>`;
         return;
     }
 
-    html += `<h3 style="text-align:center; font-weight:900; text-transform:uppercase; color:var(--marrom-cafe); margin-bottom:20px; letter-spacing:1px;">Cesta de Compras</h3>`;
+    html += `<h3 style="text-align:center; font-weight:900; text-transform:uppercase; color:var(--marrom-cafe); margin-bottom:20px; letter-spacing:1px;">Carrinho de Compras</h3>`;
 
     // 1. LISTAGEM DE ITENS
     html += `<div style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #eee; margin-bottom:15px;">`;
@@ -325,7 +327,7 @@ function renderizarCesta() {
                     ${htmlOpc}
                     <div style="font-weight:bold; color:var(--verde-militar); font-size:0.9rem; margin-top:4px;">${fmtMoeda(subtotalItem)}</div>
                 </div>
-                <button onclick="removerDaCesta('${item.id}')" class="btn-qtd-moderno" style="width:28px !important; height:28px !important; font-size:1rem !important; background:#ffeded !important; color:#cc0000 !important; box-shadow:none !important;">&times;</button>
+                <button onclick="removerDaCarrinho('${item.id}')" class="btn-qtd-moderno" style="width:28px !important; height:28px !important; font-size:1rem !important; background:#ffeded !important; color:#cc0000 !important; box-shadow:none !important;">&times;</button>
             </div>`;
     });
     html += `</div>`;
@@ -334,7 +336,7 @@ function renderizarCesta() {
     html += `
         <div style="background:#f9f9f9; padding:12px; border-radius:12px; border:1px solid #eee; margin-bottom:15px; display:flex; gap:10px; align-items:center;">
             <input type="text" id="input-cupom" placeholder="CUPOM DE DESCONTO" style="flex-grow:1; padding:10px; border-radius:8px; border:1px solid #ccc; font-size:0.8rem; font-weight:bold;">
-            <button onclick="recalcularValoresCesta()" style="background:var(--marrom-cafe); color:white; border:none; padding:10px 15px; border-radius:8px; font-weight:900; font-size:0.75rem; cursor:pointer;">APLICAR</button>
+            <button onclick="recalcularValoresCarrinho()" style="background:var(--marrom-cafe); color:white; border:none; padding:10px 15px; border-radius:8px; font-weight:900; font-size:0.75rem; cursor:pointer;">APLICAR</button>
         </div>
     `;
 
@@ -344,10 +346,10 @@ function renderizarCesta() {
             <p style="font-size:0.75rem; font-weight:900; color:#444; margin-bottom:10px; text-transform:uppercase; text-align:center;">Como deseja receber seu pedido?</p>
             <div style="display:flex; gap:10px; margin-bottom:15px;">
                 <label style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; border:1px solid #ccc; border-radius:8px; cursor:pointer; font-weight:900; font-size:0.7rem; background:white;">
-                    <input type="radio" name="opcaoEntrega" value="entrega" onchange="recalcularValoresCesta()"> RECEBER EM CASA
+                    <input type="radio" name="opcaoEntrega" value="entrega" onchange="recalcularValoresCarrinho()"> RECEBER EM CASA
                 </label>
                 <label style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; border:1px solid #ccc; border-radius:8px; cursor:pointer; font-weight:900; font-size:0.7rem; background:white;">
-                    <input type="radio" name="opcaoEntrega" value="retirada" onchange="recalcularValoresCesta()"> RETIRADA
+                    <input type="radio" name="opcaoEntrega" value="retirada" onchange="recalcularValoresCarrinho()"> RETIRADA
                 </label>
             </div>
             
@@ -356,17 +358,17 @@ function renderizarCesta() {
     `;
 
     html += `
-        <div id="resumo-financeiro-cesta"></div>
-        <button class="btn-acao-cesta primario" onclick="irParaCheckout()">PROSSEGUIR PARA O PAGAMENTO ></button>
-        <button class="btn-acao-cesta secundario" onclick="fecharModal('modalCesta')">+ ADICIONAR MAIS ITENS</button>
-    `;
+            <div id="resumo-financeiro-carrinho"></div>
+            <button class="btn-acao-carrinho btn-bege-personalizado" onclick="fecharModal('modalCarrinho')">+ ADICIONAR MAIS ITENS +</button>
+            <button class="btn-acao-carrinho btn-verde-personalizado" onclick="irParaCheckout()">PROSSEGUIR PARA O PAGAMENTO ></button>
+        `;
 
-    corpoCesta.innerHTML = html;
-    recalcularValoresCesta(); // Inicia o resumo financeiro
+    corpoCarrinho.innerHTML = html;
+    recalcularValoresCarrinho(); // Inicia o resumo financeiro
 }
 
-function recalcularValoresCesta() {
-    const itens = Object.values(cesta);
+function recalcularValoresCarrinho() {
+    const itens = Object.values(carrinho);
     let totalProdutos = 0;
     
     itens.forEach(item => {
@@ -400,9 +402,9 @@ function recalcularValoresCesta() {
     renderizarResumoFinanceiro(totalProdutos, desconto, taxa, modoEntrega);
 }
 
-function removerDaCesta(id) {
-    delete cesta[id];
-    renderizarCesta();
+function removerDaCarrinho(id) {
+    delete carrinho[id];
+    renderizarCarrinho();
     atualizarBarraCarrinho();
 }
 
@@ -413,12 +415,13 @@ function irParaCheckout() {
         return;
     }
 
-    const modo = radioSel.value;
-    
-    // Agora mostramos/escondemos o "wrapper-endereco" que contém o label e o input
-    el('wrapper-endereco').style.display = (modo === 'retirada') ? 'none' : 'block';
-    
-    fecharModal('modalCesta');
+    // SALVA NO ESTADO GLOBAL (Segurança)
+    appState.modoEntrega = radioSel.value;
+
+    // Use a variável do estado daqui pra frente
+    el('wrapper-endereco').style.display = (appState.modoEntrega === 'retirada') ? 'none' : 'block';
+
+    fecharModal('modalCarrinho');
     abrirModal('modalDadosDoCliente');
 }
 
@@ -426,7 +429,7 @@ function irParaCheckout() {
 function salvarPedidoNaPlanilha(metodoPagamento) {
     const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbxnbNO1lc24JMIeEAOjS1tCUaYEGjTXuIKxH-FEvUxlRuVb5ov78j-_tDk_W77QgcVCRw/exec"; 
 
-    const resumoItens = Object.values(cesta).map(item => {
+    const resumoItens = Object.values(carrinho).map(item => {
         const prod = dadosIniciais.secoes[item.sessaoIndex].itens[item.itemIndex];
         let info = `${item.qtd}x ${prod.nome}`;
         const nomesOpc = Object.keys(item.opcionais);
@@ -459,13 +462,12 @@ function enviarParaWhatsApp(metodoPagamento) {
     const nome = el('nomeCliente').value.trim();
     const tel = el('telefoneCliente').value.trim();
     const endereco = el('enderecoCliente').value.trim();
-    const radioSel = document.querySelector('input[name="opcaoEntrega"]:checked');
-    const modoEntrega = radioSel ? radioSel.value : 'retirada';
+    const modoEntrega = appState.modoEntrega;
 
     // Cálculo de Taxa e Desconto para o texto
     const taxa = (modoEntrega === 'entrega') ? 10 : 0;
     
-    // Recuperar valor do desconto (lógica idêntica à da cesta)
+    // Recuperar valor do desconto (lógica idêntica à da carrinho)
     let desconto = 0;
     const cupomInput = el('input-cupom');
     const codigoDigitado = cupomInput ? cupomInput.value.trim().toLowerCase() : "";
@@ -474,7 +476,7 @@ function enviarParaWhatsApp(metodoPagamento) {
         if (cupomEncontrado) {
             // Cálculo simplificado para o texto
             let totalProds = 0;
-            Object.values(cesta).forEach(item => {
+            Object.values(carrinho).forEach(item => {
                 const p = dadosIniciais.secoes[item.sessaoIndex].itens[item.itemIndex];
                 totalProds += (p.preco * item.qtd);
                 Object.values(item.opcionais).forEach(o => totalProds += (o.qtd * o.preco));
@@ -497,7 +499,7 @@ function enviarParaWhatsApp(metodoPagamento) {
     texto += "--------------------------------\n\n";
     texto += "🛒 *ITENS DO PEDIDO:*\n";
     
-    Object.values(cesta).forEach(item => {
+    Object.values(carrinho).forEach(item => {
         const prod = dadosIniciais.secoes[item.sessaoIndex].itens[item.itemIndex];
         let subtotalItem = prod.preco * item.qtd;
         Object.values(item.opcionais).forEach(o => subtotalItem += (o.qtd * o.preco));
@@ -526,7 +528,7 @@ function validarDadosCliente() {
     const modoRadio = document.querySelector('input[name="opcaoEntrega"]:checked');
     
     if (!modoRadio) {
-        alert("Selecione Entrega ou Retirada na cesta!");
+        alert("Selecione Entrega ou Retirada na carrinho!");
         return;
     }
 
@@ -582,7 +584,7 @@ function copiarPix() {
 
 
 function renderizarResumoFinanceiro(totalProdutos, desconto, taxa, modoEntrega) {
-    const container = el('resumo-financeiro-cesta');
+    const container = el('resumo-financeiro-carrinho');
     const containerTaxa = el('info-taxa-pontilhada');
     if (!container) return;
 
@@ -629,7 +631,65 @@ function finalizarPedido() {
         return;
     }
 
-    // Executa as duas ações
+    // Feedback visual
+    const btn = event.target; // O botão que foi clicado
+    btn.innerHTML = 'ENVIANDO... <i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
+
+    // Executa as ações
     salvarPedidoNaPlanilha(appState.formaPgto);
-    enviarParaWhatsApp(appState.formaPgto);
+    
+    // Pequeno delay para o usuário ver que processou antes de abrir o Zap
+    setTimeout(() => {
+        enviarParaWhatsApp(appState.formaPgto);
+        // Opcional: recarregar a página ou fechar tudo
+        // location.reload(); 
+    }, 1500);
+}
+
+// NOVAS FUNÇÕES
+
+// --- FUNÇÕES DE CONTROLE DOS BOTÕES DO MODAL PRODUTO ---
+
+// Função para o botão bege "+ ADICIONAR MAIS ITENS +"
+function adicionarMais() {
+    // Se a quantidade for 0, adiciona ao menos 1 para não ir vazio
+    if (itemAtual.qtd === 0) {
+        atualizarQtdPrincipal(1);
+    }
+    
+    // Salva o item no carrinho global
+    carrinho[itemAtual.id] = JSON.parse(JSON.stringify(itemAtual));
+    
+    // Fecha o modal e volta para o cardápio
+    fecharModal('modalProduto');
+    
+    // Atualiza os badges de quantidade no cardápio inicial
+    render(); 
+}
+
+// Função para o botão verde "IR PARA A CESTA DE COMPRAS"
+function irParaCesta() {
+    // Garante que o item atual seja salvo antes de sair
+    if (itemAtual.qtd === 0) {
+        atualizarQtdPrincipal(1);
+    }
+    carrinho[itemAtual.id] = JSON.parse(JSON.stringify(itemAtual));
+    
+    // Fecha o modal de produto e abre o do carrinho
+    fecharModal('modalProduto');
+    abrirCarrinho();
+}
+
+// Função que controla se o botão verde aparece ou não
+function atualizarBotaoCesta() {
+    const btnCesta = el('btn-ir-cesta');
+    if (!btnCesta) return;
+
+    // O botão aparece se já houver algo no carrinho OU se o usuário aumentou a qtd deste item
+    if (Object.keys(carrinho).length > 0 || itemAtual.qtd > 0) {
+        btnCesta.style.display = 'block';
+    } else {
+        btnCesta.style.display = 'none';
+    }
 }

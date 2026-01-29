@@ -11,6 +11,38 @@
     --bg-container-modal: #f9f9f9;
 }
 
+/* --- ESTILOS DOS BOTÕES DOS MODAIS --- */
+
+/* Botão Bege-Creme (Para botões de "Voltar" ou "Adicionar Mais") */
+.btn-bege-personalizado {
+    background-color: var(--bg-creme) !important;
+    color: var(--verde-militar) !important;
+    border: 1px solid var(--borda-nav) !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+    margin-bottom: 10px !important;
+    cursor: pointer;
+    display: block;
+}
+
+/* Botão Verde-Militar (Para botões de "Avançar", "Ir para Cesta" ou "Finalizar") */
+.btn-verde-personalizado {
+    background-color: var(--verde-militar) !important;
+    color: var(--branco) !important;
+    border: none !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    padding: 15px !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+    margin-bottom: 10px !important;
+    cursor: pointer;
+    display: block;
+}
+
 /* --- 2. CONFIGURAÇÃO GLOBAL --- */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -176,7 +208,7 @@ body {
 .opc-controles { display: flex !important; align-items: center !important; gap: 12px !important; }
 
 /* --- 8. BOTÕES DE AÇÃO E CARRINHO --- */
-.btn-acao-cesta {
+.btn-acao-carrinho {
     width: 100%;
     padding: 15px;
     margin-bottom: 10px;
@@ -188,8 +220,16 @@ body {
     border: none;
 }
 
-.btn-acao-cesta.primario { background-color: var(--verde-militar); color: white; }
-.btn-acao-cesta.secundario { background-color: transparent; color: #444; border: 1px solid #ccc; }
+.btn-acao-carrinho.btn-verde-personalizado { 
+    background-color: var(--verde-militar) !important; 
+    color: white !important; 
+}
+
+.btn-acao-carrinho.btn-bege-personalizado { 
+    background-color: var(--bg-creme) !important; 
+    color: var(--verde-militar) !important; 
+    border: 1px solid var(--borda-nav) !important;
+}
 
 #barra-carrinho {
     position: fixed;

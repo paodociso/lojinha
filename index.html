@@ -58,9 +58,9 @@
     </main>
 
     <!-- ===================== BLOCO 3: BARRA FIXA DO CARRINHO ===================== -->
-    <div id="barra-carrinho" onclick="abrirCesta()" style="display: none;">
+    <div id="barra-carrinho" onclick="abrirCarrinho()" style="display: none;">
         <div class="carrinho-info-esquerda">
-            <span class="qtd-cesta" id="resumo-qtd">0 itens</span>
+            <span class="qtd-carrinho" id="resumo-qtd">0 itens</span>
             <span class="valor-subtotal" id="resumo-total">R$ 0,00</span>
         </div>
         <div class="carrinho-botao-direita">
@@ -95,27 +95,31 @@
                 <i class="fas fa-clock"></i> <b>Dica:</b> Garanta o seu quanto antes!
             </div>
 
-            <button class="btn-acao-cesta primario" onclick="fecharModal('modalFornada')">ENTENDI, VAMOS ÀS COMPRAS! ></button>
+            <button class="btn-acao-carrinho primario" onclick="fecharModal('modalFornada')">ENTENDI, VAMOS ÀS COMPRAS! ></button>
         </div>
     </div>
 
     <!-- Modal 5.1: Detalhes do Produto -->
 
-    <div id="modalProduto" class="modal">
-        <button class="btn-fechar" onclick="fecharModal('modalProduto')">&times;</button>
-        <div id="corpoModalProduto"></div>
-    </div>
+        <div id="modalProduto" class="modal">
+                <button class="btn-fechar" onclick="fecharModal('modalProduto')">&times;</button>
+                <div id="corpoModalProduto"></div>
+                
+                <div style="margin-top: 20px;">
+                    <button class="btn-acao-carrinho btn-bege-personalizado" onclick="adicionarMais()">
+                        + ADICIONAR MAIS ITENS +
+                    </button>
+
+                    <button id="btn-ir-cesta" class="btn-acao-carrinho btn-verde-personalizado" onclick="irParaCesta()" style="display: none;">
+                        IR PARA A CESTA DE COMPRAS
+                    </button>
+                </div>
+            </div>
 
     <!-- Modal 5.2: Carrinho de Compras -->
-    <div id="modalCesta" class="modal">
-        <button class="btn-fechar" onclick="fecharModal('modalCesta')">&times;</button>
-        <div id="itensCesta"></div>
-    </div>
-
-    <!-- Modal 5.3: Modal dos clientes -->
-    <div id="modalCesta" class="modal">
-        <button class="btn-fechar" onclick="fecharModal('modalCesta')">&times;</button>
-        <div id="itensCesta"></div>
+    <div id="modalCarrinho" class="modal">
+        <button class="btn-fechar" onclick="fecharModal('modalCarrinho')">&times;</button>
+        <div id="itensCarrinho"></div>
     </div>
 
     <div id="modalDadosDoCliente" class="modal">
@@ -145,14 +149,19 @@
             </div>
 
             <div style="margin-top:25px;">
-                <button class="btn-acao-cesta primario" onclick="validarDadosCliente()">ESCOLHER PAGAMENTO ></button>
-                <button class="btn-acao-cesta secundario" style="margin-top:10px; border:none; background:transparent; color:#888; cursor:pointer;" onclick="fecharModal('modalDadosDoCliente')">Voltar à cesta</button>
+                <button class="btn-acao-carrinho btn-verde-personalizado" onclick="validarDadosCliente()">
+                    ESCOLHER PAGAMENTO >
+                </button>
+                
+                <button class="btn-acao-carrinho btn-bege-personalizado" style="margin-top:10px;" onclick="fecharModal('modalDadosDoCliente'); abrirModal('modalCarrinho');">
+                    < VOLTAR À CESTA
+                </button>
             </div>
         </div>
     </div>
 
     <div id="modalFormaDePagamento" class="modal">
-        <button class="btn-fechar" onclick="fecharModais()">&times;</button>
+        <button class="btn-fechar" onclick="fecharModalTudo()">&times;</button>
 
         <div class="modal-body" style="padding: 20px;">
             <h3 style="margin-bottom: 25px; color: var(--marrom-cafe); text-align: center; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Forma de Pagamento</h3>
@@ -189,13 +198,14 @@
                 </div>
             </div>
 
-            <button class="btn-acao-cesta primario" style="width: 100%; height: 50px; font-size: 1rem;" onclick="finalizarPedido()">
+            <button class="btn-acao-carrinho btn-verde-personalizado" onclick="finalizarPedido()">
                 FINALIZAR PEDIDO <i class="fab fa-whatsapp" style="margin-left: 8px;"></i>
             </button>
-            
-            <button onclick="abrirModal('modalDadosDoCliente')" style="width: 100%; background: none; border: none; color: #888; margin-top: 15px; cursor: pointer; font-weight: bold; text-decoration: underline; font-size: 0.85rem;">
+
+            <button class="btn-acao-carrinho btn-bege-personalizado" style="margin-top:10px;" onclick="fecharModal('modalFormaDePagamento'); abrirModal('modalDadosDoCliente')">
                 <i class="fas fa-arrow-left"></i> VOLTAR PARA MEUS DADOS
             </button>
+
         </div>
     </div>
 
