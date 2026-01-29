@@ -213,11 +213,12 @@ function atualizarQtdPrincipal(val) {
         containerOpc.style.display = novaQtd > 0 ? 'block' : 'none';
     }
 
-    // REMOVEMOS o sincronizarCarrinho daqui para o item só entrar na cesta 
-    // quando clicarmos nos botões novos.
+    // --- O AJUSTE ESTÁ AQUI ---
+    sincronizarCarrinho(); // Adicione esta linha para o item entrar no carrinho global e ativar a barra!
+    // --------------------------
     
     recalcularSubtotal();
-    atualizarBotaoCesta(); // <-- O GATILHO QUE COMBINAMOS
+    atualizarBotaoCesta(); 
 }
 
 function alterarQtdOpcional(nome, preco, val) {
