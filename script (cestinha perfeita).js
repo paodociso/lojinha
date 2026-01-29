@@ -292,30 +292,35 @@ function abrirCarrinho() {
     abrirModal('modalCarrinho');
 }
 
-/**
- * 1. GERADOR DE HTML: LISTAGEM DE ITENS
- * Esta função é focada apenas em percorrer o objeto 'carrinho' e transformar 
- * os dados (nome, preço, opcionais) em HTML visual. 
- * Ela não toma decisões, apenas "desenha" os itens.
- */
-function gerarHtmlListaItens(itens) {
-    // Iniciamos o container cinza que agrupa todos os produtos
-    let html = `<div style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #eee; margin-bottom:15px;">`;
-    
+function renderizarCarrinho() {
+    const corpoCarrinho = el('itensCarrinho');
+    const itens = Object.values(carrinho);
+    let html = "";
+    let totalProdutos = 0;
+
+    if (itens.length === 0) {
+        corpoCarrinho.innerHTML = `
+            <div style="text-align:center; padding:40px 20px;">
+                <p style="color:#888; font-weight:500;">Sua carrinho está vazia no momento.</p>
+                <button class="btn-acao-carrinho primario" style="margin-top:20px;" onclick="fecharModal('modalCarrinho')">VOLTAR AO CARDÁPIO</button>
+            </div>`;
+        return;
+    }
+
+    html += `<h3 style="text-align:center; font-weight:900; text-transform:uppercase; color:var(--marrom-cafe); margin-bottom:20px; letter-spacing:1px;">Carrinho de Compras</h3>`;
+
+    // 1. LISTAGEM DE ITENS
+    html += `<div style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #eee; margin-bottom:15px;">`;
     itens.forEach(item => {
-        // Buscamos os dados originais do produto (como nome e imagem) no banco dadosIniciais
         const prod = dadosIniciais.secoes[item.sessaoIndex].itens[item.itemIndex];
         let subtotalItem = prod.preco * item.qtd;
         let htmlOpc = "";
-        
-        // Loop interno: se houver opcionais, somamos o valor e criamos as linhas de texto
         Object.keys(item.opcionais).forEach(nome => {
             const opc = item.opcionais[nome];
             subtotalItem += (opc.qtd * opc.preco);
             htmlOpc += `<div style="font-size:0.8rem; color:#666; margin-left:10px;">+ ${opc.qtd}x ${nome}</div>`;
         });
-
-        // Montamos a linha do produto com nome, opcionais, preço e o botão de remover (X)
+        totalProdutos += subtotalItem;
         html += `
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
                 <div style="flex-grow:1;">
@@ -323,26 +328,21 @@ function gerarHtmlListaItens(itens) {
                     ${htmlOpc}
                     <div style="font-weight:bold; color:var(--verde-militar); font-size:0.9rem; margin-top:4px;">${fmtMoeda(subtotalItem)}</div>
                 </div>
-                <button onclick="removerDaCarrinho('${item.id}')" class="btn-qtd-moderno" style="width:28px!important; height:28px!important; background:#ffeded!important; color:#cc0000!important; border:none; cursor:pointer;">&times;</button>
+                <button onclick="removerDaCarrinho('${item.id}')" class="btn-qtd-moderno" style="width:28px !important; height:28px !important; font-size:1rem !important; background:#ffeded !important; color:#cc0000 !important; box-shadow:none !important;">&times;</button>
             </div>`;
     });
-    
     html += `</div>`;
-    return html; // Retorna todo o bloco pronto para a função principal
-}
 
-/**
- * 2. GERADOR DE HTML: BLOCO DE INTERAÇÃO (CUPOM E ENTREGA)
- * Esta função retorna o HTML das configurações do pedido. 
- * Ela isola a parte onde o usuário escolhe como receber e aplica cupons.
- */
-function gerarHtmlOpcoesCarrinho() {
-    return `
+    // 2. CAMPO DE CUPOM
+    html += `
         <div style="background:#f9f9f9; padding:12px; border-radius:12px; border:1px solid #eee; margin-bottom:15px; display:flex; gap:10px; align-items:center;">
             <input type="text" id="input-cupom" placeholder="CUPOM DE DESCONTO" style="flex-grow:1; padding:10px; border-radius:8px; border:1px solid #ccc; font-size:0.8rem; font-weight:bold;">
             <button onclick="recalcularValoresCarrinho()" style="background:var(--marrom-cafe); color:white; border:none; padding:10px 15px; border-radius:8px; font-weight:900; font-size:0.75rem; cursor:pointer;">APLICAR</button>
         </div>
+    `;
 
+    // 3. OPÇÕES DE ENTREGA (Vazias por padrão)
+    html += `
         <div style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #eee; margin-bottom:15px;">
             <p style="font-size:0.75rem; font-weight:900; color:#444; margin-bottom:10px; text-transform:uppercase; text-align:center;">Como deseja receber seu pedido?</p>
             <div style="display:flex; gap:10px; margin-bottom:15px;">
@@ -353,52 +353,19 @@ function gerarHtmlOpcoesCarrinho() {
                     <input type="radio" name="opcaoEntrega" value="retirada" onchange="recalcularValoresCarrinho()"> RETIRADA
                 </label>
             </div>
+            
             <div id="info-taxa-pontilhada" style="border: 2px dashed var(--borda-nav); padding: 10px; border-radius: 8px; text-align: center; font-size: 0.85rem; font-weight: bold; color: var(--marrom-detalhe); display:none;"></div>
-        </div>`;
-}
-
-/**
- * 3. FUNÇÃO PRINCIPAL: RENDERIZAR CARRINHO
- * É o cérebro que organiza tudo. Ela decide se mostra o aviso de "vazio"
- * ou se chama as funções acima para montar o carrinho completo.
- */
-function renderizarCarrinho() {
-    const corpoCarrinho = el('itensCarrinho'); // Alvo onde o HTML será injetado
-    if (!corpoCarrinho) return;
-
-    const itens = Object.values(carrinho); // Converte o objeto de itens em uma lista (array)
-
-    // Caso de segurança: se o cliente remover tudo, mostra a mensagem de carrinho vazio
-    if (itens.length === 0) {
-        corpoCarrinho.innerHTML = `
-            <div style="text-align:center; padding:40px 20px;">
-                <p style="color:#888; font-weight:500;">Seu carrinho está vazio no momento.</p>
-                <button class="btn-acao-carrinho primario" style="margin-top:20px;" onclick="fecharModal('modalCarrinho')">VOLTAR AO CARDÁPIO</button>
-            </div>`;
-        return;
-    }
-
-    // Título do Modal
-    let htmlFinal = `<h3 style="text-align:center; font-weight:900; text-transform:uppercase; color:var(--marrom-cafe); margin-bottom:20px; letter-spacing:1px;">Carrinho de Compras</h3>`;
-    
-    // CHAMADA DOS COMPONENTES: Aqui juntamos as peças que criamos acima
-    htmlFinal += gerarHtmlListaItens(itens);      
-    htmlFinal += gerarHtmlOpcoesCarrinho();       
-    
-    // Adicionamos os botões finais e o container que receberá o valor total
-    htmlFinal += `
-        <div id="resumo-financeiro-carrinho"></div>
-        <button class="btn-acao-carrinho btn-bege-personalizado" onclick="fecharModal('modalCarrinho')">+ ADICIONAR MAIS ITENS +</button>
-        <button class="btn-acao-carrinho btn-verde-personalizado" onclick="irParaCheckout()">PROSSEGUIR PARA O PAGAMENTO ></button>
+        </div>
     `;
 
-    // Injeta tudo de uma vez no HTML (mais rápido para o navegador)
-    corpoCarrinho.innerHTML = htmlFinal;
-    
-    // Dispara o cálculo final de taxas e descontos para atualizar o 'resumo-financeiro-carrinho'
-    if (typeof recalcularValoresCarrinho === "function") {
-        recalcularValoresCarrinho();
-    }
+    html += `
+            <div id="resumo-financeiro-carrinho"></div>
+            <button class="btn-acao-carrinho btn-bege-personalizado" onclick="fecharModal('modalCarrinho')">+ ADICIONAR MAIS ITENS +</button>
+            <button class="btn-acao-carrinho btn-verde-personalizado" onclick="irParaCheckout()">PROSSEGUIR PARA O PAGAMENTO ></button>
+        `;
+
+    corpoCarrinho.innerHTML = html;
+    recalcularValoresCarrinho(); // Inicia o resumo financeiro
 }
 
 function recalcularValoresCarrinho() {
