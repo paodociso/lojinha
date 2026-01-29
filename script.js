@@ -23,11 +23,66 @@ let appState = {
 // --- 2. INICIALIZAÇÃO ---
 window.onload = () => render();
 
+function calcularDatasFornada(info) {
+    const diasSemana = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+    
+    // 1. Data da Fornada (Lê o Ano-Mês-Dia)
+    const dataF = new Date(info.dataISO + 'T12:00:00');
+    const nomeDiaF = diasSemana[dataF.getDay()];
+    const dataF_Formatada = `${dataF.getDate().toString().padStart(2, '0')}/${(dataF.getMonth() + 1).toString().padStart(2, '0')}`;
+
+    // 2. Data Limite (Subtrai os dias de antecedência)
+    const dataL = new Date(dataF);
+    dataL.setDate(dataF.getDate() - info.diasAntecedencia);
+    const nomeDiaL = diasSemana[dataL.getDay()];
+    const dataL_Formatada = `${dataL.getDate().toString().padStart(2, '0')}/${(dataL.getMonth() + 1).toString().padStart(2, '0')}`;
+
+    return {
+        fornada: `${nomeDiaF}, ${dataF_Formatada}`,
+        limite: `${nomeDiaL}, ${dataL_Formatada} às ${info.horaLimite}`
+    };
+}
+
 function render() {
+    // 1. ATUALIZAÇÃO AUTOMÁTICA DAS DATAS NO TOPO
+    const info = dadosIniciais.fornada;
+    // Aqui usamos a calculadora que você já tem no código
+    const datas = calcularDatasFornada(info);
+
+    const elFornada = el('txt-data-fornada');
+    const elLimite = el('txt-limite-pedido');
+
+    if (elFornada) {
+            elFornada.style.textAlign = "center";
+            elFornada.style.fontSize = "1.1rem"; 
+            elFornada.style.lineHeight = "1.4";
+            elFornada.style.color = "#4a4a4a"; // Cinza escuro unificado
+            
+            elFornada.innerHTML = `
+                <span style="font-weight: 900; font-size: 0.8rem; display: block; text-transform: uppercase;">PRÓXIMA FORNADA</span>
+                <span style="font-weight: 500; display: block;">${datas.fornada}</span>
+            `;
+        }
+
+    if (elLimite) {
+        elLimite.style.textAlign = "center";
+        elLimite.style.fontSize = "0.9rem";
+        elLimite.style.marginTop = "8px"; 
+        elLimite.style.color = "#4a4a4a"; // Mesma cor do bloco de cima
+        
+        elLimite.innerHTML = `
+            <span style="font-weight: 900; font-size: 0.75rem; display: block; text-transform: uppercase;">PEDIDOS ATÉ</span>
+            <span style="font-weight: 500; display: block;">${datas.limite}</span>
+        `;
+    }
+
+    // 2. RENDERIZAÇÃO DOS PRODUTOS
     const container = el('app-container');
     if (!container) return;
     
     let html = "";
+    
+    // Percorre as seções do seu dados.js
     dadosIniciais.secoes.forEach((secao, sIdx) => {
         html += `
             <div class="titulo-secao-wrapper">
@@ -39,21 +94,23 @@ function render() {
             
         secao.itens.forEach((item, iIdx) => {
             const idBadge = `badge-prod-${sIdx}-${iIdx}`;
+            const chave = `item-${sIdx}-${iIdx}`;
+            const qtdNoCarrinho = carrinho[chave] ? carrinho[chave].qtd : 0;
+            const displayBadge = qtdNoCarrinho > 0 ? 'flex' : 'none';
 
             html += `
                 <div class="card" onclick="configurarProduto(${sIdx}, ${iIdx})">
                     <div class="card-imagem-wrapper" style="position: relative;">
-                        <div id="${idBadge}" style="display:none; position:absolute; top:10px; right:10px; background:#2e7d32; color:white; width:30px; height:30px; border-radius:50%; display:none; align-items:center; justify-content:center; font-weight:900; font-size:0.9rem; z-index:10; box-shadow:0 2px 5px rgba(0,0,0,0.3); border: 2px solid white;">
-                            0
+                        <div id="${idBadge}" style="display:${displayBadge}; position:absolute; top:10px; right:10px; background:#2e7d32; color:white; width:30px; height:30px; border-radius:50%; align-items:center; justify-content:center; font-weight:900; font-size:0.9rem; z-index:10; box-shadow:0 2px 5px rgba(0,0,0,0.3); border: 2px solid white;">
+                            ${qtdNoCarrinho}
                         </div>
-                        
                         <img src="${item.imagem}" alt="${item.nome}">
                     </div>
                     
                     <div class="card-content">
                         <div class="card-nome">${item.nome}</div>
                         <hr class="divisor-card">
-                        <div class="card-desc">${item.descricao}</div>
+                        <div class="card-desc">${item.descricao || ''}</div>
                         <div class="card-footer">
                             <span class="card-preco">${fmtMoeda(item.preco)}</span>
                         </div>
@@ -62,14 +119,43 @@ function render() {
         });
         html += `</div>`;
     });
+    
+    // Injeta o HTML gerado no container principal
     container.innerHTML = html;
 }
 
 // --- 3. CONTROLE DOS MODAIS ---
 
 function abrirModal(id) {
-    if(el(id)) el(id).style.display = 'block';
-    if(el('modal-overlay')) el('modal-overlay').style.display = 'block';
+    if (el(id)) {
+        if (id === 'modalFornada') {
+            const info = dadosIniciais.fornada;
+            const datas = calcularDatasFornada(info);
+            const elConteudo = el('conteudoFornada');
+
+            if (elConteudo) {
+                // Aqui injetamos as datas + o seu conteúdo original formatado
+                elConteudo.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 20px; background: #fff4e5; padding: 15px; border-radius: 10px; border: 1px solid #ffe3bc;">
+                        <span style="font-weight: 900; font-size: 0.8rem; display: block; text-transform: uppercase; color: #a35200;">PRÓXIMA FORNADA</span>
+                        <span style="font-weight: 500; font-size: 1.1rem; display: block; color: #a35200; margin-bottom: 10px;">${datas.fornada}</span>
+                        
+                        <span style="font-weight: 900; font-size: 0.75rem; display: block; text-transform: uppercase; color: #a35200;">PEDIDOS ATÉ</span>
+                        <span style="font-weight: 500; font-size: 1rem; display: block; color: #a35200;">${datas.limite}</span>
+                    </div>
+
+                    <div style="font-size: 0.95rem; color: #444;">
+                        🥖 <b>Produção Artesanal:</b> Nossos pães são feitos com fermentação natural (Levain).<br><br>
+                        ⏰ <b>Frescor:</b> Assamos tudo na manhã do dia da entrega.<br><br>
+                        📦 <b>Pedidos:</b> Como nossa capacidade é limitada, encerramos as vendas assim que atingimos o limite da fornada.
+                    </div>
+                `;
+            }
+        }
+        
+        el(id).style.display = 'block';
+        if (el('modal-overlay')) el('modal-overlay').style.display = 'block';
+    }
 }
 
 function fecharModal(id) {
@@ -78,12 +164,14 @@ function fecharModal(id) {
 }
 
 function fecharModalTudo() {
-    // Certifique-se de que todos os IDs aqui batem com os do seu HTML
-    const modais = ['modalProduto', 'modalCarrinho', 'modalDadosDoCliente', 'modalFormaDePagamento'];
-    modais.forEach(id => { 
-        if(el(id)) el(id).style.display = 'none'; 
+    // 1. Esconde o fundo escuro
+    if (el('modal-overlay')) el('modal-overlay').style.display = 'none';
+
+    // 2. Busca TODOS os elementos que têm a classe "modal" e esconde cada um deles
+    const todosModais = document.querySelectorAll('.modal');
+    todosModais.forEach(modal => {
+        modal.style.display = 'none';
     });
-    if(el('modal-overlay')) el('modal-overlay').style.display = 'none';
 }
 
 // --- 4. LÓGICA DO PRODUTO (MODAL 5.1) - VERSÃO FINAL CORRIGIDA ---

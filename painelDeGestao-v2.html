@@ -16,7 +16,63 @@
             --red: #b22222;
         }
 
+        /* Garante que o conteúdo das células esteja alinhado ao topo e tenha espaçamento */
+        table td {
+            vertical-align: top; /* Alinha o texto ao topo para não flutuar se a descrição for longa */
+            padding: 15px 10px;
+        }
+
+        /* Estilo para a mini descrição */
+        .mini-descricao {
+            display: block;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* Adiciona "..." se o texto for longo */
+        }
+
+        /* Container de balões dentro da tabela */
+        .opcionais-lista-tabela {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .badge-opcional-micro {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            background: #eee;
+            border-radius: 10px;
+            color: var(--verde-militar);
+            border: 1px solid #ddd;
+        }
+
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; background: #f4f1ea; color: var(--texto); }
+
+        /* Força o layout da tabela a ser fixo para respeitar as larguras definidas */
+        .card-admin table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        /* Definição exata de largura para cada coluna */
+        .col-img { width: 70px; }
+        .col-produto { width: auto; } /* O nome/descrição ocupa o resto */
+        .col-preco { width: 110px; }
+        .col-status { width: 110px; }
+        .col-acoes { width: 140px; }
+
+        /* Ajuste fino nas células */
+        .card-admin td, .card-admin th {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+            word-wrap: break-word;
+        }
         
         /* Sidebar e Navegação */
         .sidebar { width: 260px; background: var(--verde-militar); height: 100vh; position: fixed; color: white; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
@@ -103,6 +159,13 @@
         const persistir = () => localStorage.setItem('pao_do_ciso_db', JSON.stringify(db));
 
         const CRUD = {
+            // --- GESTÃO DA FORNADA ---
+            salvarFornada: (novoTexto) => {
+                db.diaFornada = novoTexto;
+                persistir();
+                alert("Dia da fornada atualizado!");
+                renderizarAtual();
+            },
             adicionarProduto: (sIdx, data) => {
                 db.secoes[sIdx].itens.push({ ...data, esgotado: false });
                 persistir(); 
@@ -188,31 +251,99 @@
             else if (secaoAtiva === 'sessoes') renderSessoes(container);
         };
 
-        function renderDashboard(target) {
-            let total = 0; db.secoes.forEach(s => total += s.itens.length);
-            target.innerHTML = `
-                <h1>Dashboard</h1>
-                <div class="stats-grid">
-                    <div class="card-admin"><h3>📦 Produtos</h3><h2>${total}</h2></div>
-                    <div class="card-admin"><h3>📂 Sessões</h3><h2>${db.secoes.length}</h2></div>
-                    <div class="card-admin"><h3>🎫 Cupons</h3><h2>${db.cupons.length}</h2></div>
-                </div>`;
-        }
+function renderDashboard(target) {
+    let total = 0; 
+    db.secoes.forEach(s => total += s.itens.length);
+    
+    target.innerHTML = `
+        <h1>Dashboard</h1>
+        
+        <div class="card-admin" style="border-bottom: 4px solid var(--marrom-detalhe); margin-bottom: 30px;">
+            <h3 style="margin-top:0"><i class="fas fa-calendar-alt"></i> Próxima Fornada</h3>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="f-dia-fornada" value="${db.diaFornada || ''}" 
+                       placeholder="Ex: Quinta-feira, 25/10" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                <button class="btn-adm btn-verde-personalizado" 
+                        onclick="CRUD.salvarFornada(document.getElementById('f-dia-fornada').value)">
+                    Atualizar Data
+                </button>
+            </div>
+        </div>
 
-        function renderProdutos(target) {
-            target.innerHTML = `
-                <div class="header-actions"><h1>Produtos</h1><button class="btn-adm btn-verde-personalizado" onclick="abrirModalProduto()">+ Novo Produto</button></div>
-                <div class="card-admin"><table>
-                    <thead><tr><th>Item</th><th>Sessão</th><th>Preço</th><th>Ações</th></tr></thead>
-                    <tbody>${db.secoes.flatMap((s, sIdx) => s.itens.map((i, iIdx) => `
-                        <tr><td><strong>${i.nome}</strong></td><td>${s.nome}</td><td>R$ ${i.preco.toFixed(2)}</td>
-                        <td>
-                            <button class="btn-adm btn-bege-personalizado" onclick="CRUD.toggleEstoque(${sIdx}, ${iIdx})"><i class="fas fa-sync"></i></button>
-                            <button class="btn-adm btn-bege-personalizado" onclick="abrirModalProduto(${sIdx}, ${iIdx})"><i class="fas fa-edit"></i></button>
-                            <button class="btn-adm btn-red" onclick="CRUD.removerProduto(${sIdx}, ${iIdx})"><i class="fas fa-trash"></i></button>
-                        </td></tr>`)).join('')}
-                    </tbody></table></div>`;
-        }
+        <div class="stats-grid">
+            <div class="card-admin"><h3>📦 Produtos</h3><h2>${total}</h2></div>
+            <div class="card-admin"><h3>📂 Sessões</h3><h2>${db.secoes.length}</h2></div>
+            <div class="card-admin"><h3>🎫 Cupons</h3><h2>${db.cupons.length}</h2></div>
+        </div>`;
+}
+
+function renderProdutos(target) {
+    let html = `<div class="header-actions"><h1>Gestão de Produtos</h1></div>`;
+
+    db.secoes.forEach((secao, sIdx) => {
+        html += `
+            <div class="card-admin" style="margin-bottom: 40px; border-left: 8px solid var(--verde-militar);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h2 style="margin:0; color:var(--verde-militar)">${secao.nome}</h2>
+                    <button class="btn-adm btn-verde-personalizado" onclick="abrirModalProduto(${sIdx})">
+                        <i class="fas fa-plus"></i> Novo Produto
+                    </button>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="col-img">Imagem</th>
+                            <th class="col-produto">Produto / Opcionais</th>
+                            <th class="col-preco">Preço</th>
+                            <th class="col-status">Status</th>
+                            <th class="col-acoes">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${secao.itens.map((item, iIdx) => `
+                            <tr>
+                                <td>
+                                    <img src="${item.imagem || 'img/placeholder.jpg'}" 
+                                         style="width:50px; height:50px; border-radius:5px; object-fit:cover;">
+                                </td>
+                                <td>
+                                    <strong>${item.nome}</strong>
+                                    <span class="mini-descricao">${item.descricao || 'Sem descrição...'}</span>
+                                    
+                                    <div class="opcionais-lista-tabela">
+                                        ${(item.opcionais_ativos || []).map(opt => 
+                                            `<span class="badge-opcional-micro">${opt}</span>`
+                                        ).join('')}
+                                    </div>
+                                </td>
+                                <td><span style="font-weight:600">R$ ${item.preco.toFixed(2)}</span></td>
+                                <td>
+                                    <span class="badge ${item.esgotado ? 'badge-error' : 'badge-success'}">
+                                        ${item.esgotado ? 'ESGOTADO' : 'ATIVO'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn-adm btn-bege-personalizado" onclick="CRUD.toggleEstoque(${sIdx}, ${iIdx})">
+                                        <i class="fas fa-sync"></i>
+                                    </button>
+                                    <button class="btn-adm btn-bege-personalizado" onclick="abrirModalProduto(${sIdx}, ${iIdx})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-adm btn-red" onclick="CRUD.removerProduto(${sIdx}, ${iIdx})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    });
+
+    target.innerHTML = html;
+}
 
         function renderSessoes(target) {
             target.innerHTML = `
