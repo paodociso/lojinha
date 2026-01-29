@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo | Pão do Ciso</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-creme: #fdf5e6;
+            --verde-militar: #2d3a27;
+            --marrom-cafe: #2e2610;
+            --marrom-detalhe: #7d4f39;
+            --texto: #3e2723;
+            --branco: #ffffff;
+            --red: #b22222;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; background: #f4f1ea; color: var(--texto); }
+        
+        /* Sidebar e Navegação */
+        .sidebar { width: 260px; background: var(--verde-militar); height: 100vh; position: fixed; color: white; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
+        .sidebar-header { padding: 30px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-header img { width: 90px; border-radius: 50%; border: 3px solid var(--bg-creme); margin-bottom: 15px; }
+        .nav-item { padding: 15px 25px; cursor: pointer; display: flex; align-items: center; gap: 15px; transition: 0.3s; color: rgba(255,255,255,0.7); font-weight: 500; }
+        .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); color: white; border-left: 5px solid var(--bg-creme); }
+
+        /* Área Principal */
+        .main { margin-left: 260px; flex: 1; padding: 40px; min-height: 100vh; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        
+        /* Cards e Layout */
+        .card-admin { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        
+        /* Tabelas */
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 15px; background: #f8f9fa; color: var(--marrom-cafe); font-weight: 600; border-bottom: 2px solid #eee; }
+        td { padding: 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
+
+        /* Botões Estilo Original */
+        .btn-adm { padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.75rem; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-verde-personalizado { background: var(--verde-militar) !important; color: white !important; }
+        .btn-bege-personalizado { background: var(--bg-creme) !important; color: var(--verde-militar) !important; border: 1px solid #dccbb0 !important; }
+        .btn-red { background: var(--red); color: white; }
+
+        /* Opcionais (Balões) */
+        .opcionais-badge-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .badge-opcional { 
+            padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; 
+            cursor: pointer; font-size: 0.8rem; transition: 0.2s; background: #fff;
+        }
+        .badge-opcional.selected { background: var(--verde-militar); color: white; border-color: var(--verde-militar); }
+
+        /* Modais */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(3px); }
+        .modal-content { background: white; width: 550px; padding: 40px; border-radius: 20px; max-height: 90vh; overflow-y: auto; position: relative; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
+        
+        .badge { padding: 5px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://cdn3.emoji.gg/emojis/2637-settings.png" alt="Logo">
+            <h3>Pão do Ciso Admin</h3>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item" id="nav-dashboard" onclick="navegarPara('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</div>
+            <div class="nav-item" id="nav-produtos" onclick="navegarPara('produtos')"><i class="fas fa-bread-slice"></i> Gestão de Produtos</div>
+            <div class="nav-item" id="nav-sessoes" onclick="navegarPara('sessoes')"><i class="fas fa-folder-open"></i> Sessões e Categorias</div>
+            <div class="nav-item" id="nav-cupons" onclick="navegarPara('cupons')"><i class="fas fa-ticket-alt"></i> Cupons de Desconto</div>
+            <div style="margin-top: 50px; padding: 0 25px;">
+                <button class="btn-adm btn-bege-personalizado" style="width:100%" onclick="visualizarCodigo()"><i class="fas fa-code"></i> Ver Código</button>
+                <button class="btn-adm btn-verde-personalizado" style="width:100%; margin-top: 10px;" onclick="baixarDados()"><i class="fas fa-download"></i> Baixar dados.js</button>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <div id="content-area"></div>
+    </main>
+
+    <div id="modal-container" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="modal-title"></h2>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="dados.js"></script>
+
+    <script>
+        let db = JSON.parse(localStorage.getItem('pao_do_ciso_db')) || dadosIniciais;
+        let opcionaisTemp = [];
+
+        const persistir = () => localStorage.setItem('pao_do_ciso_db', JSON.stringify(db));
+
+        const CRUD = {
+            adicionarProduto: (sIdx, data) => {
+                db.secoes[sIdx].itens.push({ ...data, esgotado: false });
+                persistir(); 
+                renderizarAtual();
+            },
+            editarProduto: (sIdx, iIdx, data) => {
+                db.secoes[sIdx].itens[iIdx] = { ...db.secoes[sIdx].itens[iIdx], ...data };
+                persistir(); 
+                renderizarAtual();
+            },
+            removerProduto: (sIdx, iIdx) => {
+                if(confirm("Excluir produto?")) { 
+                    db.secoes[sIdx].itens.splice(iIdx, 1); 
+                    persistir(); 
+                    renderizarAtual(); 
+                }
+            },
+            toggleEstoque: (sIdx, iIdx) => {
+                db.secoes[sIdx].itens[iIdx].esgotado = !db.secoes[sIdx].itens[iIdx].esgotado;
+                persistir(); 
+                renderizarAtual();
+            },
+            salvarSessao: (idx, nome) => {
+                if(idx !== null) db.secoes[idx].nome = nome;
+                else db.secoes.push({ nome: nome, itens: [] });
+                persistir(); 
+                renderizarAtual();
+            },
+            removerSessao: (idx) => {
+                if(confirm("Excluir sessão e todos os produtos nela?")) { 
+                    db.secoes.splice(idx, 1); 
+                    persistir(); 
+                    renderizarAtual(); 
+                }
+            },
+            // --- FUNÇÕES DE OPCIONAIS ---
+            adicionarOpcional: (nomeSessao, sIdx) => {
+                if (!db.opcionais[nomeSessao]) db.opcionais[nomeSessao] = [];
+                db.opcionais[nomeSessao].push({ nome: "Novo Opcional", preco: 0 });
+                persistir();
+                abrirModalSessao(sIdx);
+            },
+            editarOpcional: (nomeSessao, oIdx, campo, valor) => {
+                if (campo === 'preco') valor = parseFloat(valor) || 0;
+                db.opcionais[nomeSessao][oIdx][campo] = valor;
+                persistir();
+            },
+            removerOpcional: (nomeSessao, oIdx, sIdx) => {
+                if(confirm("Remover este opcional?")) {
+                    db.opcionais[nomeSessao].splice(oIdx, 1);
+                    persistir();
+                    abrirModalSessao(sIdx);
+                }
+            }, // <--- A VÍRGULA QUE FALTAVA ESTAVA AQUI
+
+            // --- FUNÇÕES DE CUPONS ---
+            adicionarCupom: (data) => {
+                db.cupons.push(data);
+                persistir(); 
+                renderizarAtual();
+            },
+            removerCupom: (idx) => {
+                if(confirm("Excluir este cupom?")) {
+                    db.cupons.splice(idx, 1);
+                    persistir(); 
+                    renderizarAtual();
+                }
+            }
+        };
+
+        const navegarPara = (secao) => {
+            secaoAtiva = secao;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('nav-' + secao).classList.add('active');
+            renderizarAtual();
+        };
+
+        const renderizarAtual = () => {
+            const container = document.getElementById('content-area');
+            if (secaoAtiva === 'dashboard') renderDashboard(container);
+            else if (secaoAtiva === 'produtos') renderProdutos(container);
+            else if (secaoAtiva === 'cupons') renderCupons(container);
+            else if (secaoAtiva === 'sessoes') renderSessoes(container);
+        };
+
+        function renderDashboard(target) {
+            let total = 0; db.secoes.forEach(s => total += s.itens.length);
+            target.innerHTML = `
+                <h1>Dashboard</h1>
+                <div class="stats-grid">
+                    <div class="card-admin"><h3>📦 Produtos</h3><h2>${total}</h2></div>
+                    <div class="card-admin"><h3>📂 Sessões</h3><h2>${db.secoes.length}</h2></div>
+                    <div class="card-admin"><h3>🎫 Cupons</h3><h2>${db.cupons.length}</h2></div>
+                </div>`;
+        }
+
+        function renderProdutos(target) {
+            target.innerHTML = `
+                <div class="header-actions"><h1>Produtos</h1><button class="btn-adm btn-verde-personalizado" onclick="abrirModalProduto()">+ Novo Produto</button></div>
+                <div class="card-admin"><table>
+                    <thead><tr><th>Item</th><th>Sessão</th><th>Preço</th><th>Ações</th></tr></thead>
+                    <tbody>${db.secoes.flatMap((s, sIdx) => s.itens.map((i, iIdx) => `
+                        <tr><td><strong>${i.nome}</strong></td><td>${s.nome}</td><td>R$ ${i.preco.toFixed(2)}</td>
+                        <td>
+                            <button class="btn-adm btn-bege-personalizado" onclick="CRUD.toggleEstoque(${sIdx}, ${iIdx})"><i class="fas fa-sync"></i></button>
+                            <button class="btn-adm btn-bege-personalizado" onclick="abrirModalProduto(${sIdx}, ${iIdx})"><i class="fas fa-edit"></i></button>
+                            <button class="btn-adm btn-red" onclick="CRUD.removerProduto(${sIdx}, ${iIdx})"><i class="fas fa-trash"></i></button>
+                        </td></tr>`)).join('')}
+                    </tbody></table></div>`;
+        }
+
+        function renderSessoes(target) {
+            target.innerHTML = `
+                <div class="header-actions"><h1>Sessões</h1><button class="btn-adm btn-verde-personalizado" onclick="abrirModalSessao()">+ Nova Sessão</button></div>
+                <div class="card-admin"><table>
+                    <thead><tr><th>Nome</th><th>Produtos</th><th>Ações</th></tr></thead>
+                    <tbody>${db.secoes.map((s, idx) => `
+                        <tr><td><strong>${s.nome}</strong></td><td>${s.itens.length}</td>
+                        <td>
+                            <button class="btn-adm btn-bege-personalizado" onclick="abrirModalSessao(${idx})"><i class="fas fa-edit"></i></button>
+                            <button class="btn-adm btn-red" onclick="CRUD.removerSessao(${idx})"><i class="fas fa-trash"></i></button>
+                        </td></tr>`).join('')}
+                    </tbody></table></div>`;
+        }
+
+        function renderCupons(target) {
+            target.innerHTML = `
+                <div class="header-actions">
+                    <h1>Cupons de Desconto</h1>
+                    <button class="btn-adm btn-verde-personalizado" onclick="abrirModalCupom()">
+                        <i class="fas fa-plus"></i> Novo Cupom
+                    </button>
+                </div>
+                <div class="card-admin">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Valor</th>
+                                <th>Tipo</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${db.cupons.map((c, idx) => `
+                                <tr>
+                                    <td><code>${c.codigo}</code></td>
+                                    <td>${c.valor}</td>
+                                    <td>${c.tipo === 'porcentagem' ? 'Porcentagem (%)' : 'Fixo (R$)'}</td>
+                                    <td>
+                                        <button class="btn-adm btn-red" onclick="CRUD.removerCupom(${idx})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
+        }
+
+
+        const fecharModal = () => document.getElementById('modal-container').style.display = 'none';
+        
+        function toggleBadge(nome, el) {
+            const index = opcionaisTemp.indexOf(nome);
+            if (index > -1) { opcionaisTemp.splice(index, 1); el.classList.remove('selected'); }
+            else { opcionaisTemp.push(nome); el.classList.add('selected'); }
+        }
+
+        function abrirModalProduto(sIdx = null, iIdx = null) {
+            const item = sIdx !== null ? db.secoes[sIdx].itens[iIdx] : { nome: '', preco: 0, descricao: '', opcionais_ativos: [] };
+            opcionaisTemp = [...(item.opcionais_ativos || [])];
+            const todosOpcionais = [...new Set(Object.values(db.opcionais).flat().map(o => o.nome))];
+
+            const html = `
+                <form onsubmit="event.preventDefault(); salvarProduto(${sIdx}, ${iIdx})">
+                    <div class="form-group"><label>Sessão</label><select id="f-sessao">${db.secoes.map((s, idx) => `<option value="${idx}" ${idx==sIdx?'selected':''}>${s.nome}</option>`).join('')}</select></div>
+                    <div class="form-group"><label>Nome</label><input id="f-nome" value="${item.nome}" required></div>
+                    <div class="form-group"><label>Preço</label><input type="number" step="0.01" id="f-preco" value="${item.preco}" required></div>
+                    <div class="form-group"><label>Opcionais Ativos</label>
+                        <div class="opcionais-badge-container">${todosOpcionais.map(opt => `<div class="badge-opcional ${opcionaisTemp.includes(opt)?'selected':''}" onclick="toggleBadge('${opt}', this)">${opt}</div>`).join('')}</div>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:20px;">
+                        <button type="button" class="btn-adm btn-bege-personalizado" onclick="fecharModal()">Cancelar</button>
+                        <button type="submit" class="btn-adm btn-verde-personalizado">Salvar</button>
+                    </div>
+                </form>`;
+            document.getElementById('modal-title').innerText = sIdx !== null ? "Editar Produto" : "Novo Produto";
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal-container').style.display = 'flex';
+        }
+
+        function abrirModalSessao(idx = null) {
+            const nome = idx !== null ? db.secoes[idx].nome : '';
+            const html = `
+                <div class="form-group"><label>Nome da Sessão</label><input id="f-sessao-nome" value="${nome}" required></div>
+                <div style="display:flex; gap:10px">
+                    <button class="btn-adm btn-bege-personalizado" onclick="fecharModal()">Cancelar</button>
+                    <button class="btn-adm btn-verde-personalizado" onclick="CRUD.salvarSessao(${idx}, document.getElementById('f-sessao-nome').value); fecharModal();">Salvar</button>
+                </div>`;
+            document.getElementById('modal-title').innerText = idx !== null ? "Editar Sessão" : "Nova Sessão";
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal-container').style.display = 'flex';
+        }
+
+        function abrirModalCupom() {
+            const html = `
+                <form onsubmit="event.preventDefault(); salvarCupom()">
+                    <div class="form-group">
+                        <label>Código do Cupom</label>
+                        <input id="f-cupom-codigo" placeholder="Ex: PROMO10" required style="text-transform: uppercase">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Desconto</label>
+                        <select id="f-cupom-tipo">
+                            <option value="porcentagem">Porcentagem (%)</option>
+                            <option value="fixo">Valor Fixo (R$)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Valor do Desconto</label>
+                        <input type="number" id="f-cupom-valor" step="0.01" required>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:20px;">
+                        <button type="button" class="btn-adm btn-bege-personalizado" onclick="fecharModal()">Cancelar</button>
+                        <button type="submit" class="btn-adm btn-verde-personalizado">Salvar Cupom</button>
+                    </div>
+                </form>`;
+
+            document.getElementById('modal-title').innerText = "Novo Cupom de Desconto";
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal-container').style.display = 'flex';
+        }
+
+        // Função auxiliar para processar o salvamento do cupom
+        window.salvarCupom = () => {
+            const novoCupom = {
+                codigo: document.getElementById('f-cupom-codigo').value.toUpperCase(),
+                tipo: document.getElementById('f-cupom-tipo').value,
+                valor: parseFloat(document.getElementById('f-cupom-valor').value)
+            };
+            
+            CRUD.adicionarCupom(novoCupom);
+            fecharModal();
+        };
+
+        window.salvarProduto = (sIdx, iIdx) => {
+            const data = {
+                nome: document.getElementById('f-nome').value,
+                preco: parseFloat(document.getElementById('f-preco').value),
+                opcionais_ativos: [...opcionaisTemp],
+                imagem: "img/placeholder.jpg"
+            };
+            if(sIdx !== null) CRUD.editarProduto(sIdx, iIdx, data);
+            else CRUD.adicionarProduto(document.getElementById('f-sessao').value, data);
+            fecharModal();
+        };
+
+        const visualizarCodigo = () => {
+            const win = window.open("", "_blank");
+            win.document.write(`<pre>const dadosIniciais = ${JSON.stringify(db, null, 2)};</pre>`);
+        };
+
+        const baixarDados = () => {
+            const blob = new Blob([`const dadosIniciais = ${JSON.stringify(db, null, 2)};`], { type: "text/javascript" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a"); a.href = url; a.download = "dados.js"; a.click();
+        };
+
+        window.onload = () => navegarPara('dashboard');
+
+        /* --- ATUALIZAÇÃO DA FUNÇÃO DE RENDERIZAÇÃO DE PRODUTOS --- */
+
+function renderProdutos(target) {
+    // Cabeçalho da página
+    let html = `<div class="header-actions">
+                    <h1>Gestão de Produtos</h1>
+                </div>`;
+
+    // Percorre cada sessão para criar os blocos agrupados
+    db.secoes.forEach((secao, sIdx) => {
+        html += `
+            <div class="card-admin" style="margin-bottom: 40px; border-left: 8px solid var(--verde-militar);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h2 style="margin:0; color:var(--verde-militar)">${secao.nome}</h2>
+                    <button class="btn-adm btn-verde-personalizado" onclick="abrirModalProduto(${sIdx})">
+                        <i class="fas fa-plus"></i> Novo Produto em ${secao.nome}
+                    </button>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Imagem</th>
+                            <th>Nome</th>
+                            <th>Preço</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${secao.itens.map((item, iIdx) => `
+                            <tr>
+                                <td><img src="${item.imagem || 'img/placeholder.jpg'}" style="width:50px; height:50px; border-radius:5px; object-fit:cover;"></td>
+                                <td><strong>${item.nome}</strong></td>
+                                <td>R$ ${item.preco.toFixed(2)}</td>
+                                <td>
+                                    <span class="badge ${item.esgotado ? 'badge-error' : 'badge-success'}">
+                                        ${item.esgotado ? 'ESGOTADO' : 'ATIVO'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn-adm btn-bege-personalizado" onclick="CRUD.toggleEstoque(${sIdx}, ${iIdx})">
+                                        <i class="fas fa-sync"></i>
+                                    </button>
+                                    <button class="btn-adm btn-bege-personalizado" onclick="abrirModalProduto(${sIdx}, ${iIdx})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-adm btn-red" onclick="CRUD.removerProduto(${sIdx}, ${iIdx})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    });
+
+    target.innerHTML = html;
+}
+
+/* --- ATUALIZAÇÃO DO MODAL DE PRODUTO (COM CAMPO DE IMAGEM E TAGS) --- */
+
+function abrirModalProduto(sIdx, iIdx = null) {
+    // Se iIdx for null, estamos criando um novo produto na sessão sIdx
+    const item = iIdx !== null ? db.secoes[sIdx].itens[iIdx] : { nome: '', preco: 0, imagem: '', opcionais_ativos: [] };
+    
+    opcionaisTemp = [...(item.opcionais_ativos || [])];
+    const todosOpcionais = [...new Set(Object.values(db.opcionais).flat().map(o => o.nome))];
+
+    const html = `
+        <form onsubmit="event.preventDefault(); salvarProduto(${sIdx}, ${iIdx})">
+            <div class="form-group">
+                <label>Categoria Selecionada</label>
+                <input type="text" value="${db.secoes[sIdx].nome}" disabled style="background:#eee">
+            </div>
+            
+            <div class="form-group">
+                <label>Nome do Produto</label>
+                <input id="f-nome" value="${item.nome}" required placeholder="Ex: Pão de Campanha">
+            </div>
+
+            <div class="form-group">
+                <label>Caminho da Imagem (URL ou Local)</label>
+                <input id="f-imagem" value="${item.imagem || ''}" placeholder="Ex: img/produtos/pao.jpg">
+            </div>
+            
+            <div class="form-group">
+                <label>Preço (R$)</label>
+                <input type="number" step="0.01" id="f-preco" value="${item.preco}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Opcionais Disponíveis (Clique para Ativar)</label>
+                <div class="opcionais-badge-container">
+                    ${todosOpcionais.map(opt => `
+                        <div class="badge-opcional ${opcionaisTemp.includes(opt)?'selected':''}" 
+                             onclick="toggleBadge('${opt}', this)">
+                             ${opt}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:30px;">
+                <button type="button" class="btn-adm btn-bege-personalizado" onclick="fecharModal()">Cancelar</button>
+                <button type="submit" class="btn-adm btn-verde-personalizado">
+                    ${iIdx !== null ? 'Atualizar Produto' : 'Criar Produto'}
+                </button>
+            </div>
+        </form>
+    `;
+
+    document.getElementById('modal-title').innerText = iIdx !== null ? "Editar Produto" : "Novo Produto";
+    document.getElementById('modal-body').innerHTML = html;
+    document.getElementById('modal-container').style.display = 'flex';
+}
+
+/* --- ATUALIZAÇÃO DA FUNÇÃO SALVAR --- */
+
+window.salvarProduto = (sIdx, iIdx) => {
+    const novoObjeto = {
+        nome: document.getElementById('f-nome').value,
+        imagem: document.getElementById('f-imagem').value,
+        preco: parseFloat(document.getElementById('f-preco').value),
+        opcionais_ativos: [...opcionaisTemp],
+        esgotado: iIdx !== null ? db.secoes[sIdx].itens[iIdx].esgotado : false
+    };
+
+    if (iIdx !== null) {
+        // Edição
+        db.secoes[sIdx].itens[iIdx] = novoObjeto;
+    } else {
+        // Criação Direta na Categoria
+        db.secoes[sIdx].itens.push(novoObjeto);
+    }
+
+    persistir();
+    renderizarAtual();
+    fecharModal();
+}
+
+function abrirModalSessao(idx = null) {
+    const sessao = idx !== null ? db.secoes[idx] : { nome: '' };
+    const nomeSessao = sessao.nome;
+    
+    // Busca os opcionais correspondentes ao nome da sessão no objeto db.opcionais
+    const listaOpcionais = db.opcionais[nomeSessao] || [];
+
+    let html = `
+        <div class="form-group">
+            <label>Nome da Sessão</label>
+            <input id="f-sessao-nome" value="${nomeSessao}" required>
+        </div>
+        
+        <hr>
+        <h3>Gerenciar Opcionais desta Sessão</h3>
+        <div id="lista-opcionais-sessao">
+            ${listaOpcionais.map((opc, oIdx) => `
+                <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center; background:#f9f9f9; padding:10px; border-radius:8px;">
+                    <input type="text" placeholder="Nome" value="${opc.nome}" onchange="CRUD.editarOpcional('${nomeSessao}', ${oIdx}, 'nome', this.value)" style="flex:2">
+                    <input type="number" placeholder="Preço" value="${opc.preco}" onchange="CRUD.editarOpcional('${nomeSessao}', ${oIdx}, 'preco', this.value)" style="flex:1">
+                    <button class="btn-adm btn-red" onclick="CRUD.removerOpcional('${nomeSessao}', ${oIdx}, ${idx})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('')}
+        </div>
+        <button class="btn-adm btn-bege-personalizado" style="width:100%; margin-top:10px" onclick="CRUD.adicionarOpcional('${nomeSessao}', ${idx})">
+            <i class="fas fa-plus"></i> Adicionar Opcional
+        </button>
+
+        <div style="display:flex; gap:10px; margin-top:30px; border-top:1px solid #eee; pt:20px;">
+            <button class="btn-adm btn-bege-personalizado" onclick="fecharModal()">Cancelar</button>
+            <button class="btn-adm btn-verde-personalizado" onclick="CRUD.salvarSessao(${idx}, document.getElementById('f-sessao-nome').value); fecharModal();">
+                Salvar Sessão
+            </button>
+        </div>`;
+
+    document.getElementById('modal-title').innerText = idx !== null ? "Editar Sessão e Opcionais" : "Nova Sessão";
+    document.getElementById('modal-body').innerHTML = html;
+    document.getElementById('modal-container').style.display = 'flex';
+}
+    </script>
+</body>
+</html>
