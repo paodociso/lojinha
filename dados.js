@@ -467,7 +467,7 @@ const dadosIniciais = {
             "Rúcula",
             "Tomate"
           ],
-          "esgotado": false
+          "esgotado": true
         }
       ]
     },
@@ -487,7 +487,7 @@ const dadosIniciais = {
             "Azeite",
             "Tomate"
           ],
-          "esgotado": false
+          "esgotado": true
         }
       ]
     },
