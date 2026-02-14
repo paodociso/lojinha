@@ -2,6 +2,45 @@
 // SISTEMA DE ENVIO DE PEDIDOS - PÃO DO CISO
 // ============================================
 
+function enviarPedidoParaPlanilha(dadosCliente) {
+    const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbxkonpHF_9hpOYSLJCrFfeCN4BH2QqPVEhx6cHUizzFBW7QAD-rDYXAJ55djqf-2q2asQ/exec";
+
+    // 1. Organizar os itens do pedido com quebra de linha para a célula
+    let resumoItens = "";
+    Object.values(carrinho).forEach(item => {
+        const produto = dadosIniciais.secoes[item.indiceSessao].itens[item.indiceItem];
+        resumoItens += `${item.quantidade}x ${produto.nome}\n`;
+        
+        if (item.opcionais) {
+            Object.keys(item.opcionais).forEach(opc => {
+                resumoItens += `  └ ${item.opcionais[opc].quantidade}x ${opc}\n`;
+            });
+        }
+    });
+
+    // 2. Preparar o objeto com as colunas exatamente como na planilha
+    const dados = {
+        data: new Date().toLocaleString('pt-BR'),
+        nome: dadosCliente.nome,
+        telefone: dadosCliente.whatsapp,
+        endereco: dadosCliente.endereco,
+        pedido: resumoItens.trim(),
+        forma_pagamento: dadosCliente.metodoPagamento,
+        total: estadoAplicativo.totalGeral
+    };
+
+    // 3. Executar o envio
+    fetch(URL_PLANILHA, {
+        method: 'POST',
+        mode: 'no-cors', // Importante para Google Apps Script
+        cache: 'no-cache',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+    })
+    .then(() => console.log("✅ Dados enviados para a planilha com sucesso!"))
+    .catch(error => console.error("❌ Erro ao enviar para planilha:", error));
+}
+
 function processarFinalizacaoPedido() {
     // Coletar dados
     const nome = elemento('nome-cliente')?.value.trim() || '';
@@ -46,11 +85,24 @@ function processarFinalizacaoPedido() {
         if (cep) enderecoTexto += ` (CEP: ${cep})`;
         if (referencia) enderecoTexto += ` [Ref: ${referencia}]`;
     }
+
+    // --- INTEGRAÇÃO COM A PLANILHA ---
+    // Preparamos o objeto exatamente como a função enviarPedidoParaPlanilha espera
+    const dadosClienteParaPlanilha = {
+        nome: nome,
+        whatsapp: whatsappNumeros,
+        endereco: enderecoTexto,
+        metodoPagamento: metodoPagamento
+    };
+    
+    // Chama o envio para a planilha
+    enviarPedidoParaPlanilha(dadosClienteParaPlanilha);
+    // ---------------------------------
     
     // Gerar mensagem para WhatsApp
     const mensagem = gerarMensagemWhatsApp(nome, whatsappNumeros, enderecoTexto, metodoPagamento);
     
-// Abrir WhatsApp
+    // Abrir WhatsApp
     const linkWhatsApp = `https://api.whatsapp.com/send?phone=5511982391781&text=${encodeURIComponent(mensagem)}`;
     window.open(linkWhatsApp, '_blank');
 
