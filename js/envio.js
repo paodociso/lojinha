@@ -7,16 +7,18 @@ function enviarPedidoParaPlanilha(dadosCliente) {
 
     // 1. Organizar os itens do pedido com quebra de linha para a célula
     let resumoItens = "";
-    Object.values(carrinho).forEach(item => {
-        const produto = dadosIniciais.secoes[item.indiceSessao].itens[item.indiceItem];
-        resumoItens += `${item.quantidade}x ${produto.nome}\n`;
-        
-        if (item.opcionais) {
-            Object.keys(item.opcionais).forEach(opc => {
-                resumoItens += `  └ ${item.opcionais[opc].quantidade}x ${opc}\n`;
-            });
-        }
-    });
+    if (typeof carrinho !== 'undefined') {
+        Object.values(carrinho).forEach(item => {
+            const produto = dadosIniciais.secoes[item.indiceSessao].itens[item.indiceItem];
+            resumoItens += `${item.quantidade}x ${produto.nome}\n`;
+            
+            if (item.opcionais) {
+                Object.keys(item.opcionais).forEach(opc => {
+                    resumoItens += `  └ ${item.opcionais[opc].quantidade}x ${opc}\n`;
+                });
+            }
+        });
+    }
 
     // 2. Preparar o objeto com as colunas exatamente como na planilha
     const dados = {
@@ -86,18 +88,15 @@ function processarFinalizacaoPedido() {
         if (referencia) enderecoTexto += ` [Ref: ${referencia}]`;
     }
 
-    // --- INTEGRAÇÃO COM A PLANILHA ---
-    // Preparamos o objeto exatamente como a função enviarPedidoParaPlanilha espera
+    // --- CHAMADA PARA A PLANILHA ---
     const dadosClienteParaPlanilha = {
         nome: nome,
         whatsapp: whatsappNumeros,
         endereco: enderecoTexto,
         metodoPagamento: metodoPagamento
     };
-    
-    // Chama o envio para a planilha
     enviarPedidoParaPlanilha(dadosClienteParaPlanilha);
-    // ---------------------------------
+    // -------------------------------
     
     // Gerar mensagem para WhatsApp
     const mensagem = gerarMensagemWhatsApp(nome, whatsappNumeros, enderecoTexto, metodoPagamento);
