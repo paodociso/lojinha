@@ -3,7 +3,7 @@
 // ============================================
 
 function enviarPedidoParaPlanilha(dadosCliente) {
-    const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbxkonpHF_9hpOYSLJCrFfeCN4BH2QqPVEhx6cHUizzFBW7QAD-rDYXAJ55djqf-2q2asQ/exec";
+    const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbzjMJHJ7awYSo-T9TrhF2ByutCxl8Rjt6_c80ivuWCaBqhIz9KoVLA8IMO7JiwmQTl1QQ/exec";
 
     // 1. Organizar os itens do pedido com quebra de linha para a célula
     let resumoItens = "";
