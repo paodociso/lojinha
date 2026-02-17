@@ -1,5 +1,5 @@
 // ============================================
-// MODAL DE PRODUTO - PÃO DO CISO
+// MODAL DE PRODUTO - BUSCA EM ÁRVORE
 // ============================================
 
 // produto-modal.js
@@ -13,12 +13,9 @@ function configurarProduto(indiceSessao, indiceItem) {
         return;
     }
 
-    // --- LÓGICA DE RECUPERAÇÃO DO CARRINHO ---
     const itemExistente = carrinho[identificador];
-
     if (itemExistente) {
         produtoAtual = JSON.parse(JSON.stringify(itemExistente));
-        console.log(`✅ Produto recuperado do carrinho: ${produto.nome} (Qtde: ${produtoAtual.quantidade})`);
     } else {
         produtoAtual = {
             identificador: identificador,
@@ -27,97 +24,130 @@ function configurarProduto(indiceSessao, indiceItem) {
             quantidade: 0, 
             opcionais: {}
         };
-        console.log(`📝 Iniciando novo produto no modal: ${produto.nome}`);
     }
 
     renderizarModalProduto(produto);
     abrirModal('modal-produto');
 }
 
-// --- FUNÇÃO DE RENDERIZAÇÃO DO ITEM OPCIONAL (AUXILIAR) ---
-// Separei esta função para não repetir código HTML
-function criarHTMLItemOpcional(opcional) {
-    const qtdAtual = produtoAtual.opcionais[opcional.nome] ? produtoAtual.opcionais[opcional.nome].quantidade : 0;
-    const idOpcional = opcional.nome.replace(/\s+/g, '-');
+// --- BUSCADOR DEEP SEARCH (A Mágica acontece aqui) ---
+function buscarDetalhesOpcional(nomeOpcional, chaveBiblioteca) {
+    // Função interna para varrer uma biblioteca específica
+    const procurarEmBiblioteca = (biblioteca) => {
+        if (!biblioteca) return null;
+
+        // CASO 1: A biblioteca é dividida em categorias (Objeto) - NOVO MODELO
+        if (!Array.isArray(biblioteca)) {
+            for (const [nomeCategoria, listaItens] of Object.entries(biblioteca)) {
+                const item = listaItens.find(i => i.nome === nomeOpcional);
+                if (item) {
+                    // Retorna o item JÁ com a categoria injetada
+                    return { ...item, categoria: nomeCategoria };
+                }
+            }
+        } 
+        // CASO 2: A biblioteca é uma lista simples (Array) - MODELO ANTIGO
+        else {
+            const item = biblioteca.find(i => i.nome === nomeOpcional);
+            if (item) return item;
+        }
+        return null;
+    };
+
+    // 1. Tenta buscar na biblioteca indicada pelo produto (ex: "Panini")
+    if (chaveBiblioteca) {
+        const encontrado = procurarEmBiblioteca(dadosIniciais.opcionais[chaveBiblioteca]);
+        if (encontrado) return encontrado;
+    }
+
+    // 2. Se não achou, varre TODAS as bibliotecas de opcionais (Fallback)
+    for (const chave in dadosIniciais.opcionais) {
+        const encontrado = procurarEmBiblioteca(dadosIniciais.opcionais[chave]);
+        if (encontrado) return encontrado;
+    }
+
+    // 3. Última tentativa: Procura nas seções de produtos (ex: Alichella)
+    for (const secao of dadosIniciais.secoes) {
+        const itemProduto = secao.itens.find(i => i.nome === nomeOpcional);
+        if (itemProduto) return { nome: nomeOpcional, preco: itemProduto.preco, categoria: 'Extras' };
+    }
+
+    // Se não achar nada, retorna zerado
+    return { nome: nomeOpcional, preco: 0, categoria: 'Outros' };
+}
+
+function criarHTMLItemOpcional(info) {
+    const qtdAtual = produtoAtual.opcionais[info.nome] ? produtoAtual.opcionais[info.nome].quantidade : 0;
+    const idOpcional = info.nome.replace(/\s+/g, '-');
     
-    // Mantendo EXATAMENTE as classes do seu CSS original
     return `
         <div class="opcional-item-moldura">
             <div class="opcional-texto-lado-a-lado">
-                <span class="opcional-nome">${opcional.nome}</span>
-                <span class="opcional-preco">+ ${formatarMoeda(opcional.preco)}</span>
+                <span class="opcional-nome">${info.nome}</span>
+                <span class="opcional-preco">+ ${formatarMoeda(info.preco)}</span>
             </div>
             <div class="controles-opcional">
-                <button class="botao-quantidade-pequeno" onclick="alterarQuantidadeOpcional('${opcional.nome}', ${opcional.preco}, -1)">-</button>
+                <button class="botao-quantidade-pequeno" onclick="alterarQuantidadeOpcional('${info.nome}', ${info.preco}, -1)">-</button>
                 <span id="quantidade-opcional-${idOpcional}" class="quantidade-opcional">${qtdAtual}</span>
-                <button class="botao-quantidade-pequeno" onclick="alterarQuantidadeOpcional('${opcional.nome}', ${opcional.preco}, 1)">+</button>
+                <button class="botao-quantidade-pequeno" onclick="alterarQuantidadeOpcional('${info.nome}', ${info.preco}, 1)">+</button>
             </div>
         </div>`;
 }
 
-// --- BUSCADOR DE DETALHES (PREÇO) ---
-function buscarDetalhesOpcional(nomeOpcional, categoriaPadrao) {
-    // 1. Tenta buscar na categoria padrão do produto (ex: "Panini")
-    if (categoriaPadrao && dadosIniciais.opcionais[categoriaPadrao]) {
-        const encontrado = dadosIniciais.opcionais[categoriaPadrao].find(o => o.nome === nomeOpcional);
-        if (encontrado) return encontrado;
-    }
-
-    // 2. Se não achar, varre todas as listas de opcionais
-    for (const key in dadosIniciais.opcionais) {
-        const encontrado = dadosIniciais.opcionais[key].find(o => o.nome === nomeOpcional);
-        if (encontrado) return encontrado;
-    }
-
-    // 3. Fallback: Se for um item que existe como produto principal (ex: Alichella)
-    for (const secao of dadosIniciais.secoes) {
-        const itemProduto = secao.itens.find(i => i.nome === nomeOpcional);
-        if (itemProduto) return { nome: nomeOpcional, preco: itemProduto.preco };
-    }
-
-    return { nome: nomeOpcional, preco: 0 };
-}
-
-// --- NOVA LÓGICA HÍBRIDA (LISTA OU CATEGORIAS) ---
 function gerarHTMLSecaoOpcionais(produto) {
-    // Regra: Só mostra opcionais se tiver quantidade > 0
-    if ((produtoAtual.quantidade || 0) <= 0) {
-        return '';
-    }
-
+    if ((produtoAtual.quantidade || 0) <= 0) return '';
+    
     const ativos = produto.opcionais_ativos;
-    if (!ativos) return ''; // Sem opcionais definidos
+    if (!ativos || ativos.length === 0) return '';
 
     let conteudoHTML = '';
 
-    // CASO 1: Lista Simples (Array) - Como funciona hoje
+    // Se o produto usa lista simples (Recomendado), nós agrupamos automaticamente
     if (Array.isArray(ativos)) {
-        if (ativos.length === 0) return '';
-        
-        const itensHTML = ativos.map(nome => {
+        const grupos = {};
+        const semCategoria = [];
+
+        ativos.forEach(nome => {
+            // A busca agora retorna a categoria automaticamente!
             const info = buscarDetalhesOpcional(nome, produto.opcionais);
-            return criarHTMLItemOpcional(info);
-        }).join('');
-        
-        conteudoHTML = `<div class="moldura-agrupadora-opcionais">${itensHTML}</div>`;
+            
+            if (info.categoria && info.categoria !== 'Outros') {
+                if (!grupos[info.categoria]) grupos[info.categoria] = [];
+                grupos[info.categoria].push(info);
+            } else {
+                semCategoria.push(info);
+            }
+        });
+
+        // Renderiza Grupos
+        for (const [nomeCategoria, itens] of Object.entries(grupos)) {
+            conteudoHTML += `
+                <h5 class="titulo-subcategoria">${nomeCategoria}</h5>
+                <div class="moldura-agrupadora-opcionais" style="margin-bottom: 15px;">
+                    ${itens.map(item => criarHTMLItemOpcional(item)).join('')}
+                </div>`;
+        }
+
+        // Renderiza Itens Soltos
+        if (semCategoria.length > 0) {
+            conteudoHTML += `
+                ${Object.keys(grupos).length > 0 ? '<h5 class="titulo-subcategoria">Outros</h5>' : ''}
+                <div class="moldura-agrupadora-opcionais">
+                    ${semCategoria.map(item => criarHTMLItemOpcional(item)).join('')}
+                </div>`;
+        }
     } 
-    // CASO 2: Categorias (Objeto) - O que você quer adicionar
+    // Suporte legado para objeto direto no produto
     else if (typeof ativos === 'object') {
         for (const [categoria, listaNomes] of Object.entries(ativos)) {
-            // Título da Categoria com estilo inline (para não precisar mexer no CSS agora)
-            const tituloHTML = `
-                <h5 style="margin: 15px 0 5px 0; color: #2d3a27; font-size: 0.9rem; text-transform: uppercase; border-bottom: 1px solid #dccbb0; padding-bottom: 2px;">
-                    ${categoria}
-                </h5>`;
-            
             const itensHTML = listaNomes.map(nome => {
                 const info = buscarDetalhesOpcional(nome, produto.opcionais);
                 return criarHTMLItemOpcional(info);
             }).join('');
 
             conteudoHTML += `
-                ${tituloHTML}
-                <div class="moldura-agrupadora-opcionais" style="margin-bottom: 10px;">
+                <h5 class="titulo-subcategoria">${categoria}</h5>
+                <div class="moldura-agrupadora-opcionais" style="margin-bottom: 15px;">
                     ${itensHTML}
                 </div>`;
         }
@@ -131,11 +161,9 @@ function gerarHTMLSecaoOpcionais(produto) {
     `;
 }
 
-// FUNÇÃO PRINCIPAL DE RENDERIZAÇÃO
+// --- FUNÇÕES PADRÃO (RENDER, CÁLCULO, ETC) ---
 function renderizarModalProduto(produto) {
-    console.log('🔄 Renderizando Modal (Versão Híbrida) para:', produto.nome);
-    
-    const container = document.getElementById('corpo-modal-produto'); // Usando getElementById direto para segurança
+    const container = document.getElementById('corpo-modal-produto');
     if (!container) return;
 
     container.innerHTML = `
@@ -159,18 +187,10 @@ function renderizarModalProduto(produto) {
                     <span style="font-weight: bold; font-size: 1rem; color: #000;">Quantidade</span>
                     <span style="font-size: 0.9rem; color: #666;">${formatarMoeda(produto.preco)}</span>
                 </div>
-                
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <button class="botao-quantidade-pequeno" 
-                            onclick="alterarQuantidadeProduto(-1)"
-                            style="width: 30px; height: 30px; border-radius: 50%; border: none; background-color: #332616; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">-</button>
-                    
-                    <span id="quantidade-produto-modal" 
-                          style="font-weight: bold; font-size: 1rem; min-width: 20px; text-align: center;">${produtoAtual.quantidade}</span>
-                    
-                    <button class="botao-quantidade-pequeno" 
-                            onclick="alterarQuantidadeProduto(1)"
-                            style="width: 30px; height: 30px; border-radius: 50%; border: none; background-color: #332616; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">+</button>
+                    <button class="botao-quantidade-pequeno" onclick="alterarQuantidadeProduto(-1)" style="width: 30px; height: 30px; border-radius: 50%; border: none; background-color: #332616; color: white; cursor: pointer;">-</button>
+                    <span id="quantidade-produto-modal" style="font-weight: bold; font-size: 1rem; min-width: 20px; text-align: center;">${produtoAtual.quantidade}</span>
+                    <button class="botao-quantidade-pequeno" onclick="alterarQuantidadeProduto(1)" style="width: 30px; height: 30px; border-radius: 50%; border: none; background-color: #332616; color: white; cursor: pointer;">+</button>
                 </div>
             </div>
         </div>
@@ -190,51 +210,35 @@ function renderizarModalProduto(produto) {
     verificarVisibilidadeBotoesModal();
 }
 
-// ===================== FUNÇÕES DE CONTROLE (Mantidas do original) =====================
-
 function alterarQuantidadeProduto(valor) {
     const novaQuantidade = Math.max(0, (produtoAtual.quantidade || 0) + valor);
     if (novaQuantidade === produtoAtual.quantidade) return;
-
     produtoAtual.quantidade = novaQuantidade;
-
-    if (produtoAtual.quantidade === 0) {
-        produtoAtual.opcionais = {};
-    }
-
-    // Re-renderiza o modal inteiro para atualizar estados
+    if (produtoAtual.quantidade === 0) produtoAtual.opcionais = {};
     const produtoBase = dadosIniciais.secoes[produtoAtual.indiceSessao].itens[produtoAtual.indiceItem];
     renderizarModalProduto(produtoBase);
-    
-    // Sincroniza
     sincronizarProdutoNoCarrinho();
 }
 
 function calcularSubtotalProduto() {
     const produto = dadosIniciais.secoes[produtoAtual.indiceSessao].itens[produtoAtual.indiceItem];
     let subtotal = produto.preco * produtoAtual.quantidade;
-    
-    for (let nomeOpcional in produtoAtual.opcionais) {
-        const opcional = produtoAtual.opcionais[nomeOpcional];
-        subtotal += opcional.quantidade * opcional.preco;
+    for (let nome in produtoAtual.opcionais) {
+        subtotal += produtoAtual.opcionais[nome].quantidade * produtoAtual.opcionais[nome].preco;
     }
     return subtotal;
 }
 
 function verificarVisibilidadeBotoesModal() {
     const qtd = produtoAtual.quantidade;
-    const btnBege = document.getElementById('botao-adicionar-simples');
     const btnVerde = document.getElementById('botao-adicionar-e-ir-para-carrinho');
-
-    if (btnVerde) btnVerde.style.display = (qtd > 0) ? 'flex' : 'none';
+    const btnBege = document.getElementById('botao-adicionar-simples');
+    if (btnVerde) btnVerde.style.display = qtd > 0 ? 'flex' : 'none';
     if (btnBege) btnBege.style.display = 'flex';
 }
 
 function adicionarItemAoCarrinho() {
-    if (produtoAtual.quantidade === 0) {
-        alert('Adicione pelo menos 1 item antes de continuar.');
-        return;
-    }
+    if (produtoAtual.quantidade === 0) { alert('Adicione pelo menos 1 item.'); return; }
     sincronizarProdutoNoCarrinho();
     fecharModal('modal-produto');
     mostrarNotificacao('Item adicionado ao carrinho!');
@@ -247,38 +251,18 @@ function adicionarEIrParaCarrinho() {
 }
 
 function sincronizarProdutoNoCarrinho() {
-    if (produtoAtual.quantidade > 0) {
-        carrinho[produtoAtual.identificador] = JSON.parse(JSON.stringify(produtoAtual));
-    } else {
-        delete carrinho[produtoAtual.identificador];
-    }
+    if (produtoAtual.quantidade > 0) carrinho[produtoAtual.identificador] = JSON.parse(JSON.stringify(produtoAtual));
+    else delete carrinho[produtoAtual.identificador];
     salvarCarrinho();
     atualizarBarraCarrinho();
-    
-    if (typeof atualizarBadgeNoCard === 'function') {
-        atualizarBadgeNoCard(produtoAtual.indiceSessao, produtoAtual.indiceItem);
-    }
+    if (typeof atualizarBadgeNoCard === 'function') atualizarBadgeNoCard(produtoAtual.indiceSessao, produtoAtual.indiceItem);
 }
 
-function removerItemDoCarrinho(identificador) {
-    delete carrinho[identificador];
-    salvarCarrinho();
-    if (typeof renderizarCarrinho === 'function') renderizarCarrinho();
-    atualizarBarraCarrinho();
-    if (typeof atualizarBadgesAposRemocao === 'function') atualizarBadgesAposRemocao();
-}
-
-// Helper para alinhamento (caso necessário)
-function ajustarAlinhamentoOpcionais() {
-    // Mantido por compatibilidade, mas o CSS original já deve resolver
-}
-
-// ===================== EXPORTAÇÕES GLOBAIS =====================
+// EXPORTAÇÕES
 window.configurarProduto = configurarProduto;
 window.renderizarModalProduto = renderizarModalProduto;
 window.alterarQuantidadeProduto = alterarQuantidadeProduto;
 window.gerarHTMLSecaoOpcionais = gerarHTMLSecaoOpcionais;
 window.adicionarItemAoCarrinho = adicionarItemAoCarrinho;
 window.adicionarEIrParaCarrinho = adicionarEIrParaCarrinho;
-window.removerItemDoCarrinho = removerItemDoCarrinho;
-window.ajustarAlinhamentoOpcionais = ajustarAlinhamentoOpcionais;
+window.ajustarAlinhamentoOpcionais = function(){};

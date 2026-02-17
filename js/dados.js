@@ -138,152 +138,56 @@ window.dadosIniciais = {
          "preco": 5
       }
    ],
-   "Panini": [
-      {
-         "nome": "Ciabatta",
-         "preco": 0
+   "Panini": {
+         "🥖 Escolha seu Pão": [
+            { "nome": "Ciabatta", "preco": 0 },
+            { "nome": "Focaccia", "preco": 0 },
+            { "nome": "Demi baguette", "preco": 0 },
+            { "nome": "Pão de Campanha", "preco": 0 }
+         ],
+         "🥓 Charcutaria": [
+            { "nome": "Bresaola", "preco": 9 },
+            { "nome": "Lombo piripiri", "preco": 9 },
+            { "nome": "Mortadela", "preco": 5 },
+            { "nome": "Pastrame", "preco": 9 },
+            { "nome": "Presunto cru", "preco": 9 },
+            { "nome": "Salame", "preco": 7 }
+         ],
+         "🧀 Queijos": [
+            { "nome": "Chancliche", "preco": 7 },
+            { "nome": "Chancliche apimentado", "preco": 7 },
+            { "nome": "Muçarela", "preco": 3 },
+            { "nome": "Provolone", "preco": 5 },
+            { "nome": "Queijo Prato", "preco": 5 }
+         ],
+         "🏺 Antepastos e Conservas": [
+            { "nome": "Alichella", "preco": 3 },
+            { "nome": "Confit de alho", "preco": 2 },
+            { "nome": "Confit de alho e tomates cereja", "preco": 3 },
+            { "nome": "Melanzane sottolio", "preco": 3 },
+            { "nome": "Picles de cebola", "preco": 2 },
+            { "nome": "Sardella", "preco": 3 }
+         ],
+         "🥣 Molhos e Pastas": [
+            { "nome": "Azeite", "preco": 1 },
+            { "nome": "Manteiga", "preco": 2 },
+            { "nome": "Manteiga temperada com alho e parmesão", "preco": 3 },
+            { "nome": "Maionese", "preco": 2 },
+            { "nome": "Maionese temperada", "preco": 2 },
+            { "nome": "Pastinha de goronzola", "preco": 2 },
+            { "nome": "Pastinha de parmesão", "preco": 2 },
+            { "nome": "Pastinha de pimentão vermelho", "preco": 2 },
+            { "nome": "Pesto de azeitona", "preco": 2 },
+            { "nome": "Pesto tradicional (manjericão)", "preco": 2 }
+         ],
+         "🥗 Vegetais Frescos": [
+            { "nome": "Alface", "preco": 1 },
+            { "nome": "Pepino", "preco": 1 },
+            { "nome": "Pimentão", "preco": 1 },
+            { "nome": "Rúcula", "preco": 1 },
+            { "nome": "Tomate", "preco": 1 }
+         ]
       },
-      {
-         "nome": "Focaccia",
-         "preco": 0
-      },
-      {
-         "nome": "Pão de Campanha",
-         "preco": 0
-      },
-      {
-         "nome": "Pão de Forma Artesanal",
-         "preco": 0
-      },
-      {
-         "nome": "Bresaola",
-         "preco": 9
-      },
-      {
-         "nome": "Lombo piripiri",
-         "preco": 9
-      },
-      {
-         "nome": "Mortadela",
-         "preco": 5
-      },
-      {
-         "nome": "Pastrame",
-         "preco": 9
-      },
-      {
-         "nome": "Presunto cru",
-         "preco": 9
-      },
-      {
-         "nome": "Salame",
-         "preco": 7
-      },
-      {
-         "nome": "Chancliche",
-         "preco": 7
-      },
-      {
-         "nome": "Chancliche apimentado",
-         "preco": 7
-      },
-      {
-         "nome": "Muçarela",
-         "preco": 3
-      },
-      {
-         "nome": "Provolone",
-         "preco": 5
-      },
-      {
-         "nome": "Queijo Prato",
-         "preco": 5
-      },
-      {
-         "nome": "Alichella",
-         "preco": 3
-      },
-      {
-         "nome": "Confit de alho",
-         "preco": 2
-      },
-      {
-         "nome": "Confit de alho e tomates cereja",
-         "preco": 3
-      },
-      {
-         "nome": "Melanzane sottolio",
-         "preco": 3
-      },
-      {
-         "nome": "Picles de cebola",
-         "preco": 2
-      },
-      {
-         "nome": "Sardella",
-         "preco": 3
-      },
-      {
-         "nome": "Azeite",
-         "preco": 1
-      },
-      {
-         "nome": "Manteiga",
-         "preco": 2
-      },
-      {
-         "nome": "Manteiga temperada com alho e parmesão",
-         "preco": 3
-      },
-      {
-         "nome": "Maionese",
-         "preco": 2
-      },
-      {
-         "nome": "Maionese temperada",
-         "preco": 2
-      },
-      {
-         "nome": "Pastinha de goronzola",
-         "preco": 2
-      },
-      {
-         "nome": "Pastinha de parmesão",
-         "preco": 2
-      },
-      {
-         "nome": "Pastinha de pimentão vermelho",
-         "preco": 2
-      },
-      {
-         "nome": "Pesto de azeitona",
-         "preco": 2
-      },
-      {
-         "nome": "Pesto tradicional (manjericão)",
-         "preco": 2
-      },
-      {
-         "nome": "Alface",
-         "preco": 1
-      },
-      {
-         "nome": "Pepino",
-         "preco": 1
-      },
-      {
-         "nome": "Pimentão",
-         "preco": 1
-      },
-      {
-         "nome": "Rúcula",
-         "preco": 1
-      },
-      {
-         "nome": "Tomate",
-         "preco": 1
-      }
-   ],
    "Bebidas": [
       {
          "nome": "Taça de vidro",
@@ -577,20 +481,22 @@ window.dadosIniciais = {
             "imagem": "img/panino-salame.webp",
             "opcionais": "Panini",
             "opcionais_ativos": [
-               "Chancliche",
-               "Chancliche apimentado",
-               "Muçarela",
-               "Provolone",
-               "Queijo Prato",
-               "Melanzane sottolio",
-               "Azeite",
-               "Manteiga",
-               "Maionese",
-               "Pesto de azeitona",
-               "Pesto tradicional (manjericão)",
-               "Rúcula",
-               "Tomate"
-            ],
+                  "Focaccia",
+                  "Ciabatta",
+                  "Demi baguette",
+                  "Chancliche",
+                  "Chancliche apimentado",
+                  "Muçarela",
+                  "Provolone",
+                  "Queijo Prato",
+                  "Azeite",
+                  "Manteiga",
+                  "Maionese",
+                  "Pesto de azeitona",
+                  "Pesto tradicional (manjericão)",
+                  "Melanzane sottolio",
+                  "Rúcula",
+               ],
             "visivel": true,
             "esgotado": false
          },
