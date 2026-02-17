@@ -1,0 +1,82 @@
+/* ============================================================
+   MODAL DE PAGAMENTO
+   ============================================================ */
+
+/* 🔒 ESTADO INICIAL (Obrigatório para não abrir sozinho) */
+#modal-pagamento {
+    display: none;
+    overflow-y: auto !important;
+    padding-bottom: 20px !important;
+}
+
+/* 📱 TELEMÓVEL (Padrão) */
+.opcao-pagamento {
+    border-radius: 12px;
+    border: 2px solid var(--cinza-medio);
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.opcao-pagamento:first-child {
+    position: relative !important;
+    padding-top: 20px !important;
+    margin-top: 15px !important;
+    overflow: visible !important;
+}
+
+.opcao-recomendado {
+    position: absolute !important;
+    top: -8px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    background: var(--verde-militar) !important;
+    color: white !important;
+    font-size: 0.6rem !important;
+    padding: 3px 12px !important;
+    border-radius: 10px !important;
+    font-weight: bold !important;
+    z-index: 10 !important;
+}
+
+.pix-chave {
+    flex-direction: column !important;
+    text-align: center !important;
+    padding: 10px !important;
+    display: flex;
+}
+
+.pix-chave span {
+    font-size: 0.75rem !important;
+    margin-bottom: 5px !important;
+}
+
+.pix-qrcode img {
+    width: 150px !important;
+    height: 150px !important;
+}
+
+/* 💻 DESKTOP (PC - a partir de 769px) */
+@media (min-width: 769px) {
+    .opcoes-pagamento {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .opcao-pagamento:hover {
+        border-color: var(--marrom-cafe);
+        background-color: var(--bg-creme);
+    }
+
+    .opcao-recomendado {
+        top: -10px !important;
+        left: auto !important;
+        right: 20px !important;
+        transform: none !important;
+    }
+
+    .pix-chave {
+        flex-direction: row !important;
+        align-items: center !important;
+    }
+}

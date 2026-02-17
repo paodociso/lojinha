@@ -1,0 +1,56 @@
+/* ============================================================
+   OVERLAY E ESTRUTURA BASE DOS MODAIS
+   ============================================================ */
+
+/* 📱 TELEMÓVEL (Padrão) */
+.overlay-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+}
+
+.modal {
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: calc(100% - 20px) !important;
+    max-width: calc(100% - 20px) !important;
+    max-height: 88vh !important;
+    height: auto !important;
+    box-sizing: border-box;
+    margin: 0 !important;
+    position: fixed;
+    z-index: 1001;
+    background: var(--bg-container-modal);
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+@keyframes modalEntrada {
+    from { opacity: 0; transform: translate(-50%, -40%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* 💻 DESKTOP (PC - a partir de 769px) */
+@media (min-width: 769px) {
+    .overlay-modal { backdrop-filter: blur(5px); }
+
+    .modal {
+        max-width: 500px !important;
+        width: 90% !important;
+        max-height: 90vh !important;
+    }
+
+    .conteudo-modal { padding: 25px !important; }
+    
+    .conteudo-modal-produto,
+    .conteudo-modal-carrinho { padding: 20px !important; }
+    
+    .conteudo-modal-sucesso { padding: 40px 25px !important; }
+}

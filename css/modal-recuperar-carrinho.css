@@ -1,0 +1,27 @@
+/* ============================================================
+   MODAL: RECUPERAR CARRINHO
+   ============================================================ */
+
+/* CELULAR (Padrão) */
+#modal-recuperar-carrinho .conteudo-modal {
+    text-align: center;
+    padding: 30px 25px;
+}
+
+#modal-recuperar-carrinho .botoes-recuperacao {
+    display: flex;
+    flex-direction: column; /* No celular, botões um sobre o outro */
+    gap: 15px;
+    margin-top: 25px;
+}
+
+/* PC (Desktop) */
+@media (min-width: 769px) {
+    #modal-recuperar-carrinho .botoes-recuperacao {
+        flex-direction: row; /* No PC, botões lado a lado */
+    }
+    
+    #modal-recuperar-carrinho .botao-acao:hover {
+        filter: brightness(0.9);
+    }
+}

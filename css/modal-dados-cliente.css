@@ -1,0 +1,150 @@
+/* ============================================================
+   MODAL: DADOS DO CLIENTE - UNIFICADO E DISCRETO
+   ============================================================ */
+
+#modal-dados-cliente {
+    display: none;
+    max-height: 95vh;
+    overflow-y: auto !important;
+}
+
+/* 1. TÍTULO */
+.titulo-modal {
+    font-size: 1.3rem !important;
+    color: var(--marrom-cafe);
+    margin-bottom: 20px !important;
+    text-align: center;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* 2. UNIFICAÇÃO DOS CONTAINERS (NOME, WHATSAPP E ENDEREÇO) */
+.formulario-dados > .grupo-campo,
+#secao-endereco {
+    background: #fdfdfd;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid var(--cinza-medio);
+    margin-bottom: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+/* 3. APROXIMAÇÃO DOS RÓTULOS (LABEL + INPUT) */
+.grupo-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* Mantém o título colado ao campo */
+}
+
+/* Ajuste específico para afastar o Ponto de Referência do que está acima */
+.grupo-campo:has(label[for="ponto-referencia-entrega"]) {
+    margin-top: 15px; 
+}
+
+.rotulo-campo {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--marrom-cafe);
+    text-transform: uppercase;
+}
+
+.subtitulo-endereco {
+    font-size: 0.8rem !important;
+    font-weight: 900;
+    color: var(--marrom-cafe);
+    margin: 5px 0 15px 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.7;
+}
+
+/* 4. ESTILO DOS CAMPOS */
+.campo-entrada {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--borda-nav);
+    font-size: 0.95rem;
+    background: var(--branco);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.campo-entrada:focus {
+    border-color: var(--verde-militar);
+}
+
+.campo-entrada.campo-leitura {
+    background-color: #f5f5f5;
+    color: #777;
+    border-style: dashed;
+    cursor: not-allowed;
+}
+
+/* 5. REALCE DISCRETO DO CAMPO NÚMERO */
+#numero-residencia-cliente:placeholder-shown {
+    border: 1px solid var(--red) !important;
+    background-color: #fff8f8 !important;
+}
+
+/* 6. CARD DE FRETE (DISCRETO) */
+.card-informacao-frete {
+    background: var(--bege-escuro) !important;
+    color: var(--marrom-cafe) !important;
+    padding: 12px !important;
+    border-radius: 10px !important;
+    margin-top: 15px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid var(--borda-nav) !important;
+}
+
+.info-frete-valor {
+    font-size: 1.1rem !important;
+    font-weight: 900 !important;
+    color: var(--verde-militar) !important;
+}
+
+.info-frete-titulo {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+/* 7. BOTÕES E GRUPOS */
+.grupo-duplo {
+    display: flex;
+    flex-direction: row !important; /* Apenas estes dois ficam lado a lado */
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.grupo-duplo .grupo-campo {
+    flex: 1;
+}
+
+.botoes-acao {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.texto-ajuda {
+    font-size: 0.65rem;
+    color: #888;
+    margin-top: 2px;
+}
+
+/* 💻 DESKTOP */
+@media (min-width: 769px) {
+    /* Mantém estrutura de coluna única para campos de texto, conforme pedido */
+    .formulario-dados {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}

@@ -1,0 +1,255 @@
+/* ============================================================
+   MODAL DO CARRINHO E PAGAMENTO - VERSÃO FINAL CONSOLIDADA
+   ============================================================ */
+
+/* 🔒 ESTADO INICIAL */
+#modal-carrinho {
+    display: none;
+    overflow-y: auto !important;
+    padding-bottom: 20px !important;
+}
+
+/* 📱 TELEMÓVEL (Padrão) */
+
+.conteudo-modal-carrinho {
+    padding: 20px;
+    max-height: none !important;
+    height: auto !important;
+}
+
+/* --- LISTA DE ITENS NO CARRINHO --- */
+.item-carrinho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--cinza-medio);
+}
+
+.item-carrinho-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.item-carrinho-nome {
+    font-weight: 700;
+    color: var(--texto);
+    font-size: 0.95rem;
+}
+
+.item-carrinho-preco {
+    color: var(--verde-militar);
+    font-weight: 900;
+}
+
+/* --- RESUMO DO PEDIDO --- */
+.resumo-pedido {
+    background: #fdfaf5;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--bege-escuro);
+    margin: 20px 0;
+}
+
+.resumo-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    color: var(--cinza-escuro);
+    margin-bottom: 10px;
+}
+
+.resumo-item.desconto {
+    color: var(--red);
+    font-weight: 600;
+}
+
+.resumo-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: var(--marrom-cafe);
+    padding-top: 15px;
+    margin-top: 10px;
+    border-top: 1px dashed var(--cinza-medio);
+}
+
+/* --- SEÇÃO DE PAGAMENTO --- */
+.opcoes-pagamento {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    margin-bottom: 25px !important;
+    width: 100% !important;
+}
+
+.opcao-pagamento {
+    border-radius: 12px;
+    border: 2px solid var(--cinza-medio);
+    background: var(--branco);
+    padding: 18px 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex;
+    flex-direction: column;
+}
+
+.opcao-pagamento:hover {
+    border-color: var(--marrom-cafe);
+}
+
+.opcao-pagamento.ativa {
+    border-color: var(--verde-militar);
+    background: var(--branco); 
+}
+
+.opcao-cabecalho {
+    font-weight: 900;
+    color: var(--marrom-cafe);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.opcao-recomendado {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--verde-militar);
+    color: var(--branco);
+    font-size: 0.65rem;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 900;
+    text-transform: uppercase;
+    z-index: 10;
+}
+
+/* --- CONTEÚDOS EXPANSÍVEIS --- */
+.opcao-conteudo {
+    display: none;
+    margin-top: 15px;
+    padding: 20px;
+    background: var(--branco);
+    border-radius: 12px;
+    border: 1px solid var(--bege-escuro);
+    animation: fadeIn 0.3s ease;
+}
+
+.opcao-pagamento.ativa .opcao-conteudo {
+    display: block;
+}
+
+/* Detalhes do PIX */
+.pix-valor {
+    background: var(--bege-claro);
+    border: 1px solid var(--verde-militar);
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 900;
+    margin-bottom: 15px;
+    color: var(--verde-militar);
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.pix-qrcode {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.pix-qrcode img {
+    width: 180px;
+    height: 180px;
+    border: 2px solid var(--marrom-cafe);
+    padding: 10px;
+    border-radius: 12px;
+    background: var(--branco);
+    display: block;
+    margin: 0 auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.pix-chave {
+    border: 2px dashed var(--verde-militar);
+    background: var(--bege-claro);
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centralização garantida */
+    justify-content: center;
+    gap: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.pix-chave span {
+    font-family: monospace;
+    font-size: 1.05rem; /* Aumento da fonte conforme pedido */
+    color: var(--verde-militar);
+    font-weight: 900; /* Peso máximo para destaque */
+    word-break: break-all;
+    text-align: center;
+    display: block;
+    width: 100%;
+}
+
+/* Detalhes do Dinheiro e Cartão */
+.campo-troco, .info-cartao {
+    text-align: left;
+}
+
+.campo-troco label {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--marrom-cafe);
+    display: block;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.input-troco {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--borda-nav);
+    border-radius: 8px;
+    outline: none;
+    font-size: 1rem;
+    background: var(--branco);
+}
+
+/* --- BARRA FIXA --- */
+.barra-carrinho-fixa {
+    padding: 15px !important;
+    background: var(--branco);
+    border-top: 1px solid var(--borda-nav);
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 💻 DESKTOP */
+@media (min-width: 769px) {
+    .opcoes-pagamento {
+        max-width: 450px;
+        margin: 0 auto 25px;
+    }
+}
