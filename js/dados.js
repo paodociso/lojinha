@@ -140,10 +140,10 @@ window.dadosIniciais = {
         ],
         "Panini": {
             "🥖 Escolha seu Pão": [
-                { "nome": "Ciabatta", "preco": 0 },
-                { "nome": "Focaccia", "preco": 0 },
-                { "nome": "Demi baguette", "preco": 0 },
-                { "nome": "Pão de Campanha", "preco": 0 }
+                { "nome": "Ciabatta", "preco": 3 },
+                { "nome": "Focaccia", "preco": 3 },
+                { "nome": "Demi baguette", "preco": 3 },
+                { "nome": "Pão de Campanha", "preco": 3 }
             ],
             "🥓 Charcutaria": [
                 { "nome": "Bresaola", "preco": 9 },
@@ -162,14 +162,14 @@ window.dadosIniciais = {
             ],
             "🏺 Antepastos e Conservas": [
                 { "nome": "Alichella", "preco": 3 },
-                { "nome": "Confit de alho", "preco": 2 },
+                { "nome": "Confit de alho", "preco": 3 },
                 { "nome": "Confit de alho e tomates cereja", "preco": 3 },
                 { "nome": "Melanzane sottolio", "preco": 3 },
                 { "nome": "Picles de cebola", "preco": 2 },
                 { "nome": "Sardella", "preco": 3 }
             ],
             "🥣 Molhos e Pastas": [
-                { "nome": "Azeite", "preco": 1 },
+                { "nome": "Azeite extravirgem", "preco": 1 },
                 { "nome": "Manteiga", "preco": 2 },
                 { "nome": "Manteiga temperada com alho e parmesão", "preco": 3 },
                 { "nome": "Maionese", "preco": 2 },
@@ -190,11 +190,11 @@ window.dadosIniciais = {
         },
         "Bebidas": [
             {
-                "nome": "Taça de vidro",
+                "nome": "Taça para vinho",
                 "preco": 40
             },
             {
-                "nome": "Taça champangne",
+                "nome": "Taça para espumante",
                 "preco": 30
             }
         ],
@@ -205,7 +205,7 @@ window.dadosIniciais = {
             }
         ],
         "Tábuas": {
-            "🥓 Charcutaria Fina": [
+            "🥓 Charcutaria": [
                 { "nome": "Bresaola", "preco": 15 },
                 { "nome": "Lombo piripiri", "preco": 15 },
                 { "nome": "Mortadela", "preco": 10 },
@@ -239,9 +239,10 @@ window.dadosIniciais = {
                 { "nome": "Manteiga temperada com alho e parmesão", "preco": 3 },
                 { "nome": "Maionese", "preco": 3 },
                 { "nome": "Maionese temperada", "preco": 3 },
-                { "nome": "Azeite", "preco": 3 }
+                { "nome": "Azeite extravirgem", "preco": 3 }
             ]
         },
+        
         "Cafés": [
             {
                 "nome": "Potinho de plástico",
@@ -335,7 +336,7 @@ window.dadosIniciais = {
             "itens": [
                 {
                     "nome": "Alichella (porção de 100g)",
-                    "descricao": "Conserva de aliche inteiras, curadas e acondicionadas em azeite com salsa fresca.",
+                    "descricao": "Conserva de aliche inteiras, curadas e acondicionadas em Azeite extravirgem com salsa fresca.",
                     "preco": 20,
                     "imagem": "img/alichella.jpg",
                     "opcionais": "Antipasti",
@@ -347,7 +348,7 @@ window.dadosIniciais = {
                 },
                 {
                     "nome": "Melanzane Sottolio (porção de 100g)",
-                    "descricao": "Berinjelas curtidas e preservadas no azeite com ervas,alho e pimenta.",
+                    "descricao": "Berinjelas curtidas e preservadas no Azeite extravirgem com ervas,alho e pimenta.",
                     "preco": 20,
                     "imagem": "img/melanzanesottolio.jpg",
                     "opcionais": "Antipasti",
@@ -359,7 +360,7 @@ window.dadosIniciais = {
                 },
                 {
                     "nome": "Sardella (porção de 100g)",
-                    "descricao": "Pasta condimentada e cremosa, elaborada com aliche, pimenta e azeite de oliva.",
+                    "descricao": "Pasta condimentada e cremosa, elaborada com aliche, pimenta e Azeite extravirgem de oliva.",
                     "preco": 20,
                     "imagem": "img/sardella.jpg",
                     "opcionais": "Antipasti",
@@ -381,19 +382,23 @@ window.dadosIniciais = {
                     "imagem": "img/panino-mortadela.webp",
                     "opcionais": "Panini",
                     "opcionais_ativos": [
+                        "Focaccia",
+                        "Ciabatta",
+                        //"Demi baguette",
                         "Chancliche",
                         "Chancliche apimentado",
                         "Muçarela",
                         "Provolone",
                         "Queijo Prato",
-                        "Melanzane sottolio",
-                        "Azeite",
+                        "Azeite extravirgem",
                         "Manteiga",
                         "Maionese",
                         "Pesto de azeitona",
                         "Pesto tradicional (manjericão)",
-                        "Rúcula",
-                        "Tomate"
+                        "Melanzane sottolio",
+                        "Alface",
+                        "Tomate",
+                        "Rúcula"
                     ],
                     "visivel": true,
                     "esgotado": false
@@ -407,18 +412,20 @@ window.dadosIniciais = {
                     "opcionais_ativos": [
                         "Focaccia",
                         "Ciabatta",
-                        "Demi baguette",
+                        //"Demi baguette",
                         "Chancliche",
                         "Chancliche apimentado",
                         "Muçarela",
                         "Provolone",
                         "Queijo Prato",
-                        "Azeite",
+                        "Azeite extravirgem",
                         "Manteiga",
                         "Maionese",
                         "Pesto de azeitona",
                         "Pesto tradicional (manjericão)",
                         "Melanzane sottolio",
+                        "Alface",
+                        "Tomate",
                         "Rúcula"
                     ],
                     "visivel": true,
@@ -431,17 +438,23 @@ window.dadosIniciais = {
                     "imagem": "img/panino-piripiri.webp",
                     "opcionais": "Panini",
                     "opcionais_ativos": [
+                        "Focaccia",
+                        "Ciabatta",
+                        //"Demi baguette",
                         "Chancliche",
                         "Chancliche apimentado",
                         "Muçarela",
                         "Provolone",
                         "Queijo Prato",
-                        "Melanzane sottolio",
-                        "Azeite",
+                        "Azeite extravirgem",
+                        "Manteiga",
+                        "Maionese",
                         "Pesto de azeitona",
                         "Pesto tradicional (manjericão)",
-                        "Rúcula",
-                        "Tomate"
+                        "Melanzane sottolio",
+                        "Alface",
+                        "Tomate",
+                        "Rúcula"
                     ],
                     "visivel": true,
                     "esgotado": false
@@ -468,7 +481,7 @@ window.dadosIniciais = {
                         "Alichella",
                         "Melanzane sottolio",
                         "Sardella",
-                        "Azeite",
+                        "Azeite extravirgem",
                         "Manteiga",
                         "Maionese",
                         "Pesto de azeitona",
@@ -526,7 +539,7 @@ window.dadosIniciais = {
                         "Salame",
                         "Muçarela",
                         "Provolone",
-                        "Azeite",
+                        "Azeite extravirgem",
                         "Tomate"
                     ],
                     "visivel": true,
@@ -543,8 +556,8 @@ window.dadosIniciais = {
                     "preco": 55,
                     "imagem": "img/vinhocasillerodeldiabo.webp",
                     "opcionais_ativos": [
-                        "Taça de vidro",
-                        "Taça champangne",
+                        "Taça para vinho",
+                        "Taça para espumante",
                         "Alichella (100g)",
                         "Sardella (100g)",
                         "Melanzane sottolio (100g)",
@@ -560,8 +573,8 @@ window.dadosIniciais = {
                     "preco": 55,
                     "imagem": "img/vinhogatonegro.webp",
                     "opcionais_ativos": [
-                        "Taça de vidro",
-                        "Taça champangne",
+                        "Taça para vinho",
+                        "Taça para espumante",
                         "Alichella (100g)",
                         "Sardella (100g)",
                         "Melanzane sottolio (100g)",
@@ -577,13 +590,13 @@ window.dadosIniciais = {
                     "preco": 85,
                     "imagem": "img/espumanteveuvedargentblancdeblancsdemisec.jpeg",
                     "opcionais_ativos": [
-                        "Taça champangne",
+                        "Taça para espumante",
                         "Alichella (100g)",
                         "Sardella (100g)",
                         "Melanzane sottolio (100g)",
                         "Confit de alho (100g)",
                         "Manteiga temperada (100g)",
-                        "Taça de vidro"
+                        "Taça para vinho"
                     ],
                     "visivel": true,
                     "esgotado": false
