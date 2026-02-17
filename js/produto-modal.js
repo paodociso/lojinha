@@ -162,17 +162,24 @@ function gerarHTMLSecaoOpcionais(produto) {
 }
 
 // --- FUNÇÕES PADRÃO (RENDER, CÁLCULO, ETC) ---
+// ATUALIZAÇÃO: CORREÇÃO DE VISIBILIDADE
 function renderizarModalProduto(produto) {
     const container = document.getElementById('corpo-modal-produto');
     if (!container) return;
+
+    // Lógica infalível de visibilidade
+    const displayStatus = produtoAtual.quantidade > 0 ? 'block' : 'none';
+    
+    // O subtotal também deve sumir se for zero
+    const displaySubtotal = produtoAtual.quantidade > 0 ? 'block' : 'none';
 
     container.innerHTML = `
         <div class="imagem-produto-container">
             <img src="${produto.imagem}" alt="${produto.nome}" class="imagem-produto-modal">
         </div>
 
-        <div id="status-no-carrinho" class="${produtoAtual.quantidade > 0 ? 'visivel' : 'escondido'}" 
-             style="text-align: center; color: #4b6b35; font-weight: bold; font-size: 0.85rem; padding: 10px 0; background-color: #f0f7ed; border-bottom: 1px solid #e0eadd;">
+        <div id="status-no-carrinho" 
+             style="display: ${displayStatus}; text-align: center; color: #4b6b35; font-weight: bold; font-size: 0.85rem; padding: 10px 0; background-color: #f0f7ed; border-bottom: 1px solid #e0eadd;">
             <i class="fas fa-check-circle"></i> Item adicionado ao carrinho
         </div>
         
@@ -199,7 +206,8 @@ function renderizarModalProduto(produto) {
             ${gerarHTMLSecaoOpcionais(produto)}
         </div>
         
-        <div id="container-subtotal-produto" class="moldura-padrao-modal ${produtoAtual.quantidade > 0 ? 'visivel' : 'escondido'}" style="background-color: #e8e8e8 !important;">
+        <div id="container-subtotal-produto" class="moldura-padrao-modal" 
+             style="display: ${displaySubtotal}; background-color: #e8e8e8 !important;">
             <div class="linha-flex-modal">
                 <span class="subtitulo-subtotal">SUBTOTAL DO ITEM</span>
                 <span id="valor-subtotal-produto" class="valor-subtotal">${formatarMoeda(calcularSubtotalProduto())}</span>
