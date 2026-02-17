@@ -1,10 +1,12 @@
 /* ============================================================
-   MODAL DE PRODUTO - VERSÃO FINAL CONSOLIDADA
+   MODAL DE PRODUTO - VERSÃO ATUALIZADA
    ============================================================ */
 
 /* 🔒 ESTADO INICIAL */
 #modal-produto {
     display: none;
+    width: 100% !important;
+    max-width: 100vw;
     max-height: 95vh;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -18,21 +20,21 @@
     flex-direction: column;
 }
 
-/* Cabeçalho do Produto (Título ACIMA da imagem) */
+/* Cabeçalho do Produto */
 .nome-produto-modal {
     font-size: 1.1rem !important;
     font-weight: 900;
     color: var(--texto);
     margin-bottom: 15px !important;
     text-align: center;
-    order: -1; /* Força o título a ser o primeiro elemento */
+    order: -1;
 }
 
 /* Moldura e Imagem do Produto */
 .imagem-produto-container {
     width: 100% !important;
-    max-height: 200px !important; 
-    height: 200px !important;     
+    max-height: 150px !important; /* Reduzido conforme solicitado */
+    height: 150px !important;     
     margin: 0 0 15px 0 !important;
     border-radius: 12px;
     background: var(--branco);
@@ -42,6 +44,7 @@
     align-items: center;
     border: 2px solid var(--borda-nav) !important;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    cursor: zoom-in; /* Indicativo de clique para ampliar */
 }
 
 .imagem-produto-modal {
@@ -71,16 +74,15 @@
     border: 1px solid var(--cinza-medio);
 }
 
-/* Bloco de Opcionais com Scroll */
+/* Bloco de Opcionais SEM Scroll */
 .moldura-agrupadora-opcionais {
     padding: 10px !important;
     margin: 8px 0 !important;
     background-color: #f2f2f2;
     border-radius: 12px;
     border: 1px solid var(--cinza-medio);
-    max-height: 200px;
-    overflow-y: auto;
-    overflow-x: hidden;
+    max-height: none !important; /* Scroll eliminado */
+    overflow: visible !important;
 }
 
 .titulo-modal-pequeno, .titulo-opcionais {
@@ -109,7 +111,7 @@
 
 .opcional-info {
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Move o preço para baixo do nome */
     text-align: left;
 }
 
@@ -123,6 +125,7 @@
     font-size: 0.8rem;
     color: var(--verde-militar);
     font-weight: 700;
+    margin-top: 2px;
 }
 
 .controles-opcional {
@@ -134,7 +137,8 @@
 
 .quantidade-opcional {
     font-weight: 900;
-    min-width: 20px;
+    min-width: 25px;
+    text-align: center; /* Centraliza o número entre os botões */
 }
 
 /* Quantidade Principal */
@@ -150,8 +154,8 @@
     font-size: 1.2rem !important;
     font-weight: 900;
     color: var(--verde-militar);
-    min-width: 30px !important;
-    text-align: center;
+    min-width: 40px !important;
+    text-align: center; /* Centralização garantida */
 }
 
 /* SUBTOTAL (CENTRALIZADO) */
@@ -161,9 +165,9 @@
     border-radius: 12px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centraliza horizontalmente */
-    justify-content: center; /* Centraliza verticalmente */
-    text-align: center; /* Centraliza o texto */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     border: 1px solid #ffcccc;
     margin-bottom: 10px;
 }
@@ -238,11 +242,39 @@
         height: 300px !important;
     }
     
-    .moldura-agrupadora-opcionais {
-        max-height: 300px;
-    }
-    
     .nome-produto-modal {
         font-size: 1.4rem !important;
     }
+}
+
+/* MODAL DE ZOOM (AMPLIAÇÃO) */
+#modal-zoom-imagem {
+    display: none; 
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    align-items: center;
+    justify-content: center;
+}
+
+.imagem-ampliada {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    object-fit: contain;
+    border: 2px solid var(--branco);
+}
+
+.fechar-zoom {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: white;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
 }
