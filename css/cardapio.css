@@ -1,8 +1,14 @@
 /* ============================================================
-   CARDÁPIO E GRIDS DE PRODUTOS - CORREÇÃO DE SELO ESGOTADO
+   CARDÁPIO E GRIDS DE PRODUTOS - VERSÃO CONSOLIDADA
    ============================================================ */
 
 /* 📱 TELEMÓVEL (Padrão) */
+
+/* Correção de largura global e transbordo horizontal */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
 
 .botao-adicionar-card, 
 .card-desc,
@@ -13,8 +19,8 @@
 .titulo-secao-wrapper {
     display: flex;
     align-items: center;
-    margin: 30px 15px 15px;
-    gap: 15px;
+    margin: 30px 10px 15px; /* Margens laterais reduzidas para evitar corte */
+    gap: 10px;
 }
 
 .linha-solida {
@@ -24,12 +30,12 @@
 }
 
 .titulo-secao {
-    font-size: 1.4rem;
+    font-size: 1.2rem; /* Leve redução para caber em telas menores */
     font-weight: 700;
     color: var(--marrom-cafe);
     text-transform: uppercase;
     letter-spacing: 1px;
-    white-space: nowrap;
+    white-space: normal; /* Permite quebra se o texto for muito longo */
     text-align: center;
 }
 
@@ -38,7 +44,8 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     margin-top: 25px;
-    padding: 0 8px;
+    padding: 0 10px; /* Ajuste para alinhamento com títulos */
+    margin-bottom: 40px; /* Espaço entre produtos e o rodapé no final da rolagem */
 }
 
 .card {
@@ -55,12 +62,12 @@
 }
 
 /* ============================================================
-   MOLDURA DA IMAGEM E CORREÇÃO DO EMPURRÃO
+   MOLDURA DA IMAGEM
    ============================================================ */
 
 .card-imagem-wrapper {
     position: relative !important;
-    display: block !important; /* MUDANÇA: Sai o flex para não empurrar a imagem */
+    display: block !important;
     height: 140px; 
     overflow: hidden;
     background-color: var(--cinza-claro);
@@ -69,21 +76,20 @@
 .card-imagem-wrapper img {
     width: 100% !important;
     height: 100% !important;
-    object-fit: cover !important; /* Preenche a moldura ignorando outros elementos */
+    object-fit: cover !important;
     object-position: center;
     transition: transform 0.5s;
     display: block;
 }
 
 /* ============================================================
-   PRODUTO ESGOTADO (O CARIMBO QUE FLUTUA)
+   PRODUTO ESGOTADO
    ============================================================ */
 
-/* Alvos: a div gerada pelo JS ou o pseudo-elemento */
 .badge-esgotado,
 .card.esgotado .card-imagem-wrapper::after {
-    content: "ESGOTADO"; /* Garante o texto no pseudo-elemento */
-    position: absolute !important; /* Tira do fluxo: para de empurrar a foto */
+    content: "ESGOTADO";
+    position: absolute !important;
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) rotate(-25deg) !important;
@@ -98,10 +104,9 @@
     z-index: 10;
     white-space: nowrap;
     pointer-events: none;
-    width: auto !important; /* Impede que ocupe largura total */
+    width: auto !important;
 }
 
-/* Película escura */
 .card.esgotado .card-imagem-wrapper::before {
     content: "";
     position: absolute;
@@ -112,26 +117,6 @@
     background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: grayscale(1);
     z-index: 5;
-}
-
-/* Badge de Quantidade */
-.card-imagem-wrapper .badge-quantidade {
-    display: none;
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: var(--verde-militar);
-    color: var(--branco);
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 0.85rem;
-    z-index: 6;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    border: 2px solid var(--branco);
 }
 
 /* Conteúdo do Card */
@@ -170,44 +155,47 @@
     color: var(--verde-militar);
 }
 
+/* ============================================================
+   RODAPÉ (Ajuste de altura e posição)
+   ============================================================ */
+
+footer, .rodape-container {
+    padding: 20px 15px !important; /* Altura reduzida */
+    margin-top: auto; /* Garante que fique no fim em layouts flex */
+    text-align: center;
+    background: var(--branco);
+    border-top: 1px solid var(--cinza-medio);
+    width: 100%;
+    box-sizing: border-box;
+}
+
 /* 💻 DESKTOP (PC - a partir de 769px) */
 @media (min-width: 769px) {
     .grid-produtos {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 25px;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
         padding: 0 15px;
-    }
-
-    .card {
-        border-radius: 15px;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px var(--sombra-media);
+        margin-bottom: 60px;
     }
 
     .card-imagem-wrapper {
-        height: 200px;
+        height: 180px;
     }
 
-    .card:hover .card-imagem-wrapper img {
-        transform: scale(1.05);
-    }
-
+    /* Redução das fontes no PC conforme solicitado */
     .card-nome {
-        font-size: 1.1rem;
+        font-size: 0.95rem; /* Diminuído de 1.1rem */
         min-height: auto;
     }
 
     .card-preco {
-        font-size: 1.3rem;
+        font-size: 1.1rem; /* Diminuído de 1.3rem */
     }
 
     .badge-esgotado,
     .card.esgotado .card-imagem-wrapper::after {
-        padding: 10px 40px !important;
-        font-size: 1.1rem !important;
+        padding: 8px 30px !important;
+        font-size: 0.9rem !important;
     }
 }
 
