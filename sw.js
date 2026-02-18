@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pao-do-ciso-v1';
+const CACHE_NAME = 'pao-do-ciso-v3';
 // Removidas as barras iniciais para funcionar em qualquer subdiretório
 const assets = [
   './',
