@@ -81,8 +81,6 @@ function inicializarSistema() {
 
     console.log('✅ Sistema inicializado. Carrinho:', carrinho);
 }
-// Exportar função global
-window.inicializarSistema = inicializarSistema;
 
 // INICIALIZAR QUANDO O DOM CARREGAR - APENAS UMA VEZ!
 document.addEventListener('DOMContentLoaded', function() {
@@ -128,16 +126,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 100);
 });
 
-// No seu main.js ou modais.js
 function ajustarAlturaModal() {
     if (window.innerWidth <= 768) {
         const modais = document.querySelectorAll('.modal');
         modais.forEach(modal => {
-            // Calcula altura baseada no conteúdo
             const conteudo = modal.querySelector('.conteudo-modal, .conteudo-modal-produto, .conteudo-modal-carrinho');
             if (conteudo) {
                 const alturaConteudo = conteudo.scrollHeight;
-                const alturaMaxima = window.innerHeight * 0.8; // 80% da tela
+                const alturaMaxima = window.innerHeight * 0.8; 
                 
                 if (alturaConteudo > alturaMaxima) {
                     modal.style.maxHeight = '80vh';
@@ -151,8 +147,51 @@ function ajustarAlturaModal() {
     }
 }
 
-// Executar ao abrir modal e redimensionar janela
+function atualizarDadosModalFornada() {
+    const elData = document.getElementById('data-fornada-info');
+    const elLimite = document.getElementById('limite-fornada-info');
+    
+    if (!elData || !elLimite) return;
+
+    const dataTxt = document.querySelector('.data-fornada-texto')?.textContent;
+    const limiteTxt = document.querySelector('.limite-pedido-texto')?.textContent;
+    
+    if (dataTxt && limiteTxt) {
+        elData.textContent = dataTxt;
+        elLimite.textContent = limiteTxt;
+    } else if (typeof calcularDatasFornada === 'function') {
+        try {
+            const config = window.dadosIniciais?.fornada;
+            if (config) {
+                const datas = calcularDatasFornada(config);
+                elData.textContent = datas.fornada || 'A definir';
+                elLimite.textContent = datas.limite || 'A definir';
+            }
+        } catch (e) {
+            elData.textContent = 'A definir';
+            elLimite.textContent = 'A definir';
+        }
+    }
+}
+
+// ============================================
+// INTERCEPTADOR DE MODAIS (MUDANÇA SOLICITADA)
+// ============================================
+const abrirModalOriginal = window.abrirModal;
+
+window.abrirModal = function(id) {
+    if (id === 'modal-informacoes-fornada') {
+        atualizarDadosModalFornada();
+    }
+    
+    if (typeof abrirModalOriginal === 'function') {
+        abrirModalOriginal(id);
+    } else {
+        const modal = document.getElementById(id);
+        if (modal) modal.style.display = 'block';
+    }
+};
+
 window.addEventListener('resize', ajustarAlturaModal);
 
-// Exportar funções globais
 window.inicializarSistema = inicializarSistema;

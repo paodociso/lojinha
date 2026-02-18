@@ -137,36 +137,47 @@
     <div id="modal-informacoes-fornada" class="modal">
         <button class="botao-fechar-modal" onclick="fecharModal('modal-informacoes-fornada')">&times;</button>
         
-        <div class="conteudo-modal">
-            <i class="fas fa-bread-slice icone-modal"></i>
-            
-            <h3 class="titulo-modal">Informações da Fornada</h3>
-            
-            <div id="conteudo-fornada" class="texto-modal">
-                <div class="destaque-fornada">
-                    <span class="destaque-titulo">PRÓXIMA FORNADA</span>
-                    <span id="data-fornada-modal" class="destaque-data">Carregando...</span>
-                    
-                    <span class="destaque-titulo">PEDIDOS ATÉ</span>
-                    <span id="limite-fornada-modal" class="destaque-data">Carregando...</span>
-                </div>
+        <div class="conteudo-modal-fornada">
+            <div class="topo-informacao-fornada" style="text-align: center; margin-bottom: 15px;">
+                <i class="fas fa-info-circle" style="font-size: 3rem; color: var(--verde-militar);"></i>
+            </div>
 
-                <div class="informacoes-fornada">
-                    <p><i class="fas fa-seedling"></i> <strong>Produção Artesanal:</strong> Nossos pães são feitos com fermentação natural (Levain).</p>
-                    <p><i class="fas fa-clock"></i> <strong>Frescor Garantido:</strong> Tudo é assado na manhã do dia da entrega.</p>
-                    <p><i class="fas fa-box"></i> <strong>Pedidos Limitados:</strong> Trabalhamos sob demanda com capacidade controlada.</p>
+            <h3 class="titulo-modal" style="text-align: center; margin-bottom: 20px; color: var(--marrom-cafe);">Informações Importantes</h3>
+
+            <div class="destaque-fornada">
+                <div class="bloco-data">
+                    <span class="label-fornada">PRÓXIMA FORNADA</span>
+                    <span id="data-fornada-info" class="valor-fornada">Carregando...</span>
+                </div>
+                
+                <div class="bloco-data">
+                    <span class="label-fornada">PRAZO LIMITE</span>
+                    <span id="limite-fornada-info" class="valor-fornada">Carregando...</span>
                 </div>
             </div>
 
-            <div class="dica-fornada">
-                <i class="fas fa-lightbulb"></i> <strong>Dica:</strong> Garanta o seu pedido com antecedência!
+            <div class="lista-dicas-fornada">
+                <div class="dica-fornada">
+                    <i class="fa-solid fa-hands"></i>
+                    <p><strong>Produção Artesanal:</strong> Nossos pães são feitos com fermentação natural (Levain).</p>
+                </div>
+                
+                <div class="dica-fornada">
+                    <i class="fa-solid fa-seedling"></i>
+                    <p><strong>Frescor Garantido:</strong> Tudo é assado na manhã do dia da entrega.</p>
+                </div>
+                
+                <div class="dica-fornada">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p><strong>Pedidos Limitados:</strong> Trabalhamos sob demanda com capacidade controlada.</p>
+                </div>
             </div>
-            
-            <button class="botao-acao botao-verde" onclick="fecharModal('modal-informacoes-fornada')">
-                ENTENDI, VAMOS ÀS COMPRAS! <i class="fas fa-arrow-right"></i>
+
+            <button class="botao-acao botao-verde-militar" style="width: 100%; margin-top: 10px;" onclick="fecharModal('modal-informacoes-fornada')">
+                ENTENDI
             </button>
         </div>
-    </div>
+    </div>   
 
     <!-- ===================== MODAL 2: DETALHES DO PRODUTO ===================== -->
         <div id="modal-produto" class="modal">
