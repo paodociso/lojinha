@@ -29,6 +29,20 @@
     <meta property="twitter:description" content="Pães de fermentação natural e antepastos artesanais.">
     <meta property="twitter:image" content="https://cisotar.github.io/lojinha-testes/img/logo-paodociso.png">
 
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#332616">
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Usando './' para garantir que ele busque na pasta do projeto no GitHub Pages
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registrado com sucesso!', reg))
+                    .catch(err => console.error('Falha ao registrar Service Worker:', err));
+            });
+        }
+    </script>
+
     <meta name="theme-color" content="#2d3a27">
 </head>
 <body>
