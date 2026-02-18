@@ -314,36 +314,54 @@ window.AddressManager = {
         console.log('✅ Todos os campos limpos e estado resetado');
     },
     
-    // 🔥 PRIMEIRA CORREÇÃO: Função para sincronizar CEP do carrinho para modal de dados
+// 🔥 CORREÇÃO: Sincroniza CEP e dispara o cálculo automaticamente
     sincronizarCEPComModalDados: function(cep) {
-        console.log('🔄 AddressManager: Sincronizando CEP:', cep);
+        console.log('🔄 AddressManager: Iniciando sincronização forçada...');
         
-        const campoCEPDados = document.getElementById('codigo-postal-cliente');
-        if (campoCEPDados) {
-            // 1. Formatar o CEP para o campo
-            let cepFormatado = cep.replace(/\D/g, '');
-            if (cepFormatado.length > 5) {
-                cepFormatado = cepFormatado.substring(0, 5) + '-' + cepFormatado.substring(5, 8);
+        let tentativas = 0;
+        const maxTentativas = 10; // Tenta por 2 segundos
+
+        const executarSincronizacao = setInterval(() => {
+            const campoCEPDados = document.getElementById('codigo-postal-cliente');
+            tentativas++;
+
+            if (campoCEPDados) {
+                clearInterval(executarSincronizacao);
+                
+                let cepLimpo = cep.replace(/\D/g, '');
+                
+                // 1. Preenche o campo visualmente
+                campoCEPDados.value = cepLimpo.length === 8 
+                    ? cepLimpo.substring(0, 5) + '-' + cepLimpo.substring(5, 8)
+                    : cepLimpo;
+
+                // 2. Atualiza a memória do Manager
+                this.enderecoAtual.cep = cepLimpo;
+                this.cepAnterior = cepLimpo;
+
+                // 3. DISPARO DO CÁLCULO (Se o CEP estiver completo)
+                if (cepLimpo.length === 8) {
+                    console.log('🎯 Campo encontrado! Disparando busca de endereço...');
+                    
+                    if (typeof window.buscarEnderecoPorCodigoPostal === 'function') {
+                        // Forçamos a busca oficial do seu cep-frete.js
+                        window.buscarEnderecoPorCodigoPostal(cepLimpo);
+                        
+                        // 4. ATUALIZAÇÃO VISUAL DO RÓTULO
+                        setTimeout(() => {
+                            const elLabelFrete = document.querySelector('.info-frete-titulo');
+                            if (elLabelFrete) {
+                                elLabelFrete.innerHTML = 'FRETE ATUALIZADO:';
+                                elLabelFrete.style.color = 'var(--verde-militar)';
+                                elLabelFrete.style.fontWeight = '900';
+                            }
+                        }, 1000);
+                    }
+                }
+            } else if (tentativas >= maxTentativas) {
+                clearInterval(executarSincronizacao);
+                console.error('❌ AddressManager: Modal de dados não apareceu a tempo.');
             }
-            
-            // 2. Atualizar o valor do campo SILENCIOSAMENTE (sem disparar eventos)
-            campoCEPDados.value = cepFormatado;
-            this.enderecoAtual.cep = cep.replace(/\D/g, '');
-            this.cepAnterior = this.enderecoAtual.cep;
-            
-            console.log('📝 CEP definido no campo:', cepFormatado);
-            
-            // 3. Em vez de disparar eventos de 'input' ou 'blur' (que causam o loop),
-            // chamamos a busca de endereço DIRETAMENTE apenas uma vez.
-            if (this.enderecoAtual.cep.length === 8) {
-                console.log('🎯 Chamando busca direta para evitar loop...');
-                this.buscarEndereco(this.enderecoAtual.cep);
-            }
-            
-            return true;
-        } else {
-            console.error('❌ Campo CEP não encontrado no modal de dados');
-            return false;
-        }
+        }, 200); // Tenta a cada 200ms
     }
 };

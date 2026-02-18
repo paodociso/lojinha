@@ -1,14 +1,41 @@
 /* ============================================================
-   MODAL: DADOS DO CLIENTE - UNIFICADO E DISCRETO
+   MODAL: DADOS DO CLIENTE - AJUSTE DE ENCAIXE E BORDA
    ============================================================ */
 
-#modal-dados-cliente {
+/* 1. ANULA O PAI (A moldura cinza/borda que voce via) */
+#modal-dados-cliente.modal {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    /* Reserva o espaco da barra no rodape */
+    padding-bottom: 70px !important; 
     display: none;
-    max-height: 95vh;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 2. CONFIGURA A CAIXA BRANCA REAL */
+#modal-dados-cliente .conteudo-modal {
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff !important;
+    width: 95% !important;
+    max-width: 450px !important;
+    margin: 0 auto !important;
+    padding: 20px 15px 40px 15px !important;
+    border-radius: 12px;
+    box-sizing: border-box;
+    position: relative;
+    /* Sombra suave apenas na caixa branca */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+    border: none !important;
+    /* Altura reduzida para nao bater na barra */
+    max-height: 75vh !important;
     overflow-y: auto !important;
 }
 
-/* 1. TÍTULO */
+/* 3. TITULO */
 .titulo-modal {
     font-size: 1.3rem !important;
     color: var(--marrom-cafe);
@@ -19,7 +46,7 @@
     letter-spacing: 1px;
 }
 
-/* 2. UNIFICAÇÃO DOS CONTAINERS (NOME, WHATSAPP E ENDEREÇO) */
+/* 4. CONTAINERS DE GRUPO */
 .formulario-dados > .grupo-campo,
 #secao-endereco {
     background: #fdfdfd;
@@ -28,18 +55,15 @@
     border: 1px solid var(--cinza-medio);
     margin-bottom: 12px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-/* 3. APROXIMAÇÃO DOS RÓTULOS (LABEL + INPUT) */
+/* 5. CAMPOS E ROTULOS */
 .grupo-campo {
     display: flex;
     flex-direction: column;
-    gap: 4px; /* Mantém o título colado ao campo */
-}
-
-/* Ajuste específico para afastar o Ponto de Referência do que está acima */
-.grupo-campo:has(label[for="ponto-referencia-entrega"]) {
-    margin-top: 15px; 
+    gap: 4px;
 }
 
 .rotulo-campo {
@@ -49,18 +73,6 @@
     text-transform: uppercase;
 }
 
-.subtitulo-endereco {
-    font-size: 0.8rem !important;
-    font-weight: 900;
-    color: var(--marrom-cafe);
-    margin: 5px 0 15px 0 !important;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    opacity: 0.7;
-}
-
-/* 4. ESTILO DOS CAMPOS */
 .campo-entrada {
     width: 100%;
     padding: 10px 12px;
@@ -69,27 +81,10 @@
     font-size: 0.95rem;
     background: var(--branco);
     outline: none;
-    transition: border-color 0.2s;
+    box-sizing: border-box;
 }
 
-.campo-entrada:focus {
-    border-color: var(--verde-militar);
-}
-
-.campo-entrada.campo-leitura {
-    background-color: #f5f5f5;
-    color: #777;
-    border-style: dashed;
-    cursor: not-allowed;
-}
-
-/* 5. REALCE DISCRETO DO CAMPO NÚMERO */
-#numero-residencia-cliente:placeholder-shown {
-    border: 1px solid var(--red) !important;
-    background-color: #fff8f8 !important;
-}
-
-/* 6. CARD DE FRETE (DISCRETO) */
+/* 6. CARD DE FRETE */
 .card-informacao-frete {
     background: var(--bege-escuro) !important;
     color: var(--marrom-cafe) !important;
@@ -103,48 +98,32 @@
     border: 1px solid var(--borda-nav) !important;
 }
 
-.info-frete-valor {
-    font-size: 1.1rem !important;
-    font-weight: 900 !important;
-    color: var(--verde-militar) !important;
-}
-
-.info-frete-titulo {
-    font-size: 0.7rem;
-    font-weight: 800;
-    text-transform: uppercase;
-}
-
-/* 7. BOTÕES E GRUPOS */
-.grupo-duplo {
-    display: flex;
-    flex-direction: row !important; /* Apenas estes dois ficam lado a lado */
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.grupo-duplo .grupo-campo {
-    flex: 1;
-}
-
-.botoes-acao {
+/* 7. BOTOES */
+#modal-dados-cliente .botoes-acao {
     margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
 }
 
-.texto-ajuda {
-    font-size: 0.65rem;
-    color: #888;
-    margin-top: 2px;
+#modal-dados-cliente .botoes-acao .botao-acao {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 14px 0 !important;
 }
 
-/* 💻 DESKTOP */
-@media (min-width: 769px) {
-    /* Mantém estrutura de coluna única para campos de texto, conforme pedido */
-    .formulario-dados {
-        max-width: 600px;
-        margin: 0 auto;
-    }
+/* 8. BOTAO FECHAR */
+#modal-dados-cliente .botao-fechar-modal {
+    position: absolute;
+    top: 15px;
+    right: 30px; 
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--marrom-cafe);
+    z-index: 1010;
+    padding: 5px;
+    line-height: 1;
 }

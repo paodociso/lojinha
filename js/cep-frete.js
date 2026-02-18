@@ -156,33 +156,36 @@ function calcularFretePorBairro(nomeBairro) {
 
     const taxaCalculada = bairroEncontrado ? bairroEncontrado.taxa : window.dadosIniciais.entrega.taxaGeral;
 
-    // 1. Salva nos estados globais (Essencial para os cálculos financeiros)
+    // 1. Atualiza estados globais
     enderecoCliente.taxaEntrega = taxaCalculada;
     window.taxaEntregaGlobal = taxaCalculada;
     if(window.estadoAplicativo) window.estadoAplicativo.taxaEntrega = taxaCalculada;
 
-    // --- 2. FORÇAR EXIBIÇÃO NO CARRINHO (Notificação do Bairro e Taxa) ---
-    const divNotificacao = document.getElementById('notificacao-bairro-carrinho');
-    const spanBairro = document.getElementById('nome-bairro-info');
-    if (divNotificacao && spanBairro) {
-        spanBairro.textContent = nomeBairro;
-        divNotificacao.style.display = 'block'; 
+    // --- 2. ATUALIZAÇÃO NO MODAL DE DADOS (Card Bonito Original) ---
+    const divInfoFreteModal = document.getElementById('informacao-frete');
+    const spanValorFreteModal = document.getElementById('valor-frete');
+    const elLabelFrete = document.querySelector('.info-frete-titulo');
+    
+    if (divInfoFreteModal && spanValorFreteModal) {
+        // Atualiza apenas o valor numérico
+        spanValorFreteModal.textContent = formatarMoeda(taxaCalculada);
+        
+        // Garante que o rótulo volte ao texto padrão, sem emojis extras
+        if (elLabelFrete) {
+            elLabelFrete.textContent = 'FRETE CALCULADO:';
+        }
+
+        // Mostra o card original (display: flex)
+        divInfoFreteModal.style.display = 'flex';
     }
 
-    const elementoValor = document.getElementById('valor-frete-carrinho');
-    const divResultado = document.getElementById('resultado-frete-carrinho');
-    if (elementoValor && divResultado) {
-        elementoValor.textContent = formatarMoeda(taxaCalculada);
-        divResultado.style.display = 'block'; 
+    // --- 3. ATUALIZAÇÃO NO CARRINHO ---
+    const elementoValorCarrinho = document.getElementById('valor-frete-carrinho');
+    if (elementoValorCarrinho) {
+        elementoValorCarrinho.textContent = formatarMoeda(taxaCalculada);
     }
 
-    // --- 3. ATUALIZAÇÃO DO MODAL DE PAGAMENTO (Para o resumo final) ---
-    const elTaxaPgto = document.getElementById('taxa-final-pagamento');
-    const elBairroPgto = document.getElementById('bairro-final-pagamento');
-    if (elTaxaPgto) elTaxaPgto.textContent = formatarMoeda(taxaCalculada);
-    if (elBairroPgto) elBairroPgto.textContent = nomeBairro;
-
-    // 4. Recalcula o Total (Soma produtos + frete)
+    // 4. Recalcula o Total Financeiro
     if (typeof atualizarResumoFinanceiroCarrinho === 'function') {
         atualizarResumoFinanceiroCarrinho();
     }

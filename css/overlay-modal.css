@@ -1,8 +1,7 @@
 /* ============================================================
-   OVERLAY E ESTRUTURA BASE DOS MODAIS
+   OVERLAY E ESTRUTURA BASE DOS MODAIS - VERSAO ENCAIXE REAL
    ============================================================ */
 
-/* 📱 TELEMÓVEL (Padrão) */
 .overlay-modal {
     display: none;
     position: fixed;
@@ -17,11 +16,22 @@
 
 .modal {
     left: 50% !important;
-    top: 50% !important;
+    
+    /* 1. O CALCULO: 
+       Metade da tela (50%) menos metade da altura da barra (30px) */
+    top: calc(50% - 30px) !important;
+    
+    /* 2. O ENCAIXE:
+       Mantemos a centralizacao do proprio modal no novo eixo */
     transform: translate(-50%, -50%) !important;
+    
     width: calc(100% - 20px) !important;
     max-width: calc(100% - 20px) !important;
-    max-height: 88vh !important;
+    
+    /* 3. A SEGURANÇA:
+       A altura maxima nao pode ultrapassar o espaco util (75% da tela e seguro) */
+    max-height: 75vh !important;
+    
     height: auto !important;
     box-sizing: border-box;
     margin: 0 !important;
@@ -30,27 +40,30 @@
     background: var(--bg-container-modal);
     border-radius: 15px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    overflow: hidden;
+}
+
+/* Ajuste para que o conteudo interno role se for maior que o novo max-height */
+.conteudo-modal, 
+.conteudo-modal-produto, 
+.conteudo-modal-carrinho {
+    max-height: calc(100vh - 120px) !important;
+    overflow-y: auto !important;
+    padding: 20px !important;
 }
 
 @keyframes modalEntrada {
-    from { opacity: 0; transform: translate(-50%, -40%); }
-    to { opacity: 1; transform: translate(-50%, -50%); }
+    from { opacity: 0; top: 10px !important; }
+    to { opacity: 1; top: 20px !important; }
 }
 
-/* 💻 DESKTOP (PC - a partir de 769px) */
+/* DESKTOP (PC - a partir de 769px) */
+/* Ajuste no PC para manter a mesma proporção */
 @media (min-width: 769px) {
-    .overlay-modal { backdrop-filter: blur(5px); }
-
     .modal {
         max-width: 500px !important;
         width: 90% !important;
-        max-height: 90vh !important;
+        top: calc(50% - 30px) !important;
+        max-height: 80vh !important;
     }
-
-    .conteudo-modal { padding: 25px !important; }
-    
-    .conteudo-modal-produto,
-    .conteudo-modal-carrinho { padding: 20px !important; }
-    
-    .conteudo-modal-sucesso { padding: 40px 25px !important; }
 }

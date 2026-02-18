@@ -216,171 +216,147 @@
 
     <!-- ===================== MODAL 4: DADOS DO CLIENTE ===================== -->
     <div id="modal-dados-cliente" class="modal">
-        <button class="botao-fechar-modal" onclick="fecharModal('modal-dados-cliente')">&times;</button>
-        
-        <div class="conteudo-modal">
-            <h3 class="titulo-modal">Seus Dados</h3>
+            <button class="botao-fechar-modal" onclick="fecharModal('modal-dados-cliente')">&times;</button>
             
-            <div class="formulario-dados">
-                <!-- Campo: Nome Completo -->
-                <div class="grupo-campo">
-                    <label for="nome-cliente" class="rotulo-campo obrigatorio">
-                        NOME COMPLETO
-                    </label>
-                    <input type="text" 
-                           id="nome-cliente" 
-                           class="campo-entrada"
-                           placeholder="Como podemos te chamar?"
-                           autocomplete="name">
-                </div>
+            <div class="conteudo-modal">
                 
-                <!-- Campo: WhatsApp -->
-                <div class="grupo-campo">
-                    <label for="whatsapp-cliente" class="rotulo-campo obrigatorio">
-                        WHATSAPP
-                    </label>
-                    <input type="tel" 
-                           id="whatsapp-cliente" 
-                           class="campo-entrada"
-                           placeholder="(11) 98765-4321"
-                           autocomplete="tel">
-                </div>
-                
-                <!-- Seção de Endereço (só aparece se for entrega) -->
-                <div id="secao-endereco" style="display: none;">
-                    <div class="separador-endereco"></div>
                     
-                    <h4 class="subtitulo-endereco">
-                        <i class="fas fa-map-marker-alt"></i> ENDEREÇO DE ENTREGA
-                    </h4>
+                    <h3 class="titulo-modal">Seus Dados</h3>
                     
-                    <!-- Campo: CEP -->
-                    <div class="grupo-campo">
-                        <label for="codigo-postal-cliente" class="rotulo-campo obrigatorio">
-                            CEP
-                        </label>
-                        <input type="text" 
-                               id="codigo-postal-cliente" 
-                               class="campo-entrada"
-                               placeholder="00000-000"
-                               maxlength="9"
-                               oninput="formatarCodigoPostal(this)">
-                        <small class="texto-ajuda">Digite 8 números para buscar automaticamente</small>
-                    </div>
-                    
-                    <!-- Campos autopreenchidos pelo CEP -->
-                    <div class="grupo-campo">
-                        <label for="logradouro-cliente" class="rotulo-campo obrigatorio">
-                            RUA
-                        </label>
-                        <input type="text" 
-                               id="logradouro-cliente" 
-                               class="campo-entrada campo-leitura"
-                               
-                               placeholder="Será preenchido automaticamente">
-                    </div>
-                    
-                    <div class="grupo-duplo">
+                    <div class="formulario-dados">
                         <div class="grupo-campo">
-                            <label for="bairro-cliente" class="rotulo-campo obrigatorio">
-                                BAIRRO
+                            <label for="nome-cliente" class="rotulo-campo obrigatorio">
+                                NOME COMPLETO
                             </label>
                             <input type="text" 
-                                   id="bairro-cliente" 
-                                   class="campo-entrada campo-leitura"
-                                   
-                                   placeholder="Será preenchido automaticamente">
+                                id="nome-cliente" 
+                                class="campo-entrada"
+                                placeholder="Como podemos te chamar?"
+                                autocomplete="name">
                         </div>
                         
                         <div class="grupo-campo">
-                            <label for="cidade-cliente" class="rotulo-campo">
-                                CIDADE/UF
+                            <label for="whatsapp-cliente" class="rotulo-campo obrigatorio">
+                                WHATSAPP
                             </label>
-                            <input type="text" 
-                                   id="cidade-cliente" 
-                                   class="campo-entrada campo-leitura"
-                                   
-                                   placeholder="Será preenchido automaticamente">
-                        </div>
-                    </div>
-                    
-                    <!-- Campos para preenchimento manual -->
-                    <div class="grupo-duplo">
-                        <div class="grupo-campo">
-                            <label for="numero-residencia-cliente" class="rotulo-campo obrigatorio">
-                                NÚMERO
-                            </label>
-                            <input type="text" 
-                                   id="numero-residencia-cliente" 
-                                   class="campo-entrada"
-                                   placeholder="123"
-                                   autocomplete="address-line2">
+                            <input type="tel" 
+                                id="whatsapp-cliente" 
+                                class="campo-entrada"
+                                placeholder="(11) 98765-4321"
+                                autocomplete="tel">
                         </div>
                         
-                        <div class="grupo-campo">
-                            <label for="complemento-residencia-cliente" class="rotulo-campo">
-                                COMPLEMENTO
-                            </label>
-                            <input type="text" 
-                                   id="complemento-residencia-cliente" 
-                                   class="campo-entrada"
-                                   placeholder="Apto 45, Bloco B"
-                                   autocomplete="address-line3">
+                        <div id="secao-endereco" style="display: none;">
+                            <div class="separador-endereco"></div>
+                            
+                            <h4 class="subtitulo-endereco">
+                                <i class="fas fa-map-marker-alt"></i> ENDEREÇO DE ENTREGA
+                            </h4>
+                            
+                            <div class="grupo-campo">
+                                <label for="codigo-postal-cliente" class="rotulo-campo obrigatorio">
+                                    CEP
+                                </label>
+                                <input type="text" 
+                                    id="codigo-postal-cliente" 
+                                    class="campo-entrada"
+                                    placeholder="00000-000"
+                                    maxlength="9"
+                                    oninput="formatarCodigoPostal(this)">
+                                <small class="texto-ajuda">Digite 8 números para buscar automaticamente</small>
+                            </div>
+                            
+                            <div class="grupo-campo">
+                                <label for="logradouro-cliente" class="rotulo-campo obrigatorio">
+                                    RUA
+                                </label>
+                                <input type="text" 
+                                    id="logradouro-cliente" 
+                                    class="campo-entrada campo-leitura"
+                                    placeholder="Será preenchido automaticamente">
+                            </div>
+                            
+                            <div class="grupo-duplo">
+                                <div class="grupo-campo">
+                                    <label for="bairro-cliente" class="rotulo-campo obrigatorio">
+                                        BAIRRO
+                                    </label>
+                                    <input type="text" 
+                                        id="bairro-cliente" 
+                                        class="campo-entrada campo-leitura"
+                                        placeholder="Será preenchido automaticamente">
+                                </div>
+                                
+                                <div class="grupo-campo">
+                                    <label for="cidade-cliente" class="rotulo-campo">
+                                        CIDADE/UF
+                                    </label>
+                                    <input type="text" 
+                                        id="cidade-cliente" 
+                                        class="campo-entrada campo-leitura"
+                                        placeholder="Será preenchido automaticamente">
+                                </div>
+                            </div>
+                            
+                            <div class="grupo-duplo">
+                                <div class="grupo-campo">
+                                    <label for="numero-residencia-cliente" class="rotulo-campo obrigatorio">
+                                        NÚMERO
+                                    </label>
+                                    <input type="text" 
+                                        id="numero-residencia-cliente" 
+                                        class="campo-entrada"
+                                        placeholder="123"
+                                        autocomplete="address-line2">
+                                </div>
+                                
+                                <div class="grupo-campo">
+                                    <label for="complemento-residencia-cliente" class="rotulo-campo">
+                                        COMPLEMENTO
+                                    </label>
+                                    <input type="text" 
+                                        id="complemento-residencia-cliente" 
+                                        class="campo-entrada"
+                                        placeholder="Apto 45, Bloco B"
+                                        autocomplete="address-line3">
+                                </div>
+                            </div>
+                            
+                            <div class="grupo-campo">
+                                <label for="ponto-referencia-entrega" class="rotulo-campo">
+                                    PONTO DE REFERÊNCIA
+                                </label>
+                                <input type="text" 
+                                    id="ponto-referencia-entrega" 
+                                    class="campo-entrada"
+                                    placeholder="Ex: Próximo ao mercado, portão azul">
+                            </div>
+                            
+                            <div id="informacao-frete" class="card-informacao-frete" style="display: none;">
+                                <i class="fas fa-motorcycle"></i>
+                                <div class="info-frete-conteudo">
+                                    <span class="info-frete-titulo">FRETE CALCULADO:</span>
+                                    <span id="valor-frete" class="info-frete-valor">R$ 0,00</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Campo: Ponto de Referência -->
-                    <div class="grupo-campo">
-                        <label for="ponto-referencia-entrega" class="rotulo-campo">
-                            PONTO DE REFERÊNCIA
-                        </label>
-                        <input type="text" 
-                               id="ponto-referencia-entrega" 
-                               class="campo-entrada"
-                               placeholder="Ex: Próximo ao mercado, portão azul">
+                    <div class="botoes-acao">
+                        <button id="botao-prosseguir-pagamento" 
+                                class="botao-acao botao-verde-militar"
+                                onclick="validarDadosCliente()">
+                            ESCOLHER PAGAMENTO <i class="fas fa-credit-card"></i>
+                        </button>
+                        
+                        <button class="botao-acao botao-bege"
+                                onclick="fecharModal('modal-dados-cliente'); abrirModal('modal-carrinho');">
+                            <i class="fas fa-arrow-left"></i> VOLTAR À CESTA
+                        </button>
                     </div>
-                    
-                    <!-- Informação de Frete -->
-                    <div id="informacao-frete" class="card-informacao-frete" style="display: none;">
-                        <i class="fas fa-motorcycle"></i>
-                        <div class="info-frete-conteudo">
-                            <span class="info-frete-titulo">FRETE CALCULADO:</span>
-                            <span id="valor-frete" class="info-frete-valor">R$ 0,00</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Botões de Ação -->
-        
-            <div class="botoes-acao" style="display: flex; flex-direction: column; gap: 10px;">
-                
-                <button id="botao-prosseguir-pagamento" 
-                        class="botao-acao botao-verde-militar"
-                        onclick="validarDadosCliente()">
-                    ESCOLHER PAGAMENTO <i class="fas fa-credit-card"></i>
-                </button>
-                
-                <!-- 🔥 NOVO BOTÃO DE TESTE (PASSO 5) -->
-                <!--
-                <button
-                    id="btn-testar-endereco"
-                    type="button"
-                    class="botao-secundario"
-                    onclick="testarEndereco()"
-                >
-                    Testar endereço
-                </button>
-                -->
-                
-                <button class="botao-acao botao-bege"
-                        onclick="fecharModal('modal-dados-cliente'); abrirModal('modal-carrinho');">
-                    <i class="fas fa-arrow-left"></i> VOLTAR À CESTA
-                </button>
-            </div>
 
+                </div> 
         </div>
-    </div>
 
     <!-- ===================== MODAL 5: FORMA DE PAGAMENTO ===================== -->
     <div id="modal-pagamento" class="modal">
@@ -459,6 +435,7 @@
             </div>
             
             <!-- Botões de Ação -->
+            <!-- Botões conferir se essa div imediatamente abaixo pode ser removida para o css gerir -->
             <div class="botoes-acao" style="display: flex; flex-direction: column; gap: 10px;">
                 <button id="botao-finalizar-pedido" 
                         class="botao-acao botao-verde-militar"

@@ -2,7 +2,7 @@
    LAYOUT BASE, CABEÇALHO, RODAPÉ E BARRA DO CARRINHO
    ============================================================ */
 
-/* ===================== CABEÇALHO PRINCIPAL ===================== */
+/* CABEÇALHO PRINCIPAL */
 .cabecalho-principal {
     background: var(--verde-militar);
     padding: 15px 20px;
@@ -72,11 +72,11 @@
     text-decoration: underline;
 }
 
-/* ===================== BOTÃO FECHAR MODAL ===================== */
+/* BOTÃO FECHAR MODAL */
 .botao-fechar-modal {
     position: absolute;
     top: 15px;
-    right: 15px;
+    right: 30px;
     left: auto;
     width: 32px;
     height: 32px;
@@ -100,23 +100,25 @@
     filter: brightness(1.2);
 }
 
-/* ===================== BARRA DO CARRINHO FIXA (CORRIGIDA) ===================== */
+/* BARRA DO CARRINHO FIXA NO RODAPÉ DA TELA */
 .barra-carrinho-fixa {
     display: none; 
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
     background-color: var(--verde-militar) !important;
     color: var(--bege-claro) !important;
-    padding: 12px 20px;
-    z-index: 9999;
+    padding: 12px 20px !important;
+    z-index: 9999 !important;
     cursor: pointer;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4) !important;
     transition: all 0.3s ease;
     align-items: center;
     justify-content: space-between;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    box-sizing: border-box !important;
 }
 
 .barra-carrinho-fixa[style*="display: block"],
@@ -165,10 +167,10 @@
     color: var(--bege-claro);
 }
 
-/* ===================== BANNER FORNADA ===================== */
+/* BANNER FORNADA */
 .banner-fornada {
     background-color: var(--branco);
-    padding: 8px 12px; /* Reduzi a altura (padding vertical) */
+    padding: 8px 12px;
     border-radius: 12px;
     margin: 15px 10px 0;
     border: 1px solid var(--borda-nav);
@@ -178,25 +180,26 @@
 }
 
 .fornada-titulo {
-    font-size: 1rem !important; /* Diminuído */
+    font-size: 1rem !important;
     font-weight: 900;
     margin: 0 0 2px 0 !important;
 }
 
 .fornada-subtitulo {
-    font-size: 0.8rem !important; /* Diminuído */
+    font-size: 0.8rem !important;
     font-weight: 700;
     margin: 0 !important;
 }
 
-/* ===================== RODAPÉ ===================== */
+/* RODAPÉ */
 .rodape {
     background-color: var(--verde-militar);
     color: var(--branco);
-    padding: 20px 0; /* Altura reduzida de 40px para 20px */
+    padding: 20px 0;
     text-align: center;
     margin-top: 50px;
     width: 100%;
+    padding-bottom: 100px !important; 
 }
 
 /* Scrollbar */
@@ -204,18 +207,18 @@
 ::-webkit-scrollbar-track { background: var(--bg-creme); }
 ::-webkit-scrollbar-thumb { background: var(--verde-militar); border-radius: 4px; }
 
-/* ===================== RESPONSIVIDADE ===================== */
+/* RESPONSIVIDADE */
 @media (max-width: 480px) {
     .botao-fechar-modal {
         top: 10px;
-        right: 10px;
+        right: 30px;
         width: 28px;
         height: 28px;
         font-size: 1rem;
     }
 
     .barra-carrinho-fixa {
-        padding: 10px 15px;
+        padding: 10px 15px !important;
     }
     
     .valor-carrinho {
@@ -223,6 +226,6 @@
     }
 
     .rodape {
-        padding-bottom: 120px; /* Garante espaço para não sumir atrás da barra do carrinho no celular */
+        padding-bottom: 120px !important;
     }
 }
