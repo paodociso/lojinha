@@ -1,5 +1,5 @@
 // ===========================================
-// 1. ESTADO E DADOS
+// 1. ESTADO E DADOS - RODANDO COM CRUD
 // ===========================================
 const estadoInicial = {
     loja: { nome: "Pão do Ciso", telefone: "", endereco: "" }, // Adicione esta linha
@@ -781,28 +781,74 @@ function gerarConteudoDadosJS() {
     conteudo += "// ============================================\n\n";
     conteudo += "window.dadosIniciais = {\n";
 
-    // Função para deixar objetos simples em uma única linha
-    const formatarCompacto = (obj) => {
-        return JSON.stringify(obj, null, 1)
-            .replace(/\{\n\s+/g, '{ ')
-            .replace(/\n\s+\}/g, ' }')
-            .replace(/,\n\s+/g, ', ');
-    };
-
-    // 1. Blocos Compactos (Uma linha por objeto)
-    conteudo += `    loja: ${JSON.stringify(db.loja, null, 3)},\n\n`;
-    conteudo += `    fornada: ${JSON.stringify(db.fornada, null, 3)},\n\n`;
+    // loja e fornada com formatação padrão (já estão legíveis)
+    conteudo += `    loja: ${JSON.stringify(db.loja, null, 2)},\n\n`;
+    conteudo += `    fornada: ${JSON.stringify(db.fornada, null, 2)},\n\n`;
     
-    // Entrega: taxaGeral normal, mas bairros compactos
-    conteudo += `    entrega: {\n        "taxaGeral": ${db.entrega.taxaGeral},\n        "bairros": ${formatarCompacto(db.entrega.bairros)}\n    },\n\n`;
+    // entrega com bairros em formato legível
+    conteudo += `    entrega: {\n`;
+    conteudo += `        "taxaGeral": ${db.entrega.taxaGeral},\n`;
+    conteudo += `        "bairros": [\n`;
+    db.entrega.bairros.forEach((bairro, index) => {
+        conteudo += `            ${JSON.stringify(bairro)}`;
+        if (index < db.entrega.bairros.length - 1) conteudo += ',';
+        conteudo += '\n';
+    });
+    conteudo += `        ]\n    },\n\n`;
+
+    // cupons em formato legível
+    conteudo += `    cupons: [\n`;
+    db.cupons.forEach((cupom, index) => {
+        conteudo += `        ${JSON.stringify(cupom)}`;
+        if (index < db.cupons.length - 1) conteudo += ',';
+        conteudo += '\n';
+    });
+    conteudo += `    ],\n\n`;
+
+    // opcionais com formatação especial (objetos aninhados)
+    conteudo += `    opcionais: {\n`;
     
-    conteudo += `    cupons: ${formatarCompacto(db.cupons)},\n\n`;
-    conteudo += `    opcionais: ${formatarCompacto(db.opcionais)},\n\n`;
+    const categorias = Object.keys(db.opcionais);
+    categorias.forEach((categoria, idxCat) => {
+        const valor = db.opcionais[categoria];
+        
+        if (Array.isArray(valor)) {
+            // Array simples
+            conteudo += `        "${categoria}": [\n`;
+            valor.forEach((item, idxItem) => {
+                conteudo += `            ${JSON.stringify(item)}`;
+                if (idxItem < valor.length - 1) conteudo += ',';
+                conteudo += '\n';
+            });
+            conteudo += `        ]`;
+        } else {
+            // Objeto com subgrupos
+            conteudo += `        "${categoria}": {\n`;
+            const subgrupos = Object.keys(valor);
+            subgrupos.forEach((subgrupo, idxSub) => {
+                conteudo += `            "${subgrupo}": [\n`;
+                valor[subgrupo].forEach((item, idxItem) => {
+                    conteudo += `                ${JSON.stringify(item)}`;
+                    if (idxItem < valor[subgrupo].length - 1) conteudo += ',';
+                    conteudo += '\n';
+                });
+                conteudo += `            ]`;
+                if (idxSub < subgrupos.length - 1) conteudo += ',';
+                conteudo += '\n';
+            });
+            conteudo += `        }`;
+        }
+        
+        if (idxCat < categorias.length - 1) conteudo += ',';
+        conteudo += '\n';
+    });
+    
+    conteudo += `    },\n\n`;
 
-    // 2. Bloco Expandido (Como você solicitou para as seções)
-    conteudo += `    secoes: ${JSON.stringify(db.secoes, null, 3)}\n`;
-
+    // secoes com formatação expandida
+    conteudo += `    secoes: ${JSON.stringify(db.secoes, null, 2)}\n`;
     conteudo += "};";
+    
     return conteudo;
 }
 
