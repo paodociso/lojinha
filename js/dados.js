@@ -359,7 +359,7 @@ window.dadosIniciais = {
         "esgotado": false
       },
       {
-        "nome": "Peru",
+        "nome": "Canadense",
         "descricao": "Sanduíche feito com lombo canadense Ceratti.",
         "preco": 7,
         "imagem": "img/panino-mortadela.webp",
@@ -384,6 +384,55 @@ window.dadosIniciais = {
         ],
         "visivel": true,
         "esgotado": false
+      },
+      {
+        "nome": "Peru",
+        "descricao": "Sanduíche feito com peito de peru defumado Ceratti.",
+        "preco": 7,
+        "imagem": "img/panino-mortadela.webp",
+        "opcionais": "Panini",
+        "opcionais_ativos": [
+          "Ciabatta",
+          "Focaccia",
+          "Chancliche",
+          "Chancliche apimentado",
+          "Muçarela",
+          "Provolone",
+          "Queijo Prato",
+          "Melanzane sottolio",
+          "Azeite extravirgem",
+          "Manteiga",
+          "Maionese",
+          "Pesto de azeitona",
+          "Pesto tradicional (manjericão)",
+          "Alface",
+          "Rúcula",
+          "Tomate"
+        ],
+        "visivel": true,
+        "esgotado": false
+      },
+      {
+        "nome": "Vegano",
+        "descricao": "Panini vegano. ",
+        "preco": 7,
+        "imagem": "img/padrao.jpg",
+        "visivel": true,
+        "esgotado": false,
+        "opcionais_ativos": [
+          "Ciabatta",
+          "Focaccia",
+          "Confit de alho",
+          "Confit de alho e tomates cereja",
+          "Pastinha de pimentão vermelho",
+          "Pesto de azeitona",
+          "Pesto tradicional (manjericão)",
+          "Alface",
+          "Pepino",
+          "Pimentão",
+          "Rúcula",
+          "Tomate"
+        ]
       },
       {
         "nome": "Monte seu Panino",
