@@ -38,7 +38,69 @@ function atualizarBarraCarrinho() {
 
 // ===================== MODAL DO CARRINHO =====================
 function abrirModalCarrinho() {
+    // 1. Reconstrói o HTML do carrinho
     renderizarCarrinho();
+    
+    // 2. Aguarda o DOM processar o novo HTML para aplicar as restaurações
+    setTimeout(() => {
+        // --- SELEÇÃO DE ELEMENTOS ---
+        const campoCEP = document.getElementById('cep-carrinho');
+        const divNotificacaoCEP = document.getElementById('notificacao-bairro-carrinho');
+        const spanNomeBairro = document.getElementById('nome-bairro-info');
+        const divResultadoCEP = document.getElementById('resultado-frete-carrinho');
+        const campoCupom = document.getElementById('campo-cupom-carrinho');
+        const divNotificacaoCupom = document.getElementById('notificacao-cupom-carrinho');
+
+        // --- RESTAURAÇÃO DO CEP ---
+        if (campoCEP && estadoAplicativo.cepCalculado) {
+            const cepLimpo = estadoAplicativo.cepCalculado.replace(/\D/g, '');
+            if (cepLimpo.length === 8) {
+                // Reaplica a máscara visual
+                campoCEP.value = cepLimpo.substring(0, 5) + '-' + cepLimpo.substring(5);
+            }
+        }
+
+        // --- RESTAURAÇÃO DO FRETE / BAIRRO ---
+        if (estadoAplicativo.bairroIdentificado && divNotificacaoCEP && spanNomeBairro) {
+            spanNomeBairro.innerHTML = `
+                Bairro encontrado: <strong>${estadoAplicativo.bairroIdentificado}</strong>.<br>
+                <i class="fas fa-truck"></i> Taxa de entrega: <strong>${formatarMoeda(estadoAplicativo.taxaEntrega)}</strong>
+            `;
+            divNotificacaoCEP.style.display = 'block';
+            if (divResultadoCEP) divResultadoCEP.style.display = 'none';
+        } 
+        // Caso não tenha bairro mas tenha taxa (Ex: CEP não encontrado/taxa padrão)
+        else if (estadoAplicativo.taxaEntrega > 0 && divNotificacaoCEP && spanNomeBairro) {
+            spanNomeBairro.innerHTML = `
+                <i class="fas fa-truck"></i> Taxa de entrega: <strong>${formatarMoeda(estadoAplicativo.taxaEntrega)}</strong>
+            `;
+            divNotificacaoCEP.style.display = 'block';
+        }
+
+        // --- RESTAURAÇÃO DO CUPOM (Alteração solicitada) ---
+        if (estadoAplicativo.cupomAplicado && divNotificacaoCupom) {
+            // Exibe a mensagem de sucesso em verde
+            divNotificacaoCupom.innerHTML = `
+                <span style="color: #2e7d32;">
+                    <i class="fas fa-check-circle"></i> Cupom <strong>${estadoAplicativo.cupomAplicado}</strong> aplicado!
+                </span>
+            `;
+            divNotificacaoCupom.style.display = 'block';
+            
+            // Preenche o campo com o nome do cupom já usado
+            if (campoCupom) {
+                campoCupom.value = estadoAplicativo.cupomAplicado;
+            }
+        }
+
+        // 3. Força a atualização dos cálculos financeiros no resumo
+        if (typeof atualizarResumoFinanceiroCarrinho === 'function') {
+            atualizarResumoFinanceiroCarrinho();
+        }
+        
+    }, 50); 
+
+    // 4. Exibe o modal
     abrirModal('modal-carrinho');
 }
 
@@ -135,6 +197,8 @@ function gerarHTMLOpcoesEntregaCupom() {
                 </button>
             </div>
 
+            <div id="notificacao-cupom-carrinho" style="display: none; font-size: 13px; margin-top: -10px; margin-bottom: 15px; font-weight: 500;"></div>
+
             <div class="grupo-entrega">
                 <p class="titulo-entrega" style="font-weight: bold; margin-bottom: 15px;">Como deseja receber seu pedido?</p>
                 <div class="opcoes-entrega" style="display: flex; gap: 10px; margin-bottom: 20px;">
@@ -157,18 +221,39 @@ function gerarHTMLOpcoesEntregaCupom() {
                         <i class="fas fa-info-circle"></i> <span>Informe seu CEP para o cálculo da taxa</span>
                     </div>                   
 
-                    <div style="display: flex !important; gap: 8px !important; width: 100% !important; box-sizing: border-box !important; margin-bottom: 20px;">
-                        <input type="text" 
-                            id="cep-carrinho" 
-                            placeholder="DIGITE SEU CEP"
-                            maxlength="9"
-                            value="${cepValue}"
-                            style="flex: 1 !important; min-width: 0 !important; height: 45px !important; border: 1px solid #ccc !important; border-radius: 8px !important; padding: 0 12px !important; font-size: 14px !important; margin: 0 !important; box-sizing: border-box !important;"
-                            oninput="estadoAplicativo.cepCalculado = this.value.replace(/\\D/g, '')">
+                            <div style="
+                                display: flex !important; 
+                                gap: 8px !important; 
+                                width: 100% !important; 
+                                box-sizing: border-box !important; 
+                                margin-bottom: 20px;
+                            ">
+                            <input type="text" 
+                                id="cep-carrinho" 
+                                class="campo-input-carrinho"
+                                placeholder="00000-000"
+                                maxlength="9"
+                                value="${cepValue}"
+                            >
 
-                        <button type="button"
-                                onclick="const cepVal = document.getElementById('cep-carrinho').value; if(cepVal.length >= 8) { window.buscarEnderecoPorCodigoPostal(cepVal); } else { alert('Digite um CEP válido'); }" 
-                                style="flex: 0 0 auto !important; width: auto !important; white-space: nowrap !important; padding: 0 20px !important; height: 45px !important; background-color: #332616 !important; color: white !important; border: none !important; border-radius: 8px !important; font-weight: bold !important; font-size: 13px !important; cursor: pointer !important; margin: 0 !important;">
+                            <button type="button"
+                                onclick="const v = document.getElementById('cep-carrinho').value.replace(/\\D/g, ''); if(v.length === 8) { window.buscarEnderecoPorCodigoPostal(v); } else { window.validarCEPAuto(document.getElementById('cep-carrinho')); }" 
+                                style="
+                                    flex: 0 0 auto !important; 
+                                    width: auto !important; 
+                                    white-space: nowrap !important; 
+                                    padding: 0 20px !important; 
+                                    height: 45px !important; 
+                                    background-color: #332616 !important; 
+                                    color: white !important; 
+                                    border: none !important; 
+                                    border-radius: 8px !important; 
+                                    font-weight: bold !important; 
+                                    font-size: 13px !important; 
+                                    cursor: pointer !important; 
+                                    margin: 0 !important;
+                                "
+                            >
                             APLICAR
                         </button>
                     </div>
@@ -292,12 +377,18 @@ function removerItemDoCarrinho(identificador) {
 
 function aplicarCupom() {
     const campoCupom = elemento('campo-cupom-carrinho');
-    if (!campoCupom) return;
+    const notificacao = elemento('notificacao-cupom-carrinho');
+    if (!campoCupom || !notificacao) return;
 
     const codigoCupom = campoCupom.value.trim().toUpperCase();
     
+    // Reset visual
+    notificacao.style.display = 'none';
+    notificacao.style.color = 'inherit';
+
     if (!codigoCupom) {
-        alert('Digite um código de cupom.');
+        notificacao.innerHTML = `<span style="color: #d32f2f;"><i class="fas fa-info-circle"></i> Digite um código.</span>`;
+        notificacao.style.display = 'block';
         return;
     }
 
@@ -306,44 +397,40 @@ function aplicarCupom() {
     );
 
     if (!cupomValido) {
-        alert('Cupom inválido ou expirado.');
+        notificacao.innerHTML = `<span style="color: #d32f2f;"><i class="fas fa-times-circle"></i> Cupom inválido ou expirado.</span>`;
+        notificacao.style.display = 'block';
         campoCupom.value = '';
         return;
     }
 
-    // --- CORREÇÃO: Calcular subtotal real (Produtos + Opcionais) ---
+    // --- CÁLCULO DO DESCONTO ---
     let subtotalParaDesconto = 0;
     Object.values(carrinho).forEach(item => {
         const produto = dadosIniciais.secoes[item.indiceSessao].itens[item.indiceItem];
         let valorItem = produto.preco * item.quantidade;
-        
-        // Incluir opcionais no cálculo do desconto
         if (item.opcionais) {
-            Object.values(item.opcionais).forEach(opcional => {
-                valorItem += opcional.quantidade * opcional.preco;
-            });
+            Object.values(item.opcionais).forEach(op => valorItem += op.quantidade * op.preco);
         }
         subtotalParaDesconto += valorItem;
     });
 
-    let desconto = 0;
-    if (cupomValido.tipo === 'porcentagem') {
-        desconto = subtotalParaDesconto * (cupomValido.valor / 100);
-    } else if (cupomValido.tipo === 'fixo') {
-        desconto = cupomValido.valor;
-    }
+    let desconto = cupomValido.tipo === 'porcentagem' 
+        ? subtotalParaDesconto * (cupomValido.valor / 100) 
+        : cupomValido.valor;
 
     // Salvar no estado global
     estadoAplicativo.cupomAplicado = codigoCupom;
     estadoAplicativo.descontoCupom = desconto;
 
-    // Atualiza as telas
+    // --- FEEDBACK VISUAL ---
+    notificacao.innerHTML = `<span style="color: #2e7d32;"><i class="fas fa-check-circle"></i> Cupom <strong>${codigoCupom}</strong> aplicado!</span>`;
+    notificacao.style.display = 'block';
+
+    // Atualiza as telas e o resumo
     atualizarResumoFinanceiroCarrinho();
     if (typeof atualizarResumoPagamentoFinal === 'function') {
         atualizarResumoPagamentoFinal();
     }
-    
-    mostrarNotificacao(`Cupom ${codigoCupom} aplicado com sucesso!`);
 }
 
 function alterarModoEntrega(modo) {
@@ -409,35 +496,47 @@ function prosseguirParaDadosCliente() {
         return;
     }
 
+    const cepAtualCarrinho = estadoAplicativo.cepCalculado ? estadoAplicativo.cepCalculado.replace(/\D/g, '') : '';
+
     fecharModal('modal-carrinho');
     
-    // 🔥 CORREÇÃO PRINCIPAL: Sincronizar CEP do carrinho para o modal de dados
-    if (estadoAplicativo.modoEntrega === 'entrega' && estadoAplicativo.cepCalculado) {
-        console.log(`[CEP] Transferindo CEP ${estadoAplicativo.cepCalculado} para modal de dados`);
-        
-        // Abrir modal primeiro
-        setTimeout(() => {
-            abrirModal('modal-dados-cliente');
-            
-            // Pequeno delay para garantir que o DOM do modal está pronto
-            setTimeout(() => {
-                if (window.AddressManager && window.AddressManager.sincronizarCEPComModalDados) {
-                    console.log('[CEP] Chamando sincronização...');
-                    window.AddressManager.sincronizarCEPComModalDados(estadoAplicativo.cepCalculado);
-                }
-            }, 300);
-        }, 100);
-    } else {
-        abrirModal('modal-dados-cliente');
-    }
-    
-    // Mostrar/ocultar seção de endereço baseado no modo
+    // Abre o modal de dados
     setTimeout(() => {
-        const secaoEndereco = elemento('secao-endereco');
-        if (secaoEndereco) {
-            secaoEndereco.style.display = estadoAplicativo.modoEntrega === 'retirada' ? 'none' : 'block';
-        }
-    }, 400);
+        abrirModal('modal-dados-cliente');
+        
+        // Pequeno delay para o DOM estar pronto
+        setTimeout(() => {
+            // Se for modo entrega e houver um CEP
+            if (estadoAplicativo.modoEntrega === 'entrega' && cepAtualCarrinho.length === 8) {
+                
+                const campoCepDados = document.getElementById('codigo-postal-cliente');
+                
+                // 🔥 Lógica de Recarregamento Forçado:
+                // Se o CEP no campo de dados for diferente do CEP do carrinho, disparamos a busca
+                if (campoCepDados) {
+                    const cepJaNoCampo = campoCepDados.value.replace(/\D/g, '');
+                    
+                    if (cepJaNoCampo !== cepAtualCarrinho) {
+                        console.log('[CEP] CEP alterado detectado. Forçando nova busca de endereço...');
+                        
+                        // Atualiza o campo visualmente
+                        campoCepDados.value = cepAtualCarrinho.substring(0, 5) + '-' + cepAtualCarrinho.substring(5);
+                        
+                        // Chama a função de busca do arquivo cep-frete.js para preencher rua, bairro, etc.
+                        if (window.buscarEnderecoPorCodigoPostal) {
+                            window.buscarEnderecoPorCodigoPostal(cepAtualCarrinho);
+                        }
+                    }
+                }
+            }
+
+            // Garante visibilidade da seção de endereço
+            const secaoEndereco = elemento('secao-endereco');
+            if (secaoEndereco) {
+                secaoEndereco.style.display = estadoAplicativo.modoEntrega === 'retirada' ? 'none' : 'block';
+            }
+        }, 300);
+    }, 100);
 }
 
 function atualizarDisplayFreteCarrinho(valor) {
@@ -556,6 +655,44 @@ function atualizarResumoPagamentoFinal() {
 
 // Não esqueça de adicionar esta exportação ao final do arquivo:
 window.atualizarResumoPagamentoFinal = atualizarResumoPagamentoFinal;
+
+// Aplica a máscara enquanto o usuário digita
+function formatarCampoCEP(input) {
+    let v = input.value.replace(/\D/g, ''); // Remove tudo que não é número
+    if (v.length > 8) v = v.substring(0, 8);
+    
+    // Aplica o traço automaticamente
+    if (v.length > 5) {
+        input.value = v.substring(0, 5) + '-' + v.substring(5);
+    } else {
+        input.value = v;
+    }
+    
+    // Salva o valor limpo no estado global
+    if (window.estadoAplicativo) {
+        estadoAplicativo.cepCalculado = v;
+    }
+}
+
+// Valida automaticamente quando o cursor sai do campo (blur)
+function validarCEPAuto(input) {
+    const cepLimpo = input.value.replace(/\D/g, '');
+    
+    if (cepLimpo.length > 0 && cepLimpo.length < 8) {
+        // Se digitou algo, mas não completou 8 dígitos
+        const spanNomeBairro = document.getElementById('nome-bairro-info');
+        const divNotificacao = document.getElementById('notificacao-bairro-carrinho');
+        
+        if (divNotificacao && spanNomeBairro) {
+            spanNomeBairro.innerHTML = `<span style="color: #d32f2f;">O CEP deve conter 8 números.</span>`;
+            divNotificacao.style.display = 'block';
+        }
+        input.focus(); // Opcional: devolve o foco para correção
+    } else if (cepLimpo.length === 8) {
+        // Se completou, dispara a busca automaticamente
+        window.buscarEnderecoPorCodigoPostal(cepLimpo);
+    }
+}
 
 // ===================== EXPORTAR FUNÇÕES (FIM DO ARQUIVO) =====================
 

@@ -362,7 +362,7 @@ window.dadosIniciais = {
         "nome": "Canadense",
         "descricao": "Sanduíche feito com lombo canadense Ceratti.",
         "preco": 7,
-        "imagem": "img/panino-mortadela.webp",
+        "imagem": "img/panino-lombocanadense.webp",
         "opcionais": "Panini",
         "opcionais_ativos": [
           "Ciabatta",
@@ -389,7 +389,7 @@ window.dadosIniciais = {
         "nome": "Peru",
         "descricao": "Sanduíche feito com peito de peru defumado Ceratti.",
         "preco": 7,
-        "imagem": "img/panino-mortadela.webp",
+        "imagem": "img/panino-peru.webp",
         "opcionais": "Panini",
         "opcionais_ativos": [
           "Ciabatta",
@@ -416,7 +416,7 @@ window.dadosIniciais = {
         "nome": "Vegano",
         "descricao": "Panini vegano. ",
         "preco": 7,
-        "imagem": "img/padrao.jpg",
+        "imagem": "img/panino-vegano.jpg",
         "visivel": true,
         "esgotado": false,
         "opcionais_ativos": [

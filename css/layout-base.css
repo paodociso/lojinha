@@ -202,6 +202,8 @@
     padding-bottom: 100px !important; 
 }
 
+
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-creme); }
@@ -228,4 +230,23 @@
     .rodape {
         padding-bottom: 120px !important;
     }
+}
+
+/* Estilo padronizado para campos de entrada no modal do carrinho */
+.campo-input-carrinho {
+    flex: 1 !important;
+    min-width: 0 !important;
+    height: 45px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 8px !important;
+    padding: 0 12px !important;
+    font-size: 14px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.campo-input-carrinho:focus {
+    border-color: var(--marrom-cafe) !important;
 }
