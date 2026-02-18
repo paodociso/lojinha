@@ -102,36 +102,30 @@
 
 /* ===================== BARRA DO CARRINHO FIXA (CORRIGIDA) ===================== */
 .barra-carrinho-fixa {
-    display: none; /* Alterado para flex via JS quando houver itens */
+    display: none; 
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    
-    /* Cores forçadas para evitar que fique branca */
     background-color: var(--verde-militar) !important;
     color: var(--bege-claro) !important;
-    
     padding: 12px 20px;
-    z-index: 9999; /* Z-index alto para ficar sobre tudo */
+    z-index: 9999;
     cursor: pointer;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
-    
-    /* Estrutura interna */
     align-items: center;
     justify-content: space-between;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Quando o JS ativa a barra, ela deve usar flex */
 .barra-carrinho-fixa[style*="display: block"],
 .barra-carrinho-fixa[style*="display: flex"] {
     display: flex !important;
 }
 
 .barra-carrinho-fixa:hover {
-    background-color: #2d3a27 !important; /* Verde mais escuro no hover */
+    background-color: #2d3a27 !important;
     transform: translateY(-2px);
 }
 
@@ -174,21 +168,35 @@
 /* ===================== BANNER FORNADA ===================== */
 .banner-fornada {
     background-color: var(--branco);
-    padding: 12px;
+    padding: 8px 12px; /* Reduzi a altura (padding vertical) */
     border-radius: 12px;
     margin: 15px 10px 0;
     border: 1px solid var(--borda-nav);
     text-align: center;
     box-shadow: 0 4px 12px var(--sombra-suave);
+    cursor: pointer;
+}
+
+.fornada-titulo {
+    font-size: 1rem !important; /* Diminuído */
+    font-weight: 900;
+    margin: 0 0 2px 0 !important;
+}
+
+.fornada-subtitulo {
+    font-size: 0.8rem !important; /* Diminuído */
+    font-weight: 700;
+    margin: 0 !important;
 }
 
 /* ===================== RODAPÉ ===================== */
 .rodape {
     background-color: var(--verde-militar);
     color: var(--branco);
-    padding: 40px 0 120px 0;
+    padding: 20px 0; /* Altura reduzida de 40px para 20px */
     text-align: center;
     margin-top: 50px;
+    width: 100%;
 }
 
 /* Scrollbar */
@@ -212,5 +220,9 @@
     
     .valor-carrinho {
         font-size: 1.1rem;
+    }
+
+    .rodape {
+        padding-bottom: 120px; /* Garante espaço para não sumir atrás da barra do carrinho no celular */
     }
 }
