@@ -181,6 +181,11 @@ function gerarHTMLOpcoesEntregaCupom() {
     const cepValue = estadoAplicativo.cepCalculado ? 
         estadoAplicativo.cepCalculado.substring(0,5) + '-' + estadoAplicativo.cepCalculado.substring(5) : '';
     
+    // Define se a mensagem deve nascer visível ou escondida com base no estado global
+    const cupomAtivo = estadoAplicativo.cupomAplicado;
+    const displayCupom = cupomAtivo ? 'block' : 'none';
+    const textoCupom = cupomAtivo ? `<span style="color: #2e7d32;"><i class="fas fa-check-circle"></i> Cupom <strong>${cupomAtivo}</strong> aplicado!</span>` : '';
+
     return `
         <div class="opcoes-carrinho">
             <div class="grupo-cupom" style="display: flex; gap: 8px; width: 100%; box-sizing: border-box; margin-bottom: 20px;">
@@ -188,6 +193,7 @@ function gerarHTMLOpcoesEntregaCupom() {
                        id="campo-cupom-carrinho" 
                        placeholder="CUPOM DE DESCONTO" 
                        class="campo-cupom" 
+                       value="${cupomAtivo || ''}"
                        style="flex: 1; min-width: 0; margin-bottom: 0; height: 45px; border: 1px solid #ccc; border-radius: 8px; padding: 0 12px;">
                 
                 <button class="botao-aplicar-cupom" 
@@ -197,7 +203,9 @@ function gerarHTMLOpcoesEntregaCupom() {
                 </button>
             </div>
 
-            <div id="notificacao-cupom-carrinho" style="display: none; font-size: 13px; margin-top: -10px; margin-bottom: 15px; font-weight: 500;"></div>
+            <div id="notificacao-cupom-carrinho" style="display: ${displayCupom}; font-size: 13px; margin-top: -10px; margin-bottom: 15px; font-weight: 500;">
+                ${textoCupom}
+            </div>
 
             <div class="grupo-entrega">
                 <p class="titulo-entrega" style="font-weight: bold; margin-bottom: 15px;">Como deseja receber seu pedido?</p>
