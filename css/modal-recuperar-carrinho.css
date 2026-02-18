@@ -2,6 +2,12 @@
    MODAL: RECUPERAR CARRINHO
    ============================================================ */
 
+/* --- CORREÇÃO: Forçar o modal a começar invisível --- */
+#modal-recuperar-carrinho {
+    display: none !important;
+    z-index: 9999;
+}
+
 /* CELULAR (Padrão) */
 #modal-recuperar-carrinho .conteudo-modal {
     text-align: center;

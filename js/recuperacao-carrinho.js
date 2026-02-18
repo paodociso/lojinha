@@ -5,34 +5,47 @@
 console.log('✅ recuperacao-carrinho.js carregado');
 
 // ===================== VERIFICAR CARRINHO RECUPERADO =====================
+// ===================== VERIFICAR CARRINHO RECUPERADO =====================
 function verificarCarrinhoRecuperado() {
     console.log('🔍 VERIFICAR CARRINHO: Iniciando...');
     
-    // 1. Contar itens no carrinho atual
+    if (!window.carrinho) return;
+
     const itensCarrinho = Object.keys(window.carrinho).length;
     console.log(`   📊 Itens encontrados no carrinho: ${itensCarrinho}`);
     
-    // 2. Apenas verificar se tem itens (SEM sessionStorage)
+    // CASO TENHA ITENS (ABRIR)
     if (itensCarrinho > 0) {
-        console.log(`🛒 ${itensCarrinho} itens no carrinho. Mostrando modal...`);
+        console.log(`🛒 ${itensCarrinho} itens. Mostrando modal...`);
         
-        // Atualizar número no modal
         const elementoQuantidade = document.getElementById('quantidade-itens-recuperados');
-        if (elementoQuantidade) {
-            elementoQuantidade.textContent = itensCarrinho;
-            console.log(`   ✅ Contador atualizado: ${itensCarrinho} itens`);
-        }
+        if (elementoQuantidade) elementoQuantidade.textContent = itensCarrinho;
         
-        // Mostrar modal imediatamente
-        console.log('🎯 Abrindo modal de recuperação...');
+        // 1. Chama a função padrão (que cria o fundo borrado)
         abrirModal('modal-recuperar-carrinho');
         
+        // 2. COMANDO MESTRE: Força o modal a aparecer vencendo o CSS !important
+        const modal = document.getElementById('modal-recuperar-carrinho');
+        if (modal) {
+            modal.style.setProperty('display', 'flex', 'important');
+        }
+        
     } else {
-        console.log('✅ Carrinho vazio, sem ação necessária.');
+        // CASO VAZIO (GARANTIR FECHAMENTO)
+        console.log('✅ Carrinho vazio. Mantendo fechado.');
+        
+        // Removemos o estilo inline forçado caso exista
+        const modal = document.getElementById('modal-recuperar-carrinho');
+        if (modal) {
+            modal.style.removeProperty('display');
+        }
+        
+        if (typeof fecharModal === 'function') {
+            fecharModal('modal-recuperar-carrinho');
+        }
     }
 }
 
-// ===================== LIMPAR CARRINHO RECUPERADO =====================
 // ===================== LIMPAR CARRINHO RECUPERADO =====================
 function limparCarrinhoRecuperado() {
     console.log('🗑️ LIMPAR CARRINHO: Iniciando limpeza completa...');

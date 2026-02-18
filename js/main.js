@@ -67,11 +67,15 @@ function inicializarSistema() {
     // 10. INICIAR RECUPERAÇÃO DE CARRINHO
     setTimeout(() => {
         console.log('🔄 Timer de recuperação disparado...');
-        if (window.iniciarRecuperacaoCarrinho) {
-            console.log('✅ Função encontrada, executando...');
+        
+        // NOVA CHECAGEM DE SEGURANÇA: Só tenta recuperar se o carrinho existir e tiver itens
+        const temItens = window.carrinho && Object.keys(window.carrinho).length > 0;
+
+        if (temItens && window.iniciarRecuperacaoCarrinho) {
+            console.log('✅ Carrinho detectado com itens. Executando recuperação...');
             window.iniciarRecuperacaoCarrinho();
         } else {
-            console.log('⚠️ Função não encontrada');
+            console.log('✅ Carrinho vazio ou função não encontrada. Nenhuma ação.');
         }
     }, 800);
 
