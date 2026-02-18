@@ -234,46 +234,54 @@ function renderGestaoOpcionais(container) {
         const ops = db.opcionais[secao.nome] || [];
         const card = document.createElement('div');
         card.className = 'secao-container';
-        card.style.marginBottom = '20px';
+        card.style.marginBottom = '25px';
 
         let htmlHeader = `
-            <div class="secao-header" style="background: var(--marrom-detalhe); color: white;">
+            <div class="secao-header" style="background: var(--marrom-detalhe); color: white; display: flex; justify-content: space-between; align-items: center;">
                 <div class="secao-titulo" style="color:white">
-                    <i class="fas fa-folder-open"></i> CATEGORIA: ${secao.nome.toUpperCase()}
+                    <i class="fas fa-folder-open"></i> ${secao.nome.toUpperCase()}
                 </div>
-                <button class="btn-icon" onclick="CRUD.editarSessao(${sIdx})" style="color:white; border: 1px solid white; padding: 5px 10px;">
-                    <i class="fas fa-edit"></i> Editar Tudo
+                <button class="btn-action" style="background:rgba(255,255,255,0.2); color:white; border:1px solid white; font-size:0.75rem; width: auto; padding: 5px 15px; margin: 0;" 
+                    onclick="CRUD.addNovoSubgrupo('${secao.nome}')">
+                    <i class="fas fa-plus"></i> Novo Subgrupo
                 </button>
             </div>
-            <div style="padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">
+            <div style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; background: #fff;">
         `;
 
         let htmlCorpo = '';
         if (!Array.isArray(ops) && typeof ops === 'object') {
-            // Caso Panini (Subgrupos)
+            // Estilo Panini (Cards de Subgrupos)
             for (const grupo in ops) {
                 htmlCorpo += `
-                    <div style="border: 1px solid #eee; border-radius: 8px; padding: 10px; background: #fafafa;">
-                        <div style="font-weight:bold; border-bottom: 1px solid #ddd; margin-bottom: 8px; color: var(--verde-militar);">${grupo}</div>
-                        <ul style="list-style: none; padding: 0; font-size: 0.9rem;">
-                            ${ops[grupo].map(op => `<li style="display:flex; justify-content:space-between; padding: 3px 0; border-bottom: 1px dotted #ccc;">
-                                <span>${op.nome}</span> <b>R$ ${op.preco.toFixed(2)}</b>
-                            </li>`).join('')}
-                        </ul>
+                    <div style="border: 1px solid #eee; border-radius: 8px; padding: 15px; background: #fafafa; position: relative;">
+                        <div style="font-weight:bold; border-bottom: 2px solid var(--verde-militar); margin-bottom: 12px; color: var(--verde-militar); display:flex; justify-content:space-between;">
+                            ${grupo}
+                            <i class="fas fa-trash" style="color:#ccc; cursor:pointer; font-size:0.8rem;" onclick="CRUD.removerSubgrupo('${secao.nome}', '${grupo}')"></i>
+                        </div>
+                        <div id="grupo-${secao.nome}-${grupo}">
+                            ${ops[grupo].map((op, iIdx) => UI.gerarLinhaEdicaoOp(secao.nome, op.nome, op.preco, grupo, iIdx)).join('')}
+                        </div>
+                        <button class="btn-action" style="width:100%; margin-top:10px; font-size:0.7rem; background:#eee; color:#666;" 
+                            onclick="CRUD.addOpInline('${secao.nome}', '${grupo}')">+ Adicionar Item</button>
                     </div>`;
             }
         } else {
-            // Caso Simples
-            htmlCorpo += `<div style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
-                ${ops.map(op => `<div style="padding: 5px; background:white; border: 1px solid #eee; border-radius: 4px; display:flex; justify-content:space-between;">
-                    <span>${op.nome}</span> <b>R$ ${op.preco.toFixed(2)}</b>
-                </div>`).join('')}
-            </div>`;
+            // Estilo Simples
+            htmlCorpo += `
+                <div style="grid-column: 1 / -1; border: 1px solid #eee; border-radius: 8px; padding: 15px; background: #fafafa;">
+                    <div style="font-weight:bold; border-bottom: 2px solid var(--verde-militar); margin-bottom: 12px; color: var(--verde-militar);">Opcionais Gerais</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">
+                        ${ops.map((op, iIdx) => UI.gerarLinhaEdicaoOp(secao.nome, op.nome, op.preco, null, iIdx)).join('')}
+                    </div>
+                    <button class="btn-action" style="margin-top:15px; width: auto;" onclick="CRUD.addOpInline('${secao.nome}')">+ Adicionar Opcional</button>
+                </div>`;
         }
 
         card.innerHTML = htmlHeader + htmlCorpo + `</div>`;
         listaContainer.appendChild(card);
     });
+
     container.appendChild(temp);
 }
 
@@ -561,7 +569,6 @@ function renderCupons(container) {
 // ===========================================
 
 const CRUD = {
-    // --- GESTÃO DA FORNADA ---
     atualizarFornada: () => {
         db.fornada.dataISO = document.getElementById('dash-data').value;
         db.fornada.diasAntecedencia = parseInt(document.getElementById('dash-dias').value);
@@ -569,7 +576,6 @@ const CRUD = {
         persistir();
     },
 
-    // --- GESTÃO DE CATEGORIAS (SEÇÕES) ---
     novaSessao: () => {
         const nome = prompt("Nome da nova categoria:");
         if (nome) { db.secoes.push({ nome, itens: [] }); db.opcionais[nome] = []; renderizarAtual(); persistir(); }
@@ -583,68 +589,51 @@ const CRUD = {
         } 
     },
 
-    editarSessao: (idx) => {
-        const secao = db.secoes[idx];
-        const ops = db.opcionais[secao.nome] || [];
-        
-        let html = `<h2>Configurar Categoria: ${secao.nome}</h2>`;
-        html += `<div class="form-group"><label>Nome</label><input type="text" id="edit-cat-nome" value="${secao.nome}" style="width:100%; padding:10px;"></div>`;
-        html += `<h3>Opcionais</h3><div id="lista-ops-container" style="max-height:350px; overflow-y:auto;">`;
-
-        if (!Array.isArray(ops) && typeof ops === 'object') {
-            // Caso Complexo (Panini)
-            for (const grupo in ops) {
-                html += `<div class="subgrupo-header" style="background:#f4f4f4; padding:5px; margin:10px 0; font-weight:bold;">${grupo}</div>`;
-                ops[grupo].forEach((op, i) => html += UI.gerarLinhaOp(op.nome, op.preco, grupo));
-                html += `<button class="btn-action" style="font-size:0.8rem" onclick="CRUD.addOpComplexa(this, '${grupo}')">+ Adicionar em ${grupo}</button>`;
-            }
-        } else {
-            // Caso Simples
-            ops.forEach(op => html += UI.gerarLinhaOp(op.nome, op.preco));
-            html += `<button class="btn-action btn-add" onclick="CRUD.addOpSimples()">+ Novo Opcional</button>`;
+    // --- GESTÃO INLINE DE OPCIONAIS (Aba Opcionais) ---
+    addNovoSubgrupo: (secaoNome) => {
+        const nomeSub = prompt("Nome do novo subgrupo (ex: 🥖 Pães, 🧀 Queijos):");
+        if (nomeSub) {
+            if (Array.isArray(db.opcionais[secaoNome])) db.opcionais[secaoNome] = {};
+            db.opcionais[secaoNome][nomeSub] = [];
+            persistir(); renderizarAtual();
         }
-
-        html += `</div><div class="modal-footer"><button class="btn-confirm" onclick="CRUD.salvarSessaoGeral(${idx})">Salvar</button></div>`;
-        abrirModalContent(html);
     },
 
-    // --- FUNÇÕES AUXILIARES DE INTERFACE (Evitam repetição de código) ---
-    addOpComplexa: (btn, grupo) => {
-        const div = document.createElement('div');
-        div.innerHTML = UI.gerarLinhaOp("Novo Pão", 3.00, grupo);
-        btn.parentNode.insertBefore(div.firstElementChild, btn);
-    },
-
-    addOpSimples: () => {
-        const container = document.getElementById('lista-ops-container');
-        const div = document.createElement('div');
-        div.innerHTML = UI.gerarLinhaOp("Novo", 0);
-        container.insertBefore(div.firstElementChild, container.querySelector('.btn-add'));
-    },
-
-    salvarSessaoGeral: (idx) => {
-        const novoNome = document.getElementById('edit-cat-nome').value;
-        const antigoNome = db.secoes[idx].nome;
-        const eComplexo = document.querySelector('.op-complexo') !== null;
-        
-        let novosOps;
-        if (eComplexo) {
-            novosOps = {};
-            document.querySelectorAll('.op-complexo').forEach(el => {
-                const g = el.dataset.grupo;
-                if (!novosOps[g]) novosOps[g] = [];
-                novosOps[g].push({ nome: el.value, preco: parseFloat(el.nextElementSibling.value) || 0 });
-            });
-        } else {
-            novosOps = Array.from(document.querySelectorAll('.op-simples')).map(el => ({
-                nome: el.value, preco: parseFloat(el.nextElementSibling.value) || 0
-            }));
+    removerSubgrupo: (secaoNome, grupo) => {
+        if (confirm(`Remover todo o grupo "${grupo}"?`)) {
+            delete db.opcionais[secaoNome][grupo];
+            persistir(); renderizarAtual();
         }
+    },
 
-        if(novoNome !== antigoNome) delete db.opcionais[antigoNome];
-        db.opcionais[novoNome] = novosOps;
-        db.secoes[idx].nome = novoNome;
-        fecharModal(); renderizarAtual(); persistir();
+    addOpInline: (secaoNome, grupo = null) => {
+        const novoItem = { nome: "Novo Item", preco: 0 };
+        if (grupo && grupo !== "null") {
+            db.opcionais[secaoNome][grupo].push(novoItem);
+        } else {
+            if (!Array.isArray(db.opcionais[secaoNome])) db.opcionais[secaoNome] = [];
+            db.opcionais[secaoNome].push(novoItem);
+        }
+        persistir(); renderizarAtual();
+    },
+
+    atualizarDadoOp: (secaoNome, grupo, idx, campo, valor) => {
+        if (campo === 'preco') valor = parseFloat(valor) || 0;
+        if (grupo && grupo !== "null") {
+            db.opcionais[secaoNome][grupo][idx][campo] = valor;
+        } else {
+            db.opcionais[secaoNome][idx][campo] = valor;
+        }
+        persistir();
+    },
+
+    removerOpInline: (secaoNome, grupo, idx) => {
+        if (grupo && grupo !== "null") {
+            db.opcionais[secaoNome][grupo].splice(idx, 1);
+        } else {
+            db.opcionais[secaoNome].splice(idx, 1);
+        }
+        persistir(); renderizarAtual();
     },
 
     // --- GESTÃO DE PRODUTOS ---
@@ -667,7 +656,6 @@ const CRUD = {
         temp.getElementById('prod-preco').value = item.preco;
         temp.getElementById('prod-img').value = item.imagem;
 
-        // Botoes e Status (Lógica compactada)
         const setupBtn = (id, ativo, iconA, iconB, txtA, txtB) => {
             const btn = temp.getElementById(id);
             if(ativo) btn.classList.add('ativo');
@@ -683,7 +671,6 @@ const CRUD = {
         setupBtn('btn-modal-vis', item.visivel, 'fa-eye', 'fa-eye-slash', 'Visível', 'Oculto');
         setupBtn('btn-modal-esg', item.esgotado, 'fa-ban', 'fa-check', 'Esgotado', 'Disponível');
 
-        // Opcionais (Badges)
         const container = temp.getElementById('opcionais-container');
         const listaOps = !Array.isArray(todosOps) ? Object.values(todosOps).flat() : todosOps;
         
@@ -726,29 +713,47 @@ const CRUD = {
 
     removerProduto: (sIdx, pIdx) => { if(confirm('Excluir?')) { db.secoes[sIdx].itens.splice(pIdx, 1); renderizarAtual(); persistir(); } },
 
-    // --- LOGÍSTICA E CUPONS ---
     removerBairro: (idx) => { if(confirm('Excluir?')) { db.entrega.bairros.splice(idx, 1); persistir(); atualizarTabelaBairros(); } },
+    
     modalCupom: () => {
          const html = `<h2>Cupom</h2><input id="c-cod" placeholder="Código" style="text-transform:uppercase; width:100%; margin-bottom:10px;"><input id="c-val" type="number" placeholder="Valor" style="width:100%;"><div class="modal-footer"><button class="btn-confirm" onclick="CRUD.salvarCupom()">Salvar</button></div>`;
          abrirModalContent(html);
     },
+
     salvarCupom: () => {
         db.cupons.push({ codigo: document.getElementById('c-cod').value.toUpperCase(), tipo: 'porcentagem', valor: parseFloat(document.getElementById('c-val').value) });
         fecharModal(); renderizarAtual(); persistir();
     },
+
     removerCupom: (idx) => { db.cupons.splice(idx, 1); renderizarAtual(); persistir(); }
 };
 
-// Objeto auxiliar para gerar HTML repetitivo (Limpa o CRUD)
+// ===========================================
+// 5. INTERFACE AUXILIAR (UI)
+// ===========================================
+
 const UI = {
-    gerarLinhaOp: (nome, preco, grupo = null) => {
-        const classe = grupo ? 'op-complexo' : 'op-simples';
-        const dataAtrib = grupo ? `data-grupo="${grupo}"` : '';
+    gerarLinhaEdicaoOp: (secao, nome, preco, grupo, idx) => {
+        const grupoStr = grupo ? `'${grupo}'` : 'null';
         return `
-            <div style="display:flex; gap:5px; margin-bottom:5px;">
-                <input type="text" value="${nome}" class="${classe}" ${dataAtrib} style="flex:2">
-                <input type="number" step="0.5" value="${preco}" style="width:80px;">
-                <button onclick="this.parentElement.remove()" style="background:#ecc; border:none; cursor:pointer;">X</button>
+            <div class="linha-op-ajustada" style="display:flex; justify-content:space-between; align-items:center; padding: 6px 0; border-bottom: 1px dotted #ddd;">
+                <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
+                    <input type="text" value="${nome}" 
+                        onchange="CRUD.atualizarDadoOp('${secao}', ${grupoStr}, ${idx}, 'nome', this.value)" 
+                        style="border: none; background: transparent; font-size: 0.9rem; color: #444; width: 100%; outline: none;"
+                        onfocus="this.style.borderBottom='1px solid var(--verde-claro)'" onblur="this.style.borderBottom='none'">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="display:flex; align-items:center; color: var(--verde-militar); font-weight: bold; font-size: 0.85rem;">
+                        <span style="font-size: 0.7rem; margin-right: 2px;">R$</span>
+                        <input type="number" step="0.5" value="${preco}" 
+                            onchange="CRUD.atualizarDadoOp('${secao}', ${grupoStr}, ${idx}, 'preco', this.value)" 
+                            style="width: 45px; border: none; background: transparent; font-weight: bold; color: inherit; text-align: right; outline: none;">
+                    </div>
+                    <i class="fas fa-times" style="color: #ddd; cursor: pointer; font-size: 0.8rem;" 
+                        onclick="CRUD.removerOpInline('${secao}', ${grupoStr}, ${idx})"
+                        onmouseover="this.style.color='#ff7675'" onmouseout="this.style.color='#ddd'"></i>
+                </div>
             </div>`;
     }
 };
