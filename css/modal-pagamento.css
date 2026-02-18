@@ -3,10 +3,24 @@
    ============================================================ */
 
 /* 🔒 ESTADO INICIAL (Obrigatório para não abrir sozinho) */
+/* 1. O container pai (fundo do modal) controla a rolagem */
 #modal-pagamento {
     display: none;
     overflow-y: auto !important;
-    padding-bottom: 20px !important;
+    padding-bottom: 40px !important; /* Espaço extra no fim para não colar no rodapé */
+}
+
+/* 2. Removemos a rolagem da caixa branca interna */
+#modal-pagamento .conteudo-modal {
+    overflow-y: visible !important; /* Faz o conteúdo "vazar" para o pai */
+    max-height: none !important;    /* Remove qualquer limite de altura */
+    height: auto !important;        /* Deixa crescer conforme o conteúdo */
+}
+
+/* Caso você use a div de conteúdo que mencionamos antes */
+#conteudo-pagamento {
+    overflow: visible !important;
+    height: auto !important;
 }
 
 /* 📱 TELEMÓVEL (Padrão) */

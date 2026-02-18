@@ -250,3 +250,30 @@
 .campo-input-carrinho:focus {
     border-color: var(--marrom-cafe) !important;
 }
+
+/* ============================================================
+MODAL RECUPERAR CARRINHO
+============================================================ */
+
+/* Garante que o conteúdo do modal use todo o espaço disponível */
+#modal-recuperar-carrinho .conteudo-modal {
+    padding: 30px 25px !important;
+    box-sizing: border-box !important;
+    width: 100%;
+}
+
+/* Força o empilhamento dos botões sem quebrar o estilo deles */
+#modal-recuperar-carrinho .botoes-recuperacao {
+    display: flex !important;
+    flex-direction: column !important; /* Coloca um embaixo do outro */
+    gap: 12px; /* Espaço entre eles */
+    width: 100%;
+    margin-top: 25px;
+}
+
+/* Garante que o botão use a largura toda, mas preserve o visual do HTML */
+#modal-recuperar-carrinho .botao-acao {
+    width: 100% !important;
+    flex: none !important; /* Impede que eles tentem dividir a linha */
+    box-sizing: border-box;
+}

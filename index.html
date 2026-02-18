@@ -108,23 +108,23 @@
                 </p>
             </div>
             
-            <div class="botoes-recuperacao" style="display: flex; gap: 15px; margin-top: 25px;">
-                <button id="botao-manter-carrinho" 
-                        class="botao-acao"
-                        style="flex: 1; background: var(--verde-militar); color: white; border: none; padding: 16px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;"
-                        onclick="fecharModal('modal-recuperar-carrinho'); mostrarNotificacao('Carrinho mantido! Continue sua compra.');">
-                    <i class="fas fa-check-circle"></i> 
-                    <span>MANTER ITENS<br><small style="font-size: 0.7rem; opacity: 0.9;">(Continuar comprando)</small></span>
-                </button>
-                
-                <button id="botao-limpar-carrinho" 
-                        class="botao-acao"
-                        style="flex: 1; background: #f8f8f8; color: var(--cinza-escuro); border: 2px solid #ddd; padding: 16px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;"
-                        onclick="limparCarrinhoRecuperado()">
-                    <i class="fas fa-trash-alt"></i> 
-                    <span>LIMPAR TUDO<br><small style="font-size: 0.7rem; opacity: 0.9;">(Começar do zero)</small></span>
-                </button>
-            </div>
+            <div class="botoes-recuperacao">
+    <button id="botao-manter-carrinho" 
+            class="botao-acao"
+            style="background: var(--verde-militar); color: white; border: none; padding: 16px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;"
+            onclick="fecharModal('modal-recuperar-carrinho'); mostrarNotificacao('Carrinho mantido! Continue sua compra.');">
+        <i class="fas fa-check-circle"></i> 
+        <span>MANTER ITENS<br><small style="font-size: 0.7rem; opacity: 0.9;">(Continuar comprando)</small></span>
+    </button>
+    
+    <button id="botao-limpar-carrinho" 
+            class="botao-acao"
+            style="background: #f8f8f8; color: var(--cinza-escuro); border: 2px solid #ddd; padding: 16px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;"
+            onclick="limparCarrinhoRecuperado()">
+        <i class="fas fa-trash-alt"></i> 
+        <span>LIMPAR TUDO<br><small style="font-size: 0.7rem; opacity: 0.9;">(Começar do zero)</small></span>
+    </button>
+</div>
             
             <p style="font-size: 0.75rem; color: #888; margin-top: 25px; line-height: 1.4;">
                 <i class="fas fa-info-circle" style="margin-right: 5px;"></i>
