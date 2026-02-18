@@ -5,8 +5,8 @@
 window.dadosIniciais = {
     loja: {
   "nome": "PÃO DO CISO",
-  "telefone": "(11) 98239-1781",
-  "whatsapp": "5511982391781",
+  "telefone": "(11) 97679-9866",
+  "whatsapp": "5511976799866",
   "email": "paodociso@gmail.com",
   "endereco": "Endereço da loja",
   "instagram": "@paodociso"

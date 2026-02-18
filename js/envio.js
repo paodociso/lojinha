@@ -102,7 +102,7 @@ function processarFinalizacaoPedido() {
     const mensagem = gerarMensagemWhatsApp(nome, whatsappNumeros, enderecoTexto, metodoPagamento);
     
     // Abrir WhatsApp
-    const linkWhatsApp = `https://api.whatsapp.com/send?phone=5511982391781&text=${encodeURIComponent(mensagem)}`;
+    const linkWhatsApp = `https://api.whatsapp.com/send?phone=5511976799866&text=${encodeURIComponent(mensagem)}`;
     window.open(linkWhatsApp, '_blank');
 
     // Salvar o link para o botão de reenvio

@@ -3,7 +3,7 @@
 // ============================================
 
 window.config = {
-    whatsappVendedor: '5511982391781',
+    whatsappVendedor: '5511976799866',
     chavePix: 'paodociso@gmail.com',
     nomeLoja: 'PÃO DO CISO',
     taxaEntregaPadrao: 8.00,
