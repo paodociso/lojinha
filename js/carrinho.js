@@ -1,66 +1,68 @@
 // ============================================
 // GERENCIAMENTO DO CARRINHO - PÃO DO CISO
 // ============================================
+// ⚠️  Depende de utils.js carregado antes:
+//     - window.aplicarMascaraCEP()       → máscara de CEP no input
+//     - window.validarEnderecoCompleto() → validação unificada de endereço
+// ============================================
 
 // ===================== BARRA DO CARRINHO =====================
+
 function atualizarBarraCarrinho() {
-    const barraCarrinho = elemento('barra-carrinho');
+    const barraCarrinho    = elemento('barra-carrinho');
     const quantidadeElemento = elemento('resumo-quantidade-carrinho');
-    const totalElemento = elemento('resumo-total-carrinho');
-    
+    const totalElemento    = elemento('resumo-total-carrinho');
+
     if (!barraCarrinho || !quantidadeElemento || !totalElemento) return;
-    
+
     let quantidadeTotal = 0;
-    let valorTotal = 0;
-    
+    let valorTotal      = 0;
+
     Object.values(carrinho).forEach(item => {
         const produto = dadosIniciais.secoes[item.indiceSessao].itens[item.indiceItem];
         let subtotalItem = produto.preco * item.quantidade;
-        
-        // Adicionar opcionais
+
         for (let nomeOpcional in item.opcionais) {
             const opcional = item.opcionais[nomeOpcional];
             subtotalItem += opcional.quantidade * opcional.preco;
         }
-        
+
         quantidadeTotal += item.quantidade;
-        valorTotal += subtotalItem;
+        valorTotal      += subtotalItem;
     });
-    
+
     if (quantidadeTotal > 0) {
-        barraCarrinho.style.display = 'flex';
+        barraCarrinho.style.display  = 'flex';
         quantidadeElemento.textContent = `${quantidadeTotal} ${quantidadeTotal === 1 ? 'item' : 'itens'}`;
-        totalElemento.textContent = formatarMoeda(valorTotal);
+        totalElemento.textContent    = formatarMoeda(valorTotal);
     } else {
         barraCarrinho.style.display = 'none';
     }
 }
 
 // ===================== MODAL DO CARRINHO =====================
+
 function abrirModalCarrinho() {
-    // 1. Reconstrói o HTML do carrinho
     renderizarCarrinho();
-    
-    // 2. Aguarda o DOM processar o novo HTML para aplicar as restaurações
+
     setTimeout(() => {
-        // --- SELEÇÃO DE ELEMENTOS ---
-        const campoCEP = document.getElementById('cep-carrinho');
+        const campoCEP         = document.getElementById('cep-carrinho');
         const divNotificacaoCEP = document.getElementById('notificacao-bairro-carrinho');
-        const spanNomeBairro = document.getElementById('nome-bairro-info');
-        const divResultadoCEP = document.getElementById('resultado-frete-carrinho');
-        const campoCupom = document.getElementById('campo-cupom-carrinho');
+        const spanNomeBairro   = document.getElementById('nome-bairro-info');
+        const divResultadoCEP  = document.getElementById('resultado-frete-carrinho');
+        const campoCupom       = document.getElementById('campo-cupom-carrinho');
         const divNotificacaoCupom = document.getElementById('notificacao-cupom-carrinho');
 
-        // --- RESTAURAÇÃO DO CEP ---
+        // Restauração do CEP
         if (campoCEP && estadoAplicativo.cepCalculado) {
             const cepLimpo = estadoAplicativo.cepCalculado.replace(/\D/g, '');
             if (cepLimpo.length === 8) {
-                // Reaplica a máscara visual
-                campoCEP.value = cepLimpo.substring(0, 5) + '-' + cepLimpo.substring(5);
+                // 🔑 Usa window.formatarCEP de utils.js
+                campoCEP.value = window.formatarCEP(cepLimpo);
             }
         }
 
-        // --- RESTAURAÇÃO DO FRETE / BAIRRO ---
+        // Restauração do frete / bairro
         if (estadoAplicativo.bairroIdentificado && divNotificacaoCEP && spanNomeBairro) {
             spanNomeBairro.innerHTML = `
                 Bairro encontrado: <strong>${estadoAplicativo.bairroIdentificado}</strong>.<br>
@@ -68,39 +70,29 @@ function abrirModalCarrinho() {
             `;
             divNotificacaoCEP.style.display = 'block';
             if (divResultadoCEP) divResultadoCEP.style.display = 'none';
-        } 
-        // Caso não tenha bairro mas tenha taxa (Ex: CEP não encontrado/taxa padrão)
-        else if (estadoAplicativo.taxaEntrega > 0 && divNotificacaoCEP && spanNomeBairro) {
+        } else if (estadoAplicativo.taxaEntrega > 0 && divNotificacaoCEP && spanNomeBairro) {
             spanNomeBairro.innerHTML = `
                 <i class="fas fa-truck"></i> Taxa de entrega: <strong>${formatarMoeda(estadoAplicativo.taxaEntrega)}</strong>
             `;
             divNotificacaoCEP.style.display = 'block';
         }
 
-        // --- RESTAURAÇÃO DO CUPOM (Alteração solicitada) ---
+        // Restauração do cupom
         if (estadoAplicativo.cupomAplicado && divNotificacaoCupom) {
-            // Exibe a mensagem de sucesso em verde
             divNotificacaoCupom.innerHTML = `
                 <span style="color: #2e7d32;">
                     <i class="fas fa-check-circle"></i> Cupom <strong>${estadoAplicativo.cupomAplicado}</strong> aplicado!
                 </span>
             `;
             divNotificacaoCupom.style.display = 'block';
-            
-            // Preenche o campo com o nome do cupom já usado
-            if (campoCupom) {
-                campoCupom.value = estadoAplicativo.cupomAplicado;
-            }
+            if (campoCupom) campoCupom.value = estadoAplicativo.cupomAplicado;
         }
 
-        // 3. Força a atualização dos cálculos financeiros no resumo
         if (typeof atualizarResumoFinanceiroCarrinho === 'function') {
             atualizarResumoFinanceiroCarrinho();
         }
-        
-    }, 50); 
+    }, 50);
 
-    // 4. Exibe o modal
     abrirModal('modal-carrinho');
 }
 
@@ -109,28 +101,22 @@ function renderizarCarrinho() {
     if (!container) return;
 
     const itens = Object.values(carrinho);
-    
-    // 1. Caso Carrinho Vazio
+
     if (itens.length === 0) {
         container.innerHTML = gerarHTMLCarrinhoVazio();
         return;
     }
 
-    // 2. Montagem do HTML Modularizado
-    let html = `
+    container.innerHTML = `
         <h3 class="titulo-carrinho">Carrinho de Compras</h3>
         <div class="lista-itens-carrinho">
             ${itens.map(item => gerarHTMLItemCarrinho(item)).join('')}
         </div>
-        
         ${gerarHTMLOpcoesEntregaCupom()}
-        
         <div id="resumo-financeiro-carrinho"></div>
-        
         ${gerarHTMLBotoesAcaoCarrinho()}
     `;
 
-    container.innerHTML = html;
     atualizarResumoFinanceiroCarrinho();
 }
 
@@ -178,26 +164,29 @@ function gerarHTMLItemCarrinho(item) {
 
 function gerarHTMLOpcoesEntregaCupom() {
     const mostrarCEP = estadoAplicativo.modoEntrega === 'entrega';
-    const cepValue = estadoAplicativo.cepCalculado ? 
-        estadoAplicativo.cepCalculado.substring(0,5) + '-' + estadoAplicativo.cepCalculado.substring(5) : '';
-    
-    // Define se a mensagem deve nascer visível ou escondida com base no estado global
-    const cupomAtivo = estadoAplicativo.cupomAplicado;
+
+    // 🔑 Usa window.formatarCEP de utils.js para montar o valor inicial do campo
+    const cepValue = estadoAplicativo.cepCalculado
+        ? window.formatarCEP(estadoAplicativo.cepCalculado)
+        : '';
+
+    const cupomAtivo   = estadoAplicativo.cupomAplicado;
     const displayCupom = cupomAtivo ? 'block' : 'none';
-    const textoCupom = cupomAtivo ? `<span style="color: #2e7d32;"><i class="fas fa-check-circle"></i> Cupom <strong>${cupomAtivo}</strong> aplicado!</span>` : '';
+    const textoCupom   = cupomAtivo
+        ? `<span style="color: #2e7d32;"><i class="fas fa-check-circle"></i> Cupom <strong>${cupomAtivo}</strong> aplicado!</span>`
+        : '';
 
     return `
         <div class="opcoes-carrinho">
             <div class="grupo-cupom" style="display: flex; gap: 8px; width: 100%; box-sizing: border-box; margin-bottom: 20px;">
-                <input type="text" 
-                       id="campo-cupom-carrinho" 
-                       placeholder="CUPOM DE DESCONTO" 
-                       class="campo-cupom" 
+                <input type="text"
+                       id="campo-cupom-carrinho"
+                       placeholder="CUPOM DE DESCONTO"
+                       class="campo-cupom"
                        value="${cupomAtivo || ''}"
                        style="flex: 1; min-width: 0; margin-bottom: 0; height: 45px; border: 1px solid #ccc; border-radius: 8px; padding: 0 12px;">
-                
-                <button class="botao-aplicar-cupom" 
-                        onclick="aplicarCupom()" 
+                <button class="botao-aplicar-cupom"
+                        onclick="aplicarCupom()"
                         style="flex: 0 0 auto; width: auto; white-space: nowrap; padding: 0 20px; height: 45px; background-color: var(--marrom-cafe); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer;">
                     APLICAR
                 </button>
@@ -211,57 +200,35 @@ function gerarHTMLOpcoesEntregaCupom() {
                 <p class="titulo-entrega" style="font-weight: bold; margin-bottom: 15px;">Como deseja receber seu pedido?</p>
                 <div class="opcoes-entrega" style="display: flex; gap: 10px; margin-bottom: 20px;">
                     <label class="opcao-entrega ${estadoAplicativo.modoEntrega === 'retirada' ? 'selecionada' : ''}" style="flex: 1;">
-                        <input type="radio" name="modoEntrega" value="retirada" 
-                               ${estadoAplicativo.modoEntrega === 'retirada' ? 'checked' : ''} 
+                        <input type="radio" name="modoEntrega" value="retirada"
+                               ${estadoAplicativo.modoEntrega === 'retirada' ? 'checked' : ''}
                                onchange="alterarModoEntrega('retirada')">
                         <i class="fas fa-store"></i> <span>RETIRADA</span>
                     </label>
                     <label class="opcao-entrega ${estadoAplicativo.modoEntrega === 'entrega' ? 'selecionada' : ''}" style="flex: 1;">
-                        <input type="radio" name="modoEntrega" value="entrega" 
-                               ${estadoAplicativo.modoEntrega === 'entrega' ? 'checked' : ''} 
+                        <input type="radio" name="modoEntrega" value="entrega"
+                               ${estadoAplicativo.modoEntrega === 'entrega' ? 'checked' : ''}
                                onchange="alterarModoEntrega('entrega')">
                         <i class="fas fa-motorcycle"></i> <span>ENTREGA</span>
                     </label>
                 </div>
-                
+
                 <div id="secao-cep-carrinho" class="secao-cep-carrinho" style="${mostrarCEP ? 'display: block;' : 'display: none;'}">
                     <div class="informacao-taxa" style="margin-bottom: 10px; font-size: 12px; color: #666;">
                         <i class="fas fa-info-circle"></i> <span>Informe seu CEP para o cálculo da taxa</span>
-                    </div>                   
+                    </div>
 
-                            <div style="
-                                display: flex !important; 
-                                gap: 8px !important; 
-                                width: 100% !important; 
-                                box-sizing: border-box !important; 
-                                margin-bottom: 20px;
-                            ">
-                            <input type="text" 
-                                id="cep-carrinho" 
-                                class="campo-input-carrinho"
-                                placeholder="00000-000"
-                                maxlength="9"
-                                value="${cepValue}"
-                            >
+                    <div style="display: flex !important; gap: 8px !important; width: 100% !important; box-sizing: border-box !important; margin-bottom: 20px;">
+                        <input type="text"
+                            id="cep-carrinho"
+                            class="campo-input-carrinho"
+                            placeholder="00000-000"
+                            maxlength="9"
+                            value="${cepValue}">
 
-                            <button type="button"
-                                onclick="const v = document.getElementById('cep-carrinho').value.replace(/\\D/g, ''); if(v.length === 8) { window.buscarEnderecoPorCodigoPostal(v); } else { window.validarCEPAuto(document.getElementById('cep-carrinho')); }" 
-                                style="
-                                    flex: 0 0 auto !important; 
-                                    width: auto !important; 
-                                    white-space: nowrap !important; 
-                                    padding: 0 20px !important; 
-                                    height: 45px !important; 
-                                    background-color: #332616 !important; 
-                                    color: white !important; 
-                                    border: none !important; 
-                                    border-radius: 8px !important; 
-                                    font-weight: bold !important; 
-                                    font-size: 13px !important; 
-                                    cursor: pointer !important; 
-                                    margin: 0 !important;
-                                "
-                            >
+                        <button type="button"
+                            onclick="const v = document.getElementById('cep-carrinho').value.replace(/\\D/g, ''); if(v.length === 8) { window.buscarEnderecoPorCodigoPostal(v); } else { window.validarCEPAuto(document.getElementById('cep-carrinho')); }"
+                            style="flex: 0 0 auto !important; width: auto !important; white-space: nowrap !important; padding: 0 20px !important; height: 45px !important; background-color: #332616 !important; color: white !important; border: none !important; border-radius: 8px !important; font-weight: bold !important; font-size: 13px !important; cursor: pointer !important; margin: 0 !important;">
                             APLICAR
                         </button>
                     </div>
@@ -269,7 +236,7 @@ function gerarHTMLOpcoesEntregaCupom() {
                     <div id="notificacao-bairro-carrinho" style="display: none; font-size: 13px; color: #5d4037; font-weight: bold; margin-top: 10px;">
                         <i class="fas fa-map-marker-alt"></i> <span id="nome-bairro-info"></span>
                     </div>
-                    
+
                     <div id="resultado-frete-carrinho" style="display: none; margin-top: 10px; padding: 5px 0;">
                         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #666;">
                             <span style="display: flex; align-items: center; gap: 5px;">
@@ -283,14 +250,13 @@ function gerarHTMLOpcoesEntregaCupom() {
         </div>
     `;
 }
-    
+
 function gerarHTMLBotoesAcaoCarrinho() {
     return `
         <div class="botoes-carrinho" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
             <button class="botao-acao botao-verde-militar" onclick="prosseguirParaDadosCliente()">
                 PROSSEGUIR PARA O PAGAMENTO <i class="fas fa-chevron-right"></i>
             </button>
-            
             <button class="botao-acao botao-bege" onclick="fecharModal('modal-carrinho')">
                 CONTINUAR COMPRANDO
             </button>
@@ -303,12 +269,10 @@ function atualizarResumoFinanceiroCarrinho() {
     if (!container) return;
 
     let totalProdutos = 0;
-    
-    // 1. Calcular o subtotal atualizado (Produtos + Opcionais)
+
     Object.values(carrinho).forEach(item => {
         const produto = dadosIniciais.secoes[item.indiceSessao].itens[item.indiceItem];
         let subtotalItem = produto.preco * item.quantidade;
-        
         if (item.opcionais) {
             Object.values(item.opcionais).forEach(opcional => {
                 subtotalItem += opcional.quantidade * opcional.preco;
@@ -317,25 +281,22 @@ function atualizarResumoFinanceiroCarrinho() {
         totalProdutos += subtotalItem;
     });
 
-    // 2. Recalcular o valor do desconto
     if (estadoAplicativo.cupomAplicado) {
-        const dadosCupom = dadosIniciais.cupons.find(c => 
+        const dadosCupom = dadosIniciais.cupons.find(c =>
             c.codigo.toUpperCase() === estadoAplicativo.cupomAplicado.toUpperCase()
         );
         if (dadosCupom) {
-            estadoAplicativo.descontoCupom = dadosCupom.tipo === 'porcentagem' 
-                ? totalProdutos * (dadosCupom.valor / 100) 
+            estadoAplicativo.descontoCupom = dadosCupom.tipo === 'porcentagem'
+                ? totalProdutos * (dadosCupom.valor / 100)
                 : dadosCupom.valor;
         }
     }
 
-    // 3. Preparar valores finais
-    let desconto = estadoAplicativo.descontoCupom || 0;
-    let taxaEntrega = estadoAplicativo.modoEntrega === 'entrega' ? (estadoAplicativo.taxaEntrega || 0) : 0;
-    let totalGeral = (totalProdutos - desconto) + taxaEntrega;
+    const desconto    = estadoAplicativo.descontoCupom || 0;
+    const taxaEntrega = estadoAplicativo.modoEntrega === 'entrega' ? (estadoAplicativo.taxaEntrega || 0) : 0;
+    const totalGeral  = (totalProdutos - desconto) + taxaEntrega;
     estadoAplicativo.totalGeral = totalGeral;
 
-    // 4. Renderizar o Layout Idêntico ao Modal de Pagamento
     container.innerHTML = `
         <div class="resumo-carrinho-container" style="margin-top: 20px; margin-bottom: 25px; border: 1px solid var(--borda-nav); border-radius: 12px; background-color: var(--branco); overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: left;">
             <div style="background-color: var(--bege-claro); padding: 10px 15px; border-bottom: 1px solid var(--borda-nav);">
@@ -346,21 +307,17 @@ function atualizarResumoFinanceiroCarrinho() {
                     <span style="font-size: 14px; color: var(--cinza-escuro);">Produtos</span>
                     <span style="font-size: 14px; font-weight: 500;">${formatarMoeda(totalProdutos)}</span>
                 </div>
-                
                 ${desconto > 0 ? `
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                     <span style="font-size: 14px; color: var(--red);">🏷️ Desconto</span>
                     <span style="font-size: 14px; color: var(--red); font-weight: bold;">- ${formatarMoeda(desconto)}</span>
                 </div>` : ''}
-                
                 ${estadoAplicativo.modoEntrega === 'entrega' ? `
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                     <span style="font-size: 14px; color: var(--cinza-escuro);">🚚 Taxa de Entrega</span>
                     <span style="font-size: 14px; font-weight: 500;">${taxaEntrega > 0 ? formatarMoeda(taxaEntrega) : 'Grátis'}</span>
                 </div>` : ''}
-                
                 <div style="border-top: 1px dashed var(--borda-nav); margin: 12px 0;"></div>
-                
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-size: 16px; font-weight: bold; color: var(--verde-militar);">TOTAL GERAL</span>
                     <span style="font-size: 20px; font-weight: 800; color: var(--verde-militar);">${formatarMoeda(totalGeral)}</span>
@@ -369,7 +326,6 @@ function atualizarResumoFinanceiroCarrinho() {
         </div>
     `;
 
-    // 5. Atualiza a barra flutuante
     const totalElementoBarra = elemento('resumo-total-carrinho');
     if (totalElementoBarra) totalElementoBarra.textContent = formatarMoeda(totalGeral);
 }
@@ -379,39 +335,36 @@ function removerItemDoCarrinho(identificador) {
     salvarCarrinho();
     renderizarCarrinho();
     atualizarBarraCarrinho();
-    // Atualizar apenas badges, não re-renderizar tudo
     atualizarBadgesAposRemocao();
 }
 
 function aplicarCupom() {
-    const campoCupom = elemento('campo-cupom-carrinho');
+    const campoCupom  = elemento('campo-cupom-carrinho');
     const notificacao = elemento('notificacao-cupom-carrinho');
     if (!campoCupom || !notificacao) return;
 
     const codigoCupom = campoCupom.value.trim().toUpperCase();
-    
-    // Reset visual
+
     notificacao.style.display = 'none';
-    notificacao.style.color = 'inherit';
+    notificacao.style.color   = 'inherit';
 
     if (!codigoCupom) {
-        notificacao.innerHTML = `<span style="color: #d32f2f;"><i class="fas fa-info-circle"></i> Digite um código.</span>`;
+        notificacao.innerHTML     = `<span style="color: #d32f2f;"><i class="fas fa-info-circle"></i> Digite um código.</span>`;
         notificacao.style.display = 'block';
         return;
     }
 
-    const cupomValido = dadosIniciais.cupons?.find(cupom => 
+    const cupomValido = dadosIniciais.cupons?.find(cupom =>
         cupom.codigo.toUpperCase() === codigoCupom
     );
 
     if (!cupomValido) {
-        notificacao.innerHTML = `<span style="color: #d32f2f;"><i class="fas fa-times-circle"></i> Cupom inválido ou expirado.</span>`;
+        notificacao.innerHTML     = `<span style="color: #d32f2f;"><i class="fas fa-times-circle"></i> Cupom inválido ou expirado.</span>`;
         notificacao.style.display = 'block';
         campoCupom.value = '';
         return;
     }
 
-    // --- CÁLCULO DO DESCONTO ---
     let subtotalParaDesconto = 0;
     Object.values(carrinho).forEach(item => {
         const produto = dadosIniciais.secoes[item.indiceSessao].itens[item.indiceItem];
@@ -422,19 +375,16 @@ function aplicarCupom() {
         subtotalParaDesconto += valorItem;
     });
 
-    let desconto = cupomValido.tipo === 'porcentagem' 
-        ? subtotalParaDesconto * (cupomValido.valor / 100) 
+    const desconto = cupomValido.tipo === 'porcentagem'
+        ? subtotalParaDesconto * (cupomValido.valor / 100)
         : cupomValido.valor;
 
-    // Salvar no estado global
-    estadoAplicativo.cupomAplicado = codigoCupom;
-    estadoAplicativo.descontoCupom = desconto;
+    estadoAplicativo.cupomAplicado  = codigoCupom;
+    estadoAplicativo.descontoCupom  = desconto;
 
-    // --- FEEDBACK VISUAL ---
-    notificacao.innerHTML = `<span style="color: #2e7d32;"><i class="fas fa-check-circle"></i> Cupom <strong>${codigoCupom}</strong> aplicado!</span>`;
+    notificacao.innerHTML     = `<span style="color: #2e7d32;"><i class="fas fa-check-circle"></i> Cupom <strong>${codigoCupom}</strong> aplicado!</span>`;
     notificacao.style.display = 'block';
 
-    // Atualiza as telas e o resumo
     atualizarResumoFinanceiroCarrinho();
     if (typeof atualizarResumoPagamentoFinal === 'function') {
         atualizarResumoPagamentoFinal();
@@ -443,94 +393,81 @@ function aplicarCupom() {
 
 function alterarModoEntrega(modo) {
     console.log(`[CEP] Alterando modo entrega para: ${modo}`);
-    
+
     estadoAplicativo.modoEntrega = modo;
-    
-    // Limpar dados de CEP quando mudar para retirada
+
     if (modo === 'retirada') {
         estadoAplicativo.cepCalculado = null;
-        estadoAplicativo.taxaEntrega = 0;
-        
+        estadoAplicativo.taxaEntrega  = 0;
+
         const campoCEP = elemento('cep-carrinho');
         if (campoCEP) campoCEP.value = '';
-        
+
         const resultadoFrete = elemento('resultado-frete-carrinho');
         if (resultadoFrete) resultadoFrete.style.display = 'none';
     }
-    
-    // Atualizar classes visuais das opções
-    document.querySelectorAll('.opcao-entrega').forEach(opcao => {
-        opcao.classList.remove('selecionada');
-    });
-    
+
+    document.querySelectorAll('.opcao-entrega').forEach(opcao => opcao.classList.remove('selecionada'));
+
     const opcaoSelecionada = document.querySelector(`[value="${modo}"]`)?.closest('.opcao-entrega');
     if (opcaoSelecionada) opcaoSelecionada.classList.add('selecionada');
-    
-    // Mostrar/ocultar seção CEP no carrinho
+
     const secaoCEP = elemento('secao-cep-carrinho');
     if (secaoCEP) {
         secaoCEP.style.display = modo === 'entrega' ? 'block' : 'none';
-        
+
         if (modo === 'entrega' && estadoAplicativo.cepCalculado) {
             const campoCEP = elemento('cep-carrinho');
             if (campoCEP && !campoCEP.value) {
-                campoCEP.value = estadoAplicativo.cepCalculado.substring(0,5) + '-' + estadoAplicativo.cepCalculado.substring(5);
+                // 🔑 Usa window.formatarCEP de utils.js
+                campoCEP.value = window.formatarCEP(estadoAplicativo.cepCalculado);
             }
-            
+
             if (estadoAplicativo.taxaEntrega > 0) {
                 const resultadoFrete = elemento('resultado-frete-carrinho');
                 if (resultadoFrete) resultadoFrete.style.display = 'block';
             }
         }
     }
-    
-    // Inicializar AddressManager se for entrega
+
     if (modo === 'entrega' && window.AddressManager) {
         setTimeout(() => {
-            if (window.AddressManager.init) {
-                window.AddressManager.init();
-            }
+            if (window.AddressManager.init) window.AddressManager.init();
         }, 300);
     }
-    
+
     atualizarResumoFinanceiroCarrinho();
 }
 
 function prosseguirParaDadosCliente() {
     console.log('[CEP] Prosseguindo para dados do cliente...');
-    
+
     if (Object.keys(carrinho).length === 0) {
-        mostrarNotificacao('Adicione itens ao carrinho antes de prosseguir.', 'aviso');
+        window.mostrarNotificacao('Adicione itens ao carrinho antes de prosseguir.', 'aviso');
         return;
     }
 
-    const cepAtualCarrinho = estadoAplicativo.cepCalculado ? estadoAplicativo.cepCalculado.replace(/\D/g, '') : '';
+    const cepAtualCarrinho = estadoAplicativo.cepCalculado
+        ? estadoAplicativo.cepCalculado.replace(/\D/g, '')
+        : '';
 
     fecharModal('modal-carrinho');
-    
-    // Abre o modal de dados
+
     setTimeout(() => {
         abrirModal('modal-dados-cliente');
-        
-        // Pequeno delay para o DOM estar pronto
+
         setTimeout(() => {
-            // Se for modo entrega e houver um CEP
             if (estadoAplicativo.modoEntrega === 'entrega' && cepAtualCarrinho.length === 8) {
-                
                 const campoCepDados = document.getElementById('codigo-postal-cliente');
-                
-                // 🔥 Lógica de Recarregamento Forçado:
-                // Se o CEP no campo de dados for diferente do CEP do carrinho, disparamos a busca
+
                 if (campoCepDados) {
                     const cepJaNoCampo = campoCepDados.value.replace(/\D/g, '');
-                    
+
                     if (cepJaNoCampo !== cepAtualCarrinho) {
-                        console.log('[CEP] CEP alterado detectado. Forçando nova busca de endereço...');
-                        
-                        // Atualiza o campo visualmente
-                        campoCepDados.value = cepAtualCarrinho.substring(0, 5) + '-' + cepAtualCarrinho.substring(5);
-                        
-                        // Chama a função de busca do arquivo cep-frete.js para preencher rua, bairro, etc.
+                        console.log('[CEP] CEP alterado. Forçando nova busca...');
+                        // 🔑 Usa window.formatarCEP de utils.js
+                        campoCepDados.value = window.formatarCEP(cepAtualCarrinho);
+
                         if (window.buscarEnderecoPorCodigoPostal) {
                             window.buscarEnderecoPorCodigoPostal(cepAtualCarrinho);
                         }
@@ -538,7 +475,6 @@ function prosseguirParaDadosCliente() {
                 }
             }
 
-            // Garante visibilidade da seção de endereço
             const secaoEndereco = elemento('secao-endereco');
             if (secaoEndereco) {
                 secaoEndereco.style.display = estadoAplicativo.modoEntrega === 'retirada' ? 'none' : 'block';
@@ -549,27 +485,24 @@ function prosseguirParaDadosCliente() {
 
 function atualizarDisplayFreteCarrinho(valor) {
     const resultadoDiv = elemento('resultado-frete-carrinho');
-    const valorSpan = elemento('valor-frete-carrinho');
-    
+    const valorSpan    = elemento('valor-frete-carrinho');
+
     if (resultadoDiv && valorSpan) {
-        valorSpan.textContent = formatarMoeda(valor);
+        valorSpan.textContent     = formatarMoeda(valor);
         resultadoDiv.style.display = 'block';
     }
-    
-    // Salvar a taxa no estado
+
     estadoAplicativo.taxaEntrega = valor;
     console.log(`[CEP] Taxa salva: R$ ${valor.toFixed(2)}`);
-    
+
     atualizarResumoFinanceiroCarrinho();
 }
 
 function calcularTotalFinal() {
-    // 1. Soma dos itens (subtotal bruto)
     let subtotalItens = 0;
     Object.values(carrinho).forEach(item => {
         const produto = dadosIniciais.secoes[item.indiceSessao].itens[item.indiceItem];
         let precoBase = produto.preco * item.quantidade;
-        
         for (let nomeOpcional in item.opcionais) {
             const opcional = item.opcionais[nomeOpcional];
             precoBase += opcional.quantidade * opcional.preco;
@@ -577,30 +510,20 @@ function calcularTotalFinal() {
         subtotalItens += precoBase;
     });
 
-    // 2. Recupera o desconto do estado global (conforme definido no seu envio.js)
     const valorDesconto = estadoAplicativo.descontoCupom || 0;
-
-    // 3. Recupera a taxa de entrega (Busca direto na fonte mestre do cep-frete.js)
-    const taxaEntrega = typeof window.obterTaxaEntregaAtual === 'function' 
-        ? window.obterTaxaEntregaAtual() 
+    const taxaEntrega   = typeof window.obterTaxaEntregaAtual === 'function'
+        ? window.obterTaxaEntregaAtual()
         : (estadoAplicativo.taxaEntrega || 0);
 
-    // 4. Cálculo final
     const totalGeral = Math.max(0, subtotalItens - valorDesconto) + taxaEntrega;
 
-    return {
-        itens: subtotalItens,
-        desconto: valorDesconto,
-        taxa: taxaEntrega,
-        total: totalGeral
-    };
+    return { itens: subtotalItens, desconto: valorDesconto, taxa: taxaEntrega, total: totalGeral };
 }
 
 function atualizarResumoPagamentoFinal() {
     const container = elemento('resumo-final-pedido-pagamento');
     if (!container) return;
 
-    // 1. Calcular valores exatos do carrinho atual (Produtos + Opcionais)
     let totalProdutos = 0;
     Object.values(carrinho).forEach(item => {
         const produto = dadosIniciais.secoes[item.indiceSessao].itens[item.indiceItem];
@@ -613,107 +536,92 @@ function atualizarResumoPagamentoFinal() {
         totalProdutos += subtotalItem;
     });
 
-    // 2. Obter desconto e taxa do estado global
-    let desconto = estadoAplicativo.descontoCupom || 0;
-    let taxaEntrega = estadoAplicativo.modoEntrega === 'entrega' ? (estadoAplicativo.taxaEntrega || 0) : 0;
-    let totalGeral = (totalProdutos - desconto) + taxaEntrega;
+    const desconto    = estadoAplicativo.descontoCupom || 0;
+    const taxaEntrega = estadoAplicativo.modoEntrega === 'entrega' ? (estadoAplicativo.taxaEntrega || 0) : 0;
+    const totalGeral  = (totalProdutos - desconto) + taxaEntrega;
 
-    // 3. Renderizar o Layout IDENTICO ao do Carrinho
     container.innerHTML = `
         <div class="resumo-carrinho-container" style="margin-top: 20px; margin-bottom: 40px; border: 1px solid var(--borda-nav); border-radius: 12px; background-color: var(--branco); overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: left;">
-            
             <div style="background-color: var(--bege-claro); padding: 10px 15px; border-bottom: 1px solid var(--borda-nav);">
                 <span style="font-size: 13px; color: var(--marrom-cafe); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Resumo do Pedido</span>
             </div>
-
             <div style="padding: 15px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                     <span style="font-size: 14px; color: var(--cinza-escuro);">Produtos</span>
                     <span style="font-size: 14px; font-weight: 500;">${formatarMoeda(totalProdutos)}</span>
                 </div>
-
                 <div style="display: ${desconto > 0 ? 'flex' : 'none'}; justify-content: space-between; margin-bottom: 10px;">
                     <span style="font-size: 14px; color: var(--red);">🏷️ Desconto</span>
                     <span style="font-size: 14px; color: var(--red); font-weight: bold;">- ${formatarMoeda(desconto)}</span>
                 </div>
-
                 <div style="display: ${estadoAplicativo.modoEntrega === 'entrega' ? 'flex' : 'none'}; justify-content: space-between; margin-bottom: 10px;">
                     <span style="font-size: 14px; color: var(--cinza-escuro);">🚚 Taxa de Entrega</span>
                     <span style="font-size: 14px; font-weight: 500;">${taxaEntrega > 0 ? formatarMoeda(taxaEntrega) : 'Calculando...'}</span>
                 </div>
-
                 <div style="border-top: 1px dashed var(--borda-nav); margin: 12px 0;"></div>
-
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-size: 16px; font-weight: bold; color: var(--verde-militar);">TOTAL GERAL</span>
-                    <span style="font-size: 20px; font-weight: 800; color: var(--verde-militar);">
-                        ${formatarMoeda(totalGeral)}
-                    </span>
+                    <span style="font-size: 20px; font-weight: 800; color: var(--verde-militar);">${formatarMoeda(totalGeral)}</span>
                 </div>
             </div>
         </div>
     `;
 
-    // 4. Sincronizar o valor do PIX (se o elemento existir)
     const valorPixElemento = elemento('valor-pix');
-    if (valorPixElemento) {
-        valorPixElemento.textContent = formatarMoeda(totalGeral);
-    }
+    if (valorPixElemento) valorPixElemento.textContent = formatarMoeda(totalGeral);
 }
 
-// Não esqueça de adicionar esta exportação ao final do arquivo:
-window.atualizarResumoPagamentoFinal = atualizarResumoPagamentoFinal;
+// ===================== MÁSCARA E VALIDAÇÃO DE CEP =====================
 
-// Aplica a máscara enquanto o usuário digita
+/**
+ * Aplica a máscara de CEP no campo do carrinho.
+ * 🔑 Delega para window.aplicarMascaraCEP (utils.js) — fonte única.
+ */
 function formatarCampoCEP(input) {
-    let v = input.value.replace(/\D/g, ''); // Remove tudo que não é número
-    if (v.length > 8) v = v.substring(0, 8);
-    
-    // Aplica o traço automaticamente
-    if (v.length > 5) {
-        input.value = v.substring(0, 5) + '-' + v.substring(5);
-    } else {
-        input.value = v;
-    }
-    
-    // Salva o valor limpo no estado global
-    if (window.estadoAplicativo) {
-        estadoAplicativo.cepCalculado = v;
-    }
+    window.aplicarMascaraCEP(input);
 }
 
-// Valida automaticamente quando o cursor sai do campo (blur)
+/**
+ * Valida o CEP ao perder o foco; dispara busca se completo.
+ */
 function validarCEPAuto(input) {
     const cepLimpo = input.value.replace(/\D/g, '');
-    
+
     if (cepLimpo.length > 0 && cepLimpo.length < 8) {
-        // Se digitou algo, mas não completou 8 dígitos
         const spanNomeBairro = document.getElementById('nome-bairro-info');
         const divNotificacao = document.getElementById('notificacao-bairro-carrinho');
-        
+
         if (divNotificacao && spanNomeBairro) {
-            spanNomeBairro.innerHTML = `<span style="color: #d32f2f;">O CEP deve conter 8 números.</span>`;
-            divNotificacao.style.display = 'block';
+            spanNomeBairro.innerHTML        = `<span style="color: #d32f2f;">O CEP deve conter 8 números.</span>`;
+            divNotificacao.style.display    = 'block';
         }
-        input.focus(); // Opcional: devolve o foco para correção
+        input.focus();
     } else if (cepLimpo.length === 8) {
-        // Se completou, dispara a busca automaticamente
         window.buscarEnderecoPorCodigoPostal(cepLimpo);
     }
 }
 
-// ===================== EXPORTAR FUNÇÕES (FIM DO ARQUIVO) =====================
+// Listener global para máscara do campo cep-carrinho
+// 🔑 Usa window.aplicarMascaraCEP de utils.js
+document.addEventListener('input', function(e) {
+    if (e.target && e.target.id === 'cep-carrinho') {
+        window.aplicarMascaraCEP(e.target);
+    }
+});
 
-// Funções principais do carrinho
-window.atualizarBarraCarrinho = atualizarBarraCarrinho;
-window.abrirModalCarrinho = abrirModalCarrinho;
-window.removerItemDoCarrinho = removerItemDoCarrinho;
-window.sincronizarProdutoNoCarrinho = sincronizarProdutoNoCarrinho; // Importante estar aqui
+// ===================== EXPORTAÇÕES =====================
 
-// Funções de lógica financeira e entrega
-window.aplicarCupom = aplicarCupom;
-window.alterarModoEntrega = alterarModoEntrega;
-window.prosseguirParaDadosCliente = prosseguirParaDadosCliente;
-window.calcularTotalFinal = calcularTotalFinal; // A que acabamos de criar
+window.atualizarBarraCarrinho       = atualizarBarraCarrinho;
+window.abrirModalCarrinho           = abrirModalCarrinho;
+window.removerItemDoCarrinho        = removerItemDoCarrinho;
+window.sincronizarProdutoNoCarrinho = sincronizarProdutoNoCarrinho;
+window.aplicarCupom                 = aplicarCupom;
+window.alterarModoEntrega           = alterarModoEntrega;
+window.prosseguirParaDadosCliente   = prosseguirParaDadosCliente;
+window.calcularTotalFinal           = calcularTotalFinal;
+window.atualizarResumoPagamentoFinal = atualizarResumoPagamentoFinal;
+window.atualizarDisplayFreteCarrinho = atualizarDisplayFreteCarrinho;
+window.formatarCampoCEP             = formatarCampoCEP;
+window.validarCEPAuto               = validarCEPAuto;
 
-console.log('✅ carrinho.js: Funções exportadas com sucesso');
+console.log('✅ carrinho.js carregado');
