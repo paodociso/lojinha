@@ -2,20 +2,34 @@
 // SISTEMA DE ENVIO DE PEDIDOS - PÃO DO CISO
 // ============================================
 
+/**
+ * Envia os dados do pedido para o Google Sheets via API
+ * FASE 01 - Correção de Bug Crítico: Leitura de config interna
+ */
 function enviarPedidoParaPlanilha(dadosCliente) {
-    const URL_PLANILHA = window.config.urlPlanilha;
+    // Definindo a URL aqui dentro para evitar erro de carregamento antecipado
+    const URL_PLANILHA = window.config ? window.config.urlPlanilha : '';
+
+    if (!URL_PLANILHA) {
+        console.error("❌ Erro: URL da planilha não configurada em window.config");
+        return;
+    }
 
     // 1. Organizar os itens do pedido com quebra de linha para a célula
     let resumoItens = "";
     if (typeof carrinho !== 'undefined') {
         Object.values(carrinho).forEach(item => {
-            const produto = dadosIniciais.secoes[item.indiceSessao].itens[item.indiceItem];
-            resumoItens += `${item.quantidade}x ${produto.nome}\n`;
+            const secao = dadosIniciais?.secoes?.[item.indiceSessao];
+            const produto = secao?.itens?.[item.indiceItem];
             
-            if (item.opcionais) {
-                Object.keys(item.opcionais).forEach(opc => {
-                    resumoItens += `  └ ${item.opcionais[opc].quantidade}x ${opc}\n`;
-                });
+            if (produto) {
+                resumoItens += `${item.quantidade}x ${produto.nome}\n`;
+                
+                if (item.opcionais) {
+                    Object.keys(item.opcionais).forEach(opc => {
+                        resumoItens += `   └ ${item.opcionais[opc].quantidade}x ${opc}\n`;
+                    });
+                }
             }
         });
     }
@@ -32,9 +46,10 @@ function enviarPedidoParaPlanilha(dadosCliente) {
     };
 
     // 3. Executar o envio
+    console.log("📤 Enviando para planilha...");
     fetch(URL_PLANILHA, {
         method: 'POST',
-        mode: 'no-cors', // Importante para Google Apps Script
+        mode: 'no-cors', 
         cache: 'no-cache',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dados)
@@ -44,9 +59,9 @@ function enviarPedidoParaPlanilha(dadosCliente) {
 }
 
 function processarFinalizacaoPedido() {
-    // Coletar dados
-    const nome = elemento('nome-cliente')?.value.trim() || '';
-    const whatsapp = elemento('whatsapp-cliente')?.value.trim() || '';
+    // Coletar dados dos elementos do DOM
+    const nome = document.getElementById('nome-cliente')?.value.trim() || '';
+    const whatsapp = document.getElementById('whatsapp-cliente')?.value.trim() || '';
     const metodoPagamento = estadoAplicativo?.formaPagamento;
     
     // Validar dados básicos
@@ -69,12 +84,12 @@ function processarFinalizacaoPedido() {
     // Coletar endereço se for entrega
     let enderecoTexto = 'Retirada no local';
     if (estadoAplicativo?.modoEntrega === 'entrega') {
-        const rua = elemento('logradouro-cliente')?.value.trim() || '';
-        const bairro = elemento('bairro-cliente')?.value.trim() || '';
-        const numero = elemento('numero-residencia-cliente')?.value.trim() || '';
-        const complemento = elemento('complemento-residencia-cliente')?.value.trim() || '';
-        const referencia = elemento('ponto-referencia-entrega')?.value.trim() || '';
-        const cep = elemento('codigo-postal-cliente')?.value.trim() || '';
+        const rua = document.getElementById('logradouro-cliente')?.value.trim() || '';
+        const bairro = document.getElementById('bairro-cliente')?.value.trim() || '';
+        const numero = document.getElementById('numero-residencia-cliente')?.value.trim() || '';
+        const complemento = document.getElementById('complemento-residencia-cliente')?.value.trim() || '';
+        const referencia = document.getElementById('ponto-referencia-entrega')?.value.trim() || '';
+        const cep = document.getElementById('codigo-postal-cliente')?.value.trim() || '';
         
         if (!rua || !bairro || !numero) {
             mostrarNotificacao('Para entrega, preencha todos os campos de endereço obrigatórios.', 'erro');
@@ -101,19 +116,18 @@ function processarFinalizacaoPedido() {
     // Gerar mensagem para WhatsApp
     const mensagem = gerarMensagemWhatsApp(nome, whatsappNumeros, enderecoTexto, metodoPagamento);
     
-    // Abrir WhatsApp
-    const linkWhatsApp = `https://api.whatsapp.com/send?phone=${window.config.whatsappVendedor}&text=${encodeURIComponent(mensagem)}`;
+    // Abrir WhatsApp com a URL do config
+    const whatsappDestino = window.config ? window.config.whatsappVendedor : '';
+    const linkWhatsApp = `https://api.whatsapp.com/send?phone=${whatsappDestino}&text=${encodeURIComponent(mensagem)}`;
     window.open(linkWhatsApp, '_blank');
 
-    // Salvar o link para o botão de reenvio
     window.ultimoLinkWhatsapp = linkWhatsApp; 
 
-    // 1. Fecha TUDO (pagamento, dados, carrinho e overlay) de uma vez só
+    // Fechar modais e abrir sucesso
     if (typeof fecharTodosModais === 'function') {
         fecharTodosModais();
     }
 
-    // 2. Abre o sucesso com um pequeno atraso para garantir a transição visual
     setTimeout(() => {
         if (typeof abrirModal === 'function') {
             abrirModal('modal-sucesso');
@@ -122,22 +136,18 @@ function processarFinalizacaoPedido() {
 }
 
 function gerarMensagemWhatsApp(nome, whatsapp, endereco, metodoPagamento) {
-    // 1. Inicializar variáveis de cálculo
     let totalProdutos = 0;
     let itensTexto = '';
     
-    // 2. Percorrer o carrinho com a mesma lógica do resumo financeiro
-    if (carrinho) {
+    if (typeof carrinho !== 'undefined') {
         Object.values(carrinho).forEach(item => {
             const secao = dadosIniciais?.secoes?.[item.indiceSessao];
             const produto = secao?.itens?.[item.indiceItem];
 
             if (produto) {
-                // Cálculo do preço base do produto
                 let precoUnitarioTotal = Number(produto.preco || 0);
                 let listaOpcionaisTexto = '';
 
-                // Soma o valor dos opcionais ao preço unitário (se existirem)
                 if (item.opcionais && Object.keys(item.opcionais).length > 0) {
                     Object.entries(item.opcionais).forEach(([nomeOpcional, dadosOpcional]) => {
                         const qtdOpc = Number(dadosOpcional.quantidade || 0);
@@ -151,9 +161,7 @@ function gerarMensagemWhatsApp(nome, whatsapp, endereco, metodoPagamento) {
                 const subtotalItem = precoUnitarioTotal * item.quantidade;
                 totalProdutos += subtotalItem;
                 
-                // Monta o texto do item principal
                 itensTexto += `• ${item.quantidade}x ${produto.nome} (${formatarMoeda(subtotalItem)})\n`;
-                // Adiciona os opcionais logo abaixo do item se houver
                 if (listaOpcionaisTexto) {
                     itensTexto += listaOpcionaisTexto;
                 }
@@ -161,12 +169,10 @@ function gerarMensagemWhatsApp(nome, whatsapp, endereco, metodoPagamento) {
         });
     }
     
-    // 3. Obter valores de taxas e descontos do estado global
     const taxaEntrega = estadoAplicativo.modoEntrega === 'entrega' ? Number(estadoAplicativo.taxaEntrega || 0) : 0;
     const desconto = Number(estadoAplicativo.descontoCupom || 0);
     const totalGeral = (totalProdutos - desconto) + taxaEntrega;
     
-    // 4. Construir o corpo da mensagem
     let mensagem = `*NOVO PEDIDO - PÃO DO CISO*\n`;
     mensagem += `══════════════════════════════\n\n`;
     mensagem += `👤 *Cliente:* ${nome}\n`;
@@ -202,7 +208,6 @@ function gerarMensagemWhatsApp(nome, whatsapp, endereco, metodoPagamento) {
 }
 
 function reiniciarFluxoCompra() {
-    console.log('🔄 Reiniciando sistema com reload...');
     localStorage.removeItem('carrinho_pao_do_ciso');
     window.location.reload();
 }
@@ -215,7 +220,7 @@ function reenviarPedidoWhatsapp() {
     }
 }
 
-// Exportações
+// Exportações para o escopo global
 window.processarFinalizacaoPedido = processarFinalizacaoPedido;
 window.reiniciarFluxoCompra = reiniciarFluxoCompra;
 window.reenviarPedidoWhatsapp = reenviarPedidoWhatsapp;

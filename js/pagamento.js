@@ -2,13 +2,15 @@
 // SISTEMA DE PAGAMENTO - PÃO DO CISO
 // ============================================
 
-// Chave PIX centralizada em config.js
-const CHAVE_PIX = window.config.chavePix;
+// Lê a chave PIX em tempo de execução (não no carregamento do script)
+// para garantir que config.js já foi carregado antes
+function obterChavePix() {
+    return window.config?.chavePix || '';
+}
 
 function abrirModalPagamento() {
     console.log("=== ABRINDO PAGAMENTO ===");
 
-    // 1. Chama a função OFICIAL do carrinho que sabe buscar os preços no banco de dados
     if (typeof window.atualizarResumoPagamentoFinal === 'function') {
         window.atualizarResumoPagamentoFinal();
         console.log("✅ Resumo financeiro gerado com sucesso pela função do carrinho.");
@@ -18,32 +20,26 @@ function abrirModalPagamento() {
         return;
     }
 
-    // 2. Abre o modal visualmente
     abrirModal('modal-pagamento');
 }
 
 function selecionarPagamento(forma, elementoHtml) {
     estadoAplicativo.formaPagamento = forma;
-    
-    // Remover seleção de todos
+
+    // Remover seleção de todos usando classList
     document.querySelectorAll('.opcao-pagamento').forEach(opcao => {
-        opcao.style.borderColor = "#eee";
-        opcao.style.background = "#fff";
-        const frame = opcao.querySelector('.pagamento-info-frame, .opcao-conteudo');
-        if (frame) frame.style.display = 'none';
+        opcao.classList.remove('ativa');
     });
-    
-    // Selecionar atual
-    elementoHtml.style.borderColor = "var(--marrom-cafe)";
-    elementoHtml.style.background = "#fdfaf7";
-    const infoFrame = elementoHtml.querySelector('.pagamento-info-frame, .opcao-conteudo');
-    if (infoFrame) infoFrame.style.display = 'block';
-    
+
+    // Selecionar atual usando classList
+    elementoHtml.classList.add('ativa');
+
     // Atualizar valor do PIX
     if (forma === 'PIX') {
-        // Preenche a chave PIX visível (evita ofuscação do Cloudflare)
+        const chave = obterChavePix();
+
         const textoChave = document.getElementById('texto-chave-pix');
-        if (textoChave) textoChave.textContent = CHAVE_PIX; // 👈 novo
+        if (textoChave) textoChave.textContent = chave;
 
         const txtValor = document.getElementById('pix-valor-txt');
         if (txtValor) txtValor.textContent = formatarMoeda(estadoAplicativo.totalGeral);
@@ -51,16 +47,14 @@ function selecionarPagamento(forma, elementoHtml) {
         const valorPix = document.getElementById('valor-pix');
         if (valorPix) valorPix.textContent = formatarMoeda(estadoAplicativo.totalGeral);
     }
-    
-    // Habilitar botão de finalizar
+
     const botaoFinalizar = document.getElementById('botao-finalizar-pedido');
-    if (botaoFinalizar) {
-        botaoFinalizar.disabled = false;
-    }
+    if (botaoFinalizar) botaoFinalizar.disabled = false;
 }
 
 function copiarChavePix() {
-    navigator.clipboard.writeText(CHAVE_PIX).then(() => { // 👈 usa a constante
+    const chave = obterChavePix();
+    navigator.clipboard.writeText(chave).then(() => {
         const mensagem = elemento('mensagem-copiado');
         if (mensagem) {
             mensagem.style.display = 'block';
@@ -75,14 +69,12 @@ function finalizarPedido() {
         return;
     }
 
-    // Desabilitar botão durante o processamento
     const botao = elemento('botao-finalizar-pedido');
     if (botao) {
         botao.disabled = true;
         botao.innerHTML = 'PROCESSANDO... <i class="fas fa-spinner fa-spin"></i>';
     }
 
-    // Processar pedido
     if (typeof processarFinalizacaoPedido === 'function') {
         setTimeout(() => {
             processarFinalizacaoPedido();

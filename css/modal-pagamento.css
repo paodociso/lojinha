@@ -166,3 +166,81 @@
         align-items: center !important;
     }
 }
+
+/* ============================================================
+   RESUMO FINANCEIRO — classes compartilhadas entre carrinho
+   e modal de pagamento (gerarHTMLResumo em carrinho.js)
+   ============================================================ */
+
+.resumo-carrinho-container {
+    margin-top: 20px;
+    margin-bottom: 25px;
+    border: 1px solid var(--borda-nav);
+    border-radius: 12px;
+    background-color: var(--branco);
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    text-align: left;
+}
+
+.resumo-cabecalho {
+    background-color: var(--bege-claro);
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--borda-nav);
+}
+
+.resumo-titulo {
+    font-size: 13px;
+    color: var(--marrom-cafe);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.resumo-corpo {
+    padding: 15px;
+}
+
+.resumo-linha {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.resumo-linha--desconto .resumo-label,
+.resumo-linha--desconto .resumo-valor {
+    color: var(--red);
+    font-weight: bold;
+}
+
+.resumo-linha--total {
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.resumo-label {
+    font-size: 14px;
+    color: var(--cinza-escuro);
+}
+
+.resumo-valor {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.resumo-label-total {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--verde-militar);
+}
+
+.resumo-valor-total {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--verde-militar);
+}
+
+.resumo-divisor {
+    border-top: 1px dashed var(--borda-nav);
+    margin: 12px 0;
+}

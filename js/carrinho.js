@@ -264,12 +264,44 @@ function gerarHTMLBotoesAcaoCarrinho() {
     `;
 }
 
-function atualizarResumoFinanceiroCarrinho() {
-    const container = elemento('resumo-financeiro-carrinho');
-    if (!container) return;
+// ===================== RESUMO FINANCEIRO — FUNÇÃO CENTRALIZADA =====================
+// Gera o HTML do resumo a partir dos valores calculados.
+// Usada tanto pelo carrinho quanto pelo modal de pagamento — fonte única de verdade.
 
-    let totalProdutos = 0;
+function gerarHTMLResumo(totalProdutos, desconto, taxaEntrega, totalGeral, modoEntrega) {
+    return `
+        <div class="resumo-carrinho-container">
+            <div class="resumo-cabecalho">
+                <span class="resumo-titulo">Resumo do Pedido</span>
+            </div>
+            <div class="resumo-corpo">
+                <div class="resumo-linha">
+                    <span class="resumo-label">Produtos</span>
+                    <span class="resumo-valor">${formatarMoeda(totalProdutos)}</span>
+                </div>
+                ${desconto > 0 ? `
+                <div class="resumo-linha resumo-linha--desconto">
+                    <span class="resumo-label">🏷️ Desconto</span>
+                    <span class="resumo-valor">- ${formatarMoeda(desconto)}</span>
+                </div>` : ''}
+                ${modoEntrega === 'entrega' ? `
+                <div class="resumo-linha">
+                    <span class="resumo-label">🚚 Taxa de Entrega</span>
+                    <span class="resumo-valor">${taxaEntrega > 0 ? formatarMoeda(taxaEntrega) : 'Grátis'}</span>
+                </div>` : ''}
+                <div class="resumo-divisor"></div>
+                <div class="resumo-linha resumo-linha--total">
+                    <span class="resumo-label-total">TOTAL GERAL</span>
+                    <span class="resumo-valor-total">${formatarMoeda(totalGeral)}</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
 
+// Calcula o subtotal de produtos do carrinho atual
+function calcularSubtotalProdutos() {
+    let total = 0;
     Object.values(carrinho).forEach(item => {
         const produto = dadosIniciais.secoes[item.indiceSessao].itens[item.indiceItem];
         let subtotalItem = produto.preco * item.quantidade;
@@ -278,9 +310,18 @@ function atualizarResumoFinanceiroCarrinho() {
                 subtotalItem += opcional.quantidade * opcional.preco;
             });
         }
-        totalProdutos += subtotalItem;
+        total += subtotalItem;
     });
+    return total;
+}
 
+function atualizarResumoFinanceiroCarrinho() {
+    const container = elemento('resumo-financeiro-carrinho');
+    if (!container) return;
+
+    const totalProdutos = calcularSubtotalProdutos();
+
+    // Recalcular desconto do cupom se houver
     if (estadoAplicativo.cupomAplicado) {
         const dadosCupom = dadosIniciais.cupons.find(c =>
             c.codigo.toUpperCase() === estadoAplicativo.cupomAplicado.toUpperCase()
@@ -297,34 +338,7 @@ function atualizarResumoFinanceiroCarrinho() {
     const totalGeral  = (totalProdutos - desconto) + taxaEntrega;
     estadoAplicativo.totalGeral = totalGeral;
 
-    container.innerHTML = `
-        <div class="resumo-carrinho-container" style="margin-top: 20px; margin-bottom: 25px; border: 1px solid var(--borda-nav); border-radius: 12px; background-color: var(--branco); overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: left;">
-            <div style="background-color: var(--bege-claro); padding: 10px 15px; border-bottom: 1px solid var(--borda-nav);">
-                <span style="font-size: 13px; color: var(--marrom-cafe); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Resumo do Pedido</span>
-            </div>
-            <div style="padding: 15px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span style="font-size: 14px; color: var(--cinza-escuro);">Produtos</span>
-                    <span style="font-size: 14px; font-weight: 500;">${formatarMoeda(totalProdutos)}</span>
-                </div>
-                ${desconto > 0 ? `
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span style="font-size: 14px; color: var(--red);">🏷️ Desconto</span>
-                    <span style="font-size: 14px; color: var(--red); font-weight: bold;">- ${formatarMoeda(desconto)}</span>
-                </div>` : ''}
-                ${estadoAplicativo.modoEntrega === 'entrega' ? `
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span style="font-size: 14px; color: var(--cinza-escuro);">🚚 Taxa de Entrega</span>
-                    <span style="font-size: 14px; font-weight: 500;">${taxaEntrega > 0 ? formatarMoeda(taxaEntrega) : 'Grátis'}</span>
-                </div>` : ''}
-                <div style="border-top: 1px dashed var(--borda-nav); margin: 12px 0;"></div>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 16px; font-weight: bold; color: var(--verde-militar);">TOTAL GERAL</span>
-                    <span style="font-size: 20px; font-weight: 800; color: var(--verde-militar);">${formatarMoeda(totalGeral)}</span>
-                </div>
-            </div>
-        </div>
-    `;
+    container.innerHTML = gerarHTMLResumo(totalProdutos, desconto, taxaEntrega, totalGeral, estadoAplicativo.modoEntrega);
 
     const totalElementoBarra = elemento('resumo-total-carrinho');
     if (totalElementoBarra) totalElementoBarra.textContent = formatarMoeda(totalGeral);
@@ -524,48 +538,14 @@ function atualizarResumoPagamentoFinal() {
     const container = elemento('resumo-final-pedido-pagamento');
     if (!container) return;
 
-    let totalProdutos = 0;
-    Object.values(carrinho).forEach(item => {
-        const produto = dadosIniciais.secoes[item.indiceSessao].itens[item.indiceItem];
-        let subtotalItem = produto.preco * item.quantidade;
-        if (item.opcionais) {
-            Object.values(item.opcionais).forEach(opcional => {
-                subtotalItem += opcional.quantidade * opcional.preco;
-            });
-        }
-        totalProdutos += subtotalItem;
-    });
+    const totalProdutos = calcularSubtotalProdutos();
+    const desconto      = estadoAplicativo.descontoCupom || 0;
+    const taxaEntrega   = estadoAplicativo.modoEntrega === 'entrega' ? (estadoAplicativo.taxaEntrega || 0) : 0;
+    const totalGeral    = (totalProdutos - desconto) + taxaEntrega;
 
-    const desconto    = estadoAplicativo.descontoCupom || 0;
-    const taxaEntrega = estadoAplicativo.modoEntrega === 'entrega' ? (estadoAplicativo.taxaEntrega || 0) : 0;
-    const totalGeral  = (totalProdutos - desconto) + taxaEntrega;
+    estadoAplicativo.totalGeral = totalGeral;
 
-    container.innerHTML = `
-        <div class="resumo-carrinho-container" style="margin-top: 20px; margin-bottom: 40px; border: 1px solid var(--borda-nav); border-radius: 12px; background-color: var(--branco); overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: left;">
-            <div style="background-color: var(--bege-claro); padding: 10px 15px; border-bottom: 1px solid var(--borda-nav);">
-                <span style="font-size: 13px; color: var(--marrom-cafe); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Resumo do Pedido</span>
-            </div>
-            <div style="padding: 15px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span style="font-size: 14px; color: var(--cinza-escuro);">Produtos</span>
-                    <span style="font-size: 14px; font-weight: 500;">${formatarMoeda(totalProdutos)}</span>
-                </div>
-                <div style="display: ${desconto > 0 ? 'flex' : 'none'}; justify-content: space-between; margin-bottom: 10px;">
-                    <span style="font-size: 14px; color: var(--red);">🏷️ Desconto</span>
-                    <span style="font-size: 14px; color: var(--red); font-weight: bold;">- ${formatarMoeda(desconto)}</span>
-                </div>
-                <div style="display: ${estadoAplicativo.modoEntrega === 'entrega' ? 'flex' : 'none'}; justify-content: space-between; margin-bottom: 10px;">
-                    <span style="font-size: 14px; color: var(--cinza-escuro);">🚚 Taxa de Entrega</span>
-                    <span style="font-size: 14px; font-weight: 500;">${taxaEntrega > 0 ? formatarMoeda(taxaEntrega) : 'Calculando...'}</span>
-                </div>
-                <div style="border-top: 1px dashed var(--borda-nav); margin: 12px 0;"></div>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 16px; font-weight: bold; color: var(--verde-militar);">TOTAL GERAL</span>
-                    <span style="font-size: 20px; font-weight: 800; color: var(--verde-militar);">${formatarMoeda(totalGeral)}</span>
-                </div>
-            </div>
-        </div>
-    `;
+    container.innerHTML = gerarHTMLResumo(totalProdutos, desconto, taxaEntrega, totalGeral, estadoAplicativo.modoEntrega);
 
     const valorPixElemento = elemento('valor-pix');
     if (valorPixElemento) valorPixElemento.textContent = formatarMoeda(totalGeral);

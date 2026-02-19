@@ -39,13 +39,6 @@ function inicializarSistema() {
         configurarEventosCEP();
     }
     
-    /*
-    // 7. ADICIONAR ESTILOS DE NOTIFICAÇÕES
-    if (typeof adicionarEstilosNotificacoes === 'function') {
-        adicionarEstilosNotificacoes();
-    }
-    */
-    
     // 8. CONFIGURAR BARRA DO CARRINHO
     const barraCarrinho = elemento('barra-carrinho');
     if (barraCarrinho) {
@@ -181,16 +174,18 @@ function atualizarDadosModalFornada() {
 // ============================================
 const abrirModalOriginal = window.abrirModal;
 
-window.abrirModal = function(id) {
+// ✅ Passa callback adiante para não quebrar modais.js (AddressManager.init, etc.)
+window.abrirModal = function(id, callback) {
     if (id === 'modal-informacoes-fornada') {
         atualizarDadosModalFornada();
     }
-    
+
     if (typeof abrirModalOriginal === 'function') {
-        abrirModalOriginal(id);
+        abrirModalOriginal(id, callback);
     } else {
         const modal = document.getElementById(id);
         if (modal) modal.style.display = 'block';
+        if (typeof callback === 'function') callback();
     }
 };
 

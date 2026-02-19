@@ -386,15 +386,15 @@
             <!-- Opções de Pagamento -->
             <div class="opcoes-pagamento">
                 <!-- Opção 1: PIX -->
-                <div class="opcao-pagamento" onclick="selecionarPagamento('PIX', this)" style="position: relative; border-radius: 12px; border: 2px solid #eee; background: #fff; padding: 15px; cursor: pointer; margin-bottom: 12px; transition: 0.3s; text-align: center;">
-                    <span class="opcao-recomendado" style="position: absolute; top: -10px; left: 85%; transform: translateX(-50%); background: var(--verde-militar); color: white; font-size: 0.6rem; padding: 3px 10px; border-radius: 4px; font-weight: bold;">RECOMENDADO</span>
+                <div class="opcao-pagamento" onclick="selecionarPagamento('PIX', this)">
+                    <span class="opcao-recomendado">RECOMENDADO</span>
                     
-                    <div class="opcao-cabecalho" style="font-weight: 900; color: #333; font-size: 1rem; display: flex; align-items: center; justify-content: center;">
+                    <div class="opcao-cabecalho">
                         <i class="fa-brands fa-pix" style="color: #555; margin-right: 8px;"></i>
                         <span class="opcao-titulo">PIX</span>
                     </div>
                     
-                    <div class="opcao-conteudo" style="display: none; margin-top: 15px;">
+                    <div class="opcao-conteudo">
                         <div class="pix-valor" style="background: #fdf8f3; border: 1px solid var(--verde-militar); padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; color: var(--verde-militar); text-align: center;">
                             VALOR: <span id="valor-pix">R$ 0,00</span>
                         </div>
@@ -418,13 +418,13 @@
                 </div>
                 
                 <!-- Opção 2: Cartão -->
-                <div class="opcao-pagamento" onclick="selecionarPagamento('Cartão', this)" style="border-radius: 12px; border: 2px solid #eee; background: #fff; padding: 15px; cursor: pointer; margin-bottom: 12px; text-align: center;">
-                    <div class="opcao-cabecalho" style="font-weight: 900; color: #333; font-size: 1rem; display: flex; align-items: center; justify-content: center;">
+                <div class="opcao-pagamento" onclick="selecionarPagamento('Cartão', this)">
+                    <div class="opcao-cabecalho">
                         <i class="fas fa-credit-card" style="color: #555; margin-right: 8px;"></i>
                         <span class="opcao-titulo">CARTÃO (CRÉDITO/DÉBITO)</span>
                     </div>
                     
-                    <div class="opcao-conteudo" style="display: none; font-size: 0.8rem; margin-top: 10px; color: #666; border-top: 1px solid #eee; padding-top: 10px;">
+                    <div class="opcao-conteudo">
                         <p class="opcao-descricao">
                             Pague por aproximação na entrega ou peça o link via WhatsApp.
                         </p>
@@ -432,13 +432,13 @@
                 </div>
                 
                 <!-- Opção 3: Dinheiro -->
-                <div class="opcao-pagamento" onclick="selecionarPagamento('Dinheiro', this)" style="border-radius: 12px; border: 2px solid #eee; background: #fff; padding: 15px; cursor: pointer; margin-bottom: 25px; text-align: center;">
-                    <div class="opcao-cabecalho" style="font-weight: 900; color: #333; font-size: 1rem; display: flex; align-items: center; justify-content: center;">
+                <div class="opcao-pagamento" onclick="selecionarPagamento('Dinheiro', this)">
+                    <div class="opcao-cabecalho">
                         <i class="fas fa-money-bill-wave" style="color: #555; margin-right: 8px;"></i>
                         <span class="opcao-titulo">DINHEIRO</span>
                     </div>
                     
-                    <div class="opcao-conteudo" style="display: none; font-size: 0.8rem; margin-top: 10px; color: #666; border-top: 1px solid #eee; padding-top: 10px;">
+                    <div class="opcao-conteudo">
                         <p class="opcao-descricao">
                             Pagamento em espécie no ato da entrega.
                         </p>

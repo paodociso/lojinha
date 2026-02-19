@@ -273,4 +273,4 @@ window.alterarQuantidadeProduto = alterarQuantidadeProduto;
 window.gerarHTMLSecaoOpcionais = gerarHTMLSecaoOpcionais;
 window.adicionarItemAoCarrinho = adicionarItemAoCarrinho;
 window.adicionarEIrParaCarrinho = adicionarEIrParaCarrinho;
-window.ajustarAlinhamentoOpcionais = function(){};
+// window.ajustarAlinhamentoOpcionais removido — função morta (stub vazio)

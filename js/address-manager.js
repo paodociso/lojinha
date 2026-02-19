@@ -20,7 +20,6 @@ window.AddressManager = {
             // 🔑 Delega formatação para window.aplicarMascaraCEP (utils.js)
             campoCEP.addEventListener('input', (e) => {
                 const limpo = window.aplicarMascaraCEP(e.target);
-                this.enderecoAtual.cep = limpo;
             });
 
             campoCEP.addEventListener('blur',   this.validarEbuscarCEP.bind(this));
@@ -78,9 +77,6 @@ window.AddressManager = {
             }
         });
 
-        this.enderecoAtual.logradouro = '';
-        this.enderecoAtual.bairro     = '';
-        this.enderecoAtual.cidade     = '';
     },
 
     validarEbuscarCEP: function(event) {
@@ -221,7 +217,6 @@ window.AddressManager = {
             console.log(`✅ Campo ${id} limpo`);
         });
 
-        this.enderecoAtual = {};
         this.cepAnterior   = '';
         console.log('✅ Estado resetado');
     },
@@ -240,7 +235,6 @@ window.AddressManager = {
         const cepLimpo = cep.replace(/\D/g, '');
 
         campoCEPDados.value    = window.formatarCEP(cepLimpo);
-        this.enderecoAtual.cep = cepLimpo;
         this.cepAnterior       = cepLimpo;
 
         if (cepLimpo.length === 8 && typeof window.buscarEnderecoPorCodigoPostal === 'function') {

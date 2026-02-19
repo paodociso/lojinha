@@ -190,10 +190,7 @@ function obterTaxaEntregaAtual() {
 
 // --- 4. VALIDAÇÃO ---
 // ✅ Delegada integralmente para window.validarEnderecoCompleto em utils.js.
-// Wrapper mantido para não quebrar chamadas existentes em outros arquivos/HTML.
-function validarEnderecoCompleto() {
-    return window.validarEnderecoCompleto();
-}
+// Não reexportamos aqui para evitar loop de recursão.
 
 function obterEnderecoFormatado() {
     const validacao = validarEnderecoCompleto();
@@ -400,6 +397,6 @@ window.buscarEnderecoPorCodigoPostal   = buscarEnderecoPorCodigoPostal;
 window.calcularFretePorBairro          = calcularFretePorBairro;
 window.obterDadosEnderecoCliente       = obterEnderecoFormatado;
 window.limparEnderecoCliente           = limparEnderecoCliente;
-window.validarEnderecoCompleto         = validarEnderecoCompleto;
 window.configurarEventosCEP            = configurarEventosCEP;
 window.obterDadosEnderecoClienteRaw    = obterEnderecoFormatado;
+// Nota: window.validarEnderecoCompleto é definida em utils.js — não reexportar aqui
