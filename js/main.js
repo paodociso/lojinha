@@ -39,10 +39,12 @@ function inicializarSistema() {
         configurarEventosCEP();
     }
     
+    /*
     // 7. ADICIONAR ESTILOS DE NOTIFICAÇÕES
     if (typeof adicionarEstilosNotificacoes === 'function') {
         adicionarEstilosNotificacoes();
     }
+    */
     
     // 8. CONFIGURAR BARRA DO CARRINHO
     const barraCarrinho = elemento('barra-carrinho');

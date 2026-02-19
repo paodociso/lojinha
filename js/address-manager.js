@@ -226,47 +226,35 @@ window.AddressManager = {
         console.log('✅ Estado resetado');
     },
 
+    // ✅ setInterval removido — modais.js agora garante que o modal está aberto
+    // antes de chamar AddressManager.init() via callback em abrirModal()
     sincronizarCEPComModalDados: function(cep) {
-        console.log('🔄 AddressManager: Sincronização forçada...');
+        console.log('🔄 AddressManager: Sincronizando CEP...');
 
-        let tentativas = 0;
-        const maxTentativas = 10;
+        const campoCEPDados = document.getElementById('codigo-postal-cliente');
+        if (!campoCEPDados) {
+            console.error('❌ Campo CEP não encontrado. Verifique se o modal está aberto.');
+            return;
+        }
 
-        const executarSincronizacao = setInterval(() => {
-            const campoCEPDados = document.getElementById('codigo-postal-cliente');
-            tentativas++;
+        const cepLimpo = cep.replace(/\D/g, '');
 
-            if (campoCEPDados) {
-                clearInterval(executarSincronizacao);
+        campoCEPDados.value    = window.formatarCEP(cepLimpo);
+        this.enderecoAtual.cep = cepLimpo;
+        this.cepAnterior       = cepLimpo;
 
-                const cepLimpo = cep.replace(/\D/g, '');
+        if (cepLimpo.length === 8 && typeof window.buscarEnderecoPorCodigoPostal === 'function') {
+            console.log('🎯 Disparando busca de endereço...');
+            window.buscarEnderecoPorCodigoPostal(cepLimpo);
 
-                // 🔑 Usa window.formatarCEP (utils.js) para formatar visualmente
-                campoCEPDados.value = window.formatarCEP(cepLimpo);
-
-                this.enderecoAtual.cep = cepLimpo;
-                this.cepAnterior       = cepLimpo;
-
-                if (cepLimpo.length === 8) {
-                    console.log('🎯 Disparando busca de endereço...');
-
-                    if (typeof window.buscarEnderecoPorCodigoPostal === 'function') {
-                        window.buscarEnderecoPorCodigoPostal(cepLimpo);
-
-                        setTimeout(() => {
-                            const elLabelFrete = document.querySelector('.info-frete-titulo');
-                            if (elLabelFrete) {
-                                elLabelFrete.innerHTML      = 'FRETE ATUALIZADO:';
-                                elLabelFrete.style.color      = 'var(--verde-militar)';
-                                elLabelFrete.style.fontWeight = '900';
-                            }
-                        }, 1000);
-                    }
+            setTimeout(() => {
+                const elLabelFrete = document.querySelector('.info-frete-titulo');
+                if (elLabelFrete) {
+                    elLabelFrete.innerHTML        = 'FRETE ATUALIZADO:';
+                    elLabelFrete.style.color      = 'var(--verde-militar)';
+                    elLabelFrete.style.fontWeight = '900';
                 }
-            } else if (tentativas >= maxTentativas) {
-                clearInterval(executarSincronizacao);
-                console.error('❌ Modal de dados não apareceu a tempo.');
-            }
-        }, 200);
+            }, 1000);
+        }
     }
 };

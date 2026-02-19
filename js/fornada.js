@@ -124,7 +124,36 @@ function habilitarFornada() {
     }
 }
 
+
+// ✅ Migrado de: cardapio.js
+// Calcula e formata as datas de fornada e limite de pedido
+function calcularDatasFornada(infoFornada) {
+    console.log('📅 Calculando datas da fornada:', infoFornada);
+
+    const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+
+    // Data da Fornada
+    const dataFornada       = new Date(infoFornada.dataISO + 'T12:00:00');
+    const diaFornada        = diasSemana[dataFornada.getDay()];
+    const dataFornadaFormatada = `${dataFornada.getDate().toString().padStart(2, '0')}/${(dataFornada.getMonth() + 1).toString().padStart(2, '0')}`;
+
+    // Data Limite
+    const dataLimite       = new Date(dataFornada);
+    dataLimite.setDate(dataFornada.getDate() - infoFornada.diasAntecedencia);
+    const diaLimite        = diasSemana[dataLimite.getDay()];
+    const dataLimiteFormatada = `${dataLimite.getDate().toString().padStart(2, '0')}/${(dataLimite.getMonth() + 1).toString().padStart(2, '0')}`;
+
+    const resultado = {
+        fornada: `${diaFornada}, ${dataFornadaFormatada}`,
+        limite:  `${diaLimite}, ${dataLimiteFormatada} às ${infoFornada.horaLimite}`
+    };
+
+    console.log('📅 Resultado do cálculo:', resultado);
+    return resultado;
+}
+
 // EXPORTAR FUNÇÕES
 window.configurarDatasFornada = configurarDatasFornada;
+window.calcularDatasFornada    = calcularDatasFornada;
 window.desabilitarFornada = desabilitarFornada;
 window.habilitarFornada = habilitarFornada;

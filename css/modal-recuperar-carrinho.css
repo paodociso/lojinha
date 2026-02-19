@@ -2,31 +2,41 @@
    MODAL: RECUPERAR CARRINHO
    ============================================================ */
 
-/* --- CORREÇÃO: Forçar o modal a começar invisível --- */
+/* Garante que o modal comece invisível */
 #modal-recuperar-carrinho {
     display: none;
     z-index: 9999;
 }
 
-/* CELULAR (Padrão) */
+/* --- CONTEÚDO --- */
 #modal-recuperar-carrinho .conteudo-modal {
     text-align: center;
     padding: 30px 25px;
+    box-sizing: border-box;
+    width: 100%;
 }
 
+/* --- BOTÕES --- */
 #modal-recuperar-carrinho .botoes-recuperacao {
     display: flex;
-    flex-direction: column; /* No celular, botões um sobre o outro */
-    gap: 15px;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
     margin-top: 25px;
 }
 
-/* PC (Desktop) */
+#modal-recuperar-carrinho .botao-acao {
+    width: 100%;
+    flex: none;
+    box-sizing: border-box;
+}
+
+/* 💻 DESKTOP */
 @media (min-width: 769px) {
     #modal-recuperar-carrinho .botoes-recuperacao {
-        flex-direction: row; /* No PC, botões lado a lado */
+        flex-direction: row;
     }
-    
+
     #modal-recuperar-carrinho .botao-acao:hover {
         filter: brightness(0.9);
     }
