@@ -13,13 +13,13 @@ function formatarCodigoPostal(input) {
     }
     
     input.value = valor;
-    enderecoCliente.cep = valor.replace(/\D/g, '');
+    estadoAplicativo.dadosCliente.cep = valor.replace(/\D/g, '');
     
-    if (enderecoCliente.cep.length === 8) {
-        buscarEnderecoPorCodigoPostal(enderecoCliente.cep);
+    if (estadoAplicativo.dadosCliente.cep.length === 8) {
+        buscarEnderecoPorCodigoPostal(estadoAplicativo.dadosCliente.cep);
         input.classList.add('campo-valido');
         input.classList.remove('campo-invalido');
-    } else if (enderecoCliente.cep.length === 0) {
+    } else if (estadoAplicativo.dadosCliente.cep.length === 0) {
         input.classList.remove('campo-valido', 'campo-invalido');
     } else {
         input.classList.add('campo-invalido');
@@ -118,8 +118,8 @@ async function buscarEnderecoPorCodigoPostal(cepCru) {
 }
 
 function preencherCamposEndereco(dados) {
-    enderecoCliente = {
-        ...enderecoCliente,
+    estadoAplicativo.dadosCliente = {
+        ...estadoAplicativo.dadosCliente,
         logradouro: dados.logradouro || '',
         bairro: dados.bairro || '',
         cidade: dados.localidade || '',
@@ -245,7 +245,7 @@ function validarEnderecoCompleto() {
         valido: true,
         mensagem: 'Endereço válido',
         dados: {
-            ...enderecoCliente,
+            ...estadoAplicativo.dadosCliente,
             numero: elemento('numero-residencia-cliente').value.trim(),
             complemento: elemento('complemento-residencia-cliente').value.trim(),
             referencia: elemento('ponto-referencia-entrega').value.trim()
@@ -337,7 +337,7 @@ function habilitarCamposManuais() {
 }
 
 function limparEnderecoCliente() {
-    enderecoCliente = { cep: '', logradouro: '', bairro: '', cidade: '', estado: '', numero: '', complemento: '', referencia: '' };
+    estadoAplicativo.dadosCliente = { nome: estadoAplicativo.dadosCliente.nome, telefone: estadoAplicativo.dadosCliente.telefone, cep: '', logradouro: '', bairro: '', cidade: '', estado: '', numero: '', complemento: '', referencia: '' };
     const campos = ['codigo-postal-cliente', 'logradouro-cliente', 'bairro-cliente', 'cidade-cliente', 'numero-residencia-cliente', 'complemento-residencia-cliente', 'ponto-referencia-entrega'];
     
     campos.forEach(id => {
@@ -397,7 +397,7 @@ function configurarEventosCEP() {
         campoCEP.addEventListener('input', function() { formatarCodigoPostal(this); });
         campoCEP.addEventListener('blur', function() {
             const cepNumeros = this.value.replace(/\D/g, '');
-            if (cepNumeros.length === 8 && !enderecoCliente.logradouro) {
+            if (cepNumeros.length === 8 && !estadoAplicativo.dadosCliente.logradouro) {
                 buscarEnderecoPorCodigoPostal(cepNumeros);
             }
         });
@@ -407,7 +407,7 @@ function configurarEventosCEP() {
     if (campoBairro) {
         campoBairro.addEventListener('change', function() {
             if (this.value.trim()) {
-                enderecoCliente.bairro = this.value.trim();
+                estadoAplicativo.dadosCliente.bairro = this.value.trim();
                 calcularFretePorBairro(this.value.trim());
             }
         });
@@ -416,9 +416,9 @@ function configurarEventosCEP() {
     const campoNumero = elemento('numero-residencia-cliente');
     if (campoNumero) {
         campoNumero.addEventListener('change', function() {
-            enderecoCliente.numero = this.value.trim();
-            if (this.value.trim() && enderecoCliente.bairro) {
-                calcularFretePorBairro(enderecoCliente.bairro);
+            estadoAplicativo.dadosCliente.numero = this.value.trim();
+            if (this.value.trim() && estadoAplicativo.dadosCliente.bairro) {
+                calcularFretePorBairro(estadoAplicativo.dadosCliente.bairro);
             }
         });
     }

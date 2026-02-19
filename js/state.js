@@ -5,17 +5,6 @@
 // ESTADO GLOBAL
 window.carrinho = {};
 window.produtoAtual = null;
-window.enderecoCliente = {
-    cep: '',
-    logradouro: '',
-    bairro: '',
-    cidade: '',
-    estado: '',
-    numero: '',
-    complemento: '',
-    referencia: ''
-};
-
 window.estadoAplicativo = {
     formaPagamento: null,
     totalGeral: 0,
@@ -67,17 +56,6 @@ function salvarCarrinho() {
 function resetarEstado() {
     window.carrinho = {};
     window.produtoAtual = null;
-    window.enderecoCliente = {
-        cep: '',
-        logradouro: '',
-        bairro: '',
-        cidade: '',
-        estado: '',
-        numero: '',
-        complemento: '',
-        referencia: ''
-    };
-    
     window.estadoAplicativo = {
         formaPagamento: null,
         totalGeral: 0,
