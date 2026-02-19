@@ -76,65 +76,7 @@
     border-top: 1px dashed var(--cinza-medio);
 }
 
-/* --- SEÇÃO DE PAGAMENTO --- */
-.opcoes-pagamento {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-    margin-bottom: 25px !important;
-    width: 100% !important;
-}
-
-.opcao-pagamento {
-    border-radius: 12px;
-    border: 2px solid var(--cinza-medio);
-    background: var(--branco);
-    padding: 18px 15px;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    display: flex;
-    flex-direction: column;
-}
-
-.opcao-pagamento:hover {
-    border-color: var(--marrom-cafe);
-}
-
-.opcao-pagamento.ativa {
-    border-color: var(--verde-militar);
-    background: var(--branco); 
-}
-
-.opcao-cabecalho {
-    font-weight: 900;
-    color: var(--marrom-cafe);
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    gap: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.opcao-recomendado {
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--verde-militar);
-    color: var(--branco);
-    font-size: 0.65rem;
-    padding: 4px 12px;
-    border-radius: 6px;
-    font-weight: 900;
-    text-transform: uppercase;
-    z-index: 10;
-}
+/* Estilos de .opcao-pagamento consolidados em modal-pagamento.css */
 
 /* --- CONTEÚDOS EXPANSÍVEIS --- */
 .opcao-conteudo {
@@ -231,15 +173,7 @@
     background: var(--branco);
 }
 
-/* --- BARRA FIXA --- */
-.barra-carrinho-fixa {
-    padding: 15px !important;
-    background: var(--branco);
-    border-top: 1px solid var(--borda-nav);
-    position: sticky;
-    bottom: 0;
-    z-index: 20;
-}
+/* .barra-carrinho-fixa removido — definida em layout-base.css */
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-5px); }

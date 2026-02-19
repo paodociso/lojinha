@@ -17,6 +17,78 @@
     height: auto !important;        /* Deixa crescer conforme o conteúdo */
 }
 
+/* --- CONSOLIDADO DE modal-carrinho.css --- */
+.opcoes-pagamento {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    margin-bottom: 25px !important;
+    width: 100% !important;
+}
+
+.opcao-pagamento {
+    background: var(--branco);
+    cursor: pointer;
+    position: relative !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex;
+    flex-direction: column;
+}
+
+.opcao-pagamento:hover {
+    border-color: var(--marrom-cafe);
+}
+
+.opcao-pagamento.ativa {
+    border-color: var(--verde-militar);
+    background: var(--branco);
+}
+
+.opcao-cabecalho {
+    font-weight: 900;
+    color: var(--marrom-cafe);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.opcao-recomendado {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--verde-militar);
+    color: var(--branco);
+    font-size: 0.65rem;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 900;
+    text-transform: uppercase;
+    z-index: 10;
+}
+
+/* --- CONTEÚDOS EXPANSÍVEIS --- */
+.opcao-conteudo {
+    display: none;
+    margin-top: 15px;
+    padding: 20px;
+    background: var(--branco);
+    border-radius: 12px;
+    border: 1px solid var(--bege-escuro);
+    animation: fadeIn 0.3s ease;
+}
+
+.opcao-pagamento.ativa .opcao-conteudo {
+    display: block;
+}
+
+
 /* Caso você use a div de conteúdo que mencionamos antes */
 #conteudo-pagamento {
     overflow: visible !important;
