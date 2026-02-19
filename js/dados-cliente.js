@@ -7,8 +7,15 @@ function validarDadosCliente() {
     
     // Validações básicas
     if (!nome || nome.length < 3) {
-        alert('Por favor, digite seu nome completo.');
+        mostrarNotificacao('Por favor, digite seu nome completo.', 'erro');
         elemento('nome-cliente').focus();
+        return;
+    }
+
+    // Validação de WhatsApp
+    if (typeof validarTelefone === 'function' && !validarTelefone(whatsapp)) {
+        mostrarNotificacao('Por favor, digite um WhatsApp válido com DDD (ex: 11 98765-4321).', 'erro');
+        elemento('whatsapp-cliente').focus();
         return;
     }
     
@@ -19,7 +26,7 @@ function validarDadosCliente() {
 
     if (estadoAplicativo.modoEntrega === 'entrega') {
         if (!window.AddressManager || !window.AddressManager.validar().valido) {
-            alert('Por favor, preencha todos os campos de endereço obrigatórios.');
+            mostrarNotificacao('Por favor, preencha todos os campos de endereço obrigatórios.', 'erro');
             return;
         }
         enderecoCliente = window.AddressManager.getEndereco();

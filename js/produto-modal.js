@@ -9,7 +9,7 @@ function configurarProduto(indiceSessao, indiceItem) {
     const identificador = `item-${indiceSessao}-${indiceItem}`;
 
     if (produto.esgotado) {
-        alert('Este produto está esgotado no momento.');
+        mostrarNotificacao('Este produto está esgotado no momento.', 'erro');
         return;
     }
 
@@ -246,7 +246,7 @@ function verificarVisibilidadeBotoesModal() {
 }
 
 function adicionarItemAoCarrinho() {
-    if (produtoAtual.quantidade === 0) { alert('Adicione pelo menos 1 item.'); return; }
+    if (produtoAtual.quantidade === 0) { mostrarNotificacao('Adicione pelo menos 1 item.', 'erro'); return; }
     sincronizarProdutoNoCarrinho();
     fecharModal('modal-produto');
     mostrarNotificacao('Item adicionado ao carrinho!');

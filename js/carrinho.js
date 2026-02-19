@@ -500,7 +500,7 @@ function prosseguirParaDadosCliente() {
     console.log('[CEP] Prosseguindo para dados do cliente...');
     
     if (Object.keys(carrinho).length === 0) {
-        alert('Adicione itens ao carrinho antes de prosseguir.');
+        mostrarNotificacao('Adicione itens ao carrinho antes de prosseguir.', 'aviso');
         return;
     }
 

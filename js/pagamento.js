@@ -13,7 +13,7 @@ function abrirModalPagamento() {
         console.log("✅ Resumo financeiro gerado com sucesso pela função do carrinho.");
     } else {
         console.error("❌ ERRO CRÍTICO: Função atualizarResumoPagamentoFinal não encontrada.");
-        alert("Erro ao carregar valores. Por favor, recarregue a página.");
+        mostrarNotificacao('Erro ao carregar valores. Por favor, recarregue a página.', 'erro');
         return;
     }
 
@@ -70,7 +70,7 @@ function copiarChavePix() {
 
 function finalizarPedido() {
     if (!estadoAplicativo.formaPagamento) {
-        alert('Por favor, selecione uma forma de pagamento.');
+        mostrarNotificacao('Por favor, selecione uma forma de pagamento.', 'aviso');
         return;
     }
 
@@ -87,7 +87,7 @@ function finalizarPedido() {
             processarFinalizacaoPedido();
         }, 1000);
     } else {
-        alert('Erro: Função de processamento não encontrada.');
+        mostrarNotificacao('Erro: Função de processamento não encontrada.', 'erro');
         if (botao) {
             botao.disabled = false;
             botao.innerHTML = 'FINALIZAR PEDIDO <i class="fab fa-whatsapp"></i>';

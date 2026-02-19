@@ -51,18 +51,18 @@ function processarFinalizacaoPedido() {
     
     // Validar dados básicos
     if (!nome || nome.length < 3) {
-        alert('Por favor, digite seu nome completo.');
+        mostrarNotificacao('Por favor, digite seu nome completo.', 'erro');
         return;
     }
     
     const whatsappNumeros = whatsapp.replace(/\D/g, '');
     if (whatsappNumeros.length !== 11) {
-        alert('Por favor, digite um WhatsApp válido (11 dígitos).');
+        mostrarNotificacao('Por favor, digite um WhatsApp válido (11 dígitos).', 'erro');
         return;
     }
     
     if (!metodoPagamento) {
-        alert('Por favor, selecione uma forma de pagamento.');
+        mostrarNotificacao('Por favor, selecione uma forma de pagamento.', 'erro');
         return;
     }
     
@@ -77,7 +77,7 @@ function processarFinalizacaoPedido() {
         const cep = elemento('codigo-postal-cliente')?.value.trim() || '';
         
         if (!rua || !bairro || !numero) {
-            alert('Para entrega, preencha todos os campos de endereço obrigatórios.');
+            mostrarNotificacao('Para entrega, preencha todos os campos de endereço obrigatórios.', 'erro');
             return;
         }
         
@@ -211,7 +211,7 @@ function reenviarPedidoWhatsapp() {
     if (window.ultimoLinkWhatsapp) {
         window.open(window.ultimoLinkWhatsapp, '_blank');
     } else {
-        alert("Link do pedido não encontrado. Tente enviar novamente.");
+        mostrarNotificacao('Link do pedido não encontrado. Tente enviar novamente.', 'erro');
     }
 }
 

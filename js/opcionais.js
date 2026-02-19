@@ -9,7 +9,7 @@ function alterarQuantidadeOpcional(nomeOpcional, precoOpcional, valor) {
 
     // 1. Se o produto principal for 0, não permite adicionar opcionais
     if (produtoAtual.quantidade === 0 && valor > 0) {
-        alert('Aumente a quantidade do produto antes de adicionar opcionais.');
+        mostrarNotificacao('Aumente a quantidade do produto antes de adicionar opcionais.', 'aviso');
         return;
     }
     
