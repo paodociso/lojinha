@@ -69,9 +69,14 @@ function configurarDatasFornada() {
         const agora = new Date();
         const dataLimiteComHora = new Date(dataLimite);
         
-        // Extrair hora da string horaLimite (ex: "12h")
-        const hora = parseInt(horaLimite.replace('h', ''), 10) || 12;
-        dataLimiteComHora.setHours(hora, 0, 0, 0);
+        // Extrair hora e minutos da string horaLimite (suporta "12h", "12:30", etc)
+        let horas = 12, minutos = 0;
+        if (horaLimite.includes(':')) {
+            [horas, minutos] = horaLimite.split(':').map(Number);
+        } else {
+            horas = parseInt(horaLimite.replace('h', ''), 10) || 12;
+        }
+        dataLimiteComHora.setHours(horas, minutos, 0, 0);
         
         if (agora > dataLimiteComHora) {
             console.warn('⚠️ Prazo da fornada já expirou!');
@@ -83,39 +88,6 @@ function configurarDatasFornada() {
         
     } catch (error) {
         console.error('❌ Erro ao configurar datas da fornada:', error);
-    }
-}
-
-function desabilitarFornada() {
-    const bannerFornada = document.querySelector('.banner-fornada');
-    if (bannerFornada) {
-        bannerFornada.style.opacity = '0.6';
-        bannerFornada.style.cursor = 'not-allowed';
-        bannerFornada.onclick = null;
-        
-        // Atualizar texto do banner
-        const elementoDataFornada = document.getElementById('texto-data-fornada');
-        if (elementoDataFornada) {
-            elementoDataFornada.innerHTML = `<i class="fas fa-exclamation-triangle"></i> FORNADA ENCERRADA`;
-        }
-        
-        const elementoLimitePedido = document.getElementById('texto-limite-pedido');
-        if (elementoLimitePedido) {
-            elementoLimitePedido.textContent = 'Próxima data em breve!';
-        }
-    }
-}
-
-function habilitarFornada() {
-    const bannerFornada = document.querySelector('.banner-fornada');
-    if (bannerFornada) {
-        bannerFornada.style.opacity = '1';
-        bannerFornada.style.cursor = 'pointer';
-        bannerFornada.onclick = function() {
-            if (typeof abrirModal === 'function') {
-                abrirModal('modal-informacoes-fornada');
-            }
-        };
     }
 }
 

@@ -4,7 +4,7 @@
 
 /* --- CORREÇÃO: Forçar o modal a começar invisível --- */
 #modal-recuperar-carrinho {
-    display: none !important;
+    display: none;
     z-index: 9999;
 }
 

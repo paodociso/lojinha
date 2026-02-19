@@ -24,7 +24,7 @@ window.dadosIniciais = {
             {"nome":"Centro","taxa":10},
             {"nome":"Vila Aparecida","taxa":12},
             {"nome":"Cidade Planejada","taxa":17},
-            {"nome":"Parque dos Estado","taxa":17},
+            {"nome":"Parque dos Estados","taxa":17},
             {"nome":"Altos de Bragança","taxa":13},
             {"nome":"Residencial das Ilhas","taxa":13},
             {"nome":"Jardim Nova Bragança","taxa":11},

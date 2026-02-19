@@ -2,6 +2,8 @@
 // SISTEMA DE PAGAMENTO - PÃO DO CISO
 // ============================================
 
+const CHAVE_PIX = 'paodociso@gmail.com';
+
 function abrirModalPagamento() {
     console.log("=== ABRINDO PAGAMENTO ===");
 
@@ -38,10 +40,13 @@ function selecionarPagamento(forma, elementoHtml) {
     
     // Atualizar valor do PIX
     if (forma === 'PIX') {
+        // Preenche a chave PIX visível (evita ofuscação do Cloudflare)
+        const textoChave = document.getElementById('texto-chave-pix');
+        if (textoChave) textoChave.textContent = CHAVE_PIX; // 👈 novo
+
         const txtValor = document.getElementById('pix-valor-txt');
         if (txtValor) txtValor.textContent = formatarMoeda(estadoAplicativo.totalGeral);
-        
-        // Atualizar também no novo formato
+
         const valorPix = document.getElementById('valor-pix');
         if (valorPix) valorPix.textContent = formatarMoeda(estadoAplicativo.totalGeral);
     }
@@ -54,14 +59,11 @@ function selecionarPagamento(forma, elementoHtml) {
 }
 
 function copiarChavePix() {
-    const chave = 'paodociso@gmail.com';
-    navigator.clipboard.writeText(chave).then(() => {
+    navigator.clipboard.writeText(CHAVE_PIX).then(() => { // 👈 usa a constante
         const mensagem = elemento('mensagem-copiado');
         if (mensagem) {
             mensagem.style.display = 'block';
-            setTimeout(() => {
-                mensagem.style.display = 'none';
-            }, 3000);
+            setTimeout(() => { mensagem.style.display = 'none'; }, 3000);
         }
     });
 }

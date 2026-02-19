@@ -24,20 +24,19 @@ function verificarCarrinhoRecuperado() {
         // 1. Chama a função padrão (que cria o fundo borrado)
         abrirModal('modal-recuperar-carrinho');
         
-        // 2. COMANDO MESTRE: Força o modal a aparecer vencendo o CSS !important
+        // 2. Atribuição direta (CSS já sem !important)
         const modal = document.getElementById('modal-recuperar-carrinho');
         if (modal) {
-            modal.style.setProperty('display', 'flex', 'important');
+            modal.style.display = 'flex';
         }
         
     } else {
         // CASO VAZIO (GARANTIR FECHAMENTO)
         console.log('✅ Carrinho vazio. Mantendo fechado.');
         
-        // Removemos o estilo inline forçado caso exista
         const modal = document.getElementById('modal-recuperar-carrinho');
         if (modal) {
-            modal.style.removeProperty('display');
+            modal.style.display = 'none';
         }
         
         if (typeof fecharModal === 'function') {
