@@ -24,7 +24,6 @@ window.estadoAplicativo = {
     bairroEntrega: null,
     cupomAplicado: null,
     descontoCupom: 0,
-    // ADICIONE ESTA LINHA:
     dadosCliente: {
         nome: '',
         telefone: '',
@@ -87,8 +86,7 @@ function resetarEstado() {
         bairroEntrega: null,
         cupomAplicado: null,
         descontoCupom: 0,
-        // ADICIONE ESTA LINHA:
-        dadosCliente: {
+            dadosCliente: {
             nome: '',
             telefone: '',
             cep: '',

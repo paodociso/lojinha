@@ -161,12 +161,10 @@ function calcularFretePorBairro(nomeBairro) {
 
     const taxaCalculada = bairroEncontrado ? bairroEncontrado.taxa : window.dadosIniciais.entrega.taxaGeral;
 
-    // 1. Atualiza estados globais
-    enderecoCliente.taxaEntrega = taxaCalculada;
-    window.taxaEntregaGlobal = taxaCalculada;
-    if(window.estadoAplicativo) {
+    // 1. Atualiza estado global (fonte única da taxa de entrega)
+    if (window.estadoAplicativo) {
         window.estadoAplicativo.taxaEntrega = taxaCalculada;
-        window.estadoAplicativo.bairroIdentificado = nomeBairro; // Salva o bairro no estado
+        window.estadoAplicativo.bairroIdentificado = nomeBairro;
     }
 
 // --- 2. ATUALIZAÇÃO NO CARRINHO ---
@@ -203,8 +201,9 @@ function calcularFretePorBairro(nomeBairro) {
 }
 
 function obterTaxaEntregaAtual() {
-    return (enderecoCliente && enderecoCliente.taxaEntrega !== undefined) 
-        ? enderecoCliente.taxaEntrega 
+    // Fonte única: estadoAplicativo.taxaEntrega
+    return (window.estadoAplicativo && window.estadoAplicativo.taxaEntrega)
+        ? window.estadoAplicativo.taxaEntrega
         : window.dadosIniciais.entrega.taxaGeral;
 }
 
@@ -362,7 +361,7 @@ function limparEnderecoCliente() {
     const divResultado = document.getElementById('resultado-frete-carrinho');
     if (divNotificacao) divNotificacao.style.display = 'none';
     if (divResultado) divResultado.style.display = 'none';
-    window.taxaEntregaGlobal = 0;
+    window.estadoAplicativo.taxaEntrega = 0; // Fonte única da taxa de entrega
 }
 
 // --- 6. CONFIGURAÇÃO DE EVENTOS ---
