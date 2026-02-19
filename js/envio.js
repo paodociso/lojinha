@@ -3,7 +3,7 @@
 // ============================================
 
 function enviarPedidoParaPlanilha(dadosCliente) {
-    const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbzjMJHJ7awYSo-T9TrhF2ByutCxl8Rjt6_c80ivuWCaBqhIz9KoVLA8IMO7JiwmQTl1QQ/exec";
+    const URL_PLANILHA = window.config.urlPlanilha;
 
     // 1. Organizar os itens do pedido com quebra de linha para a célula
     let resumoItens = "";
@@ -102,7 +102,7 @@ function processarFinalizacaoPedido() {
     const mensagem = gerarMensagemWhatsApp(nome, whatsappNumeros, enderecoTexto, metodoPagamento);
     
     // Abrir WhatsApp
-    const linkWhatsApp = `https://api.whatsapp.com/send?phone=5511976799866&text=${encodeURIComponent(mensagem)}`;
+    const linkWhatsApp = `https://api.whatsapp.com/send?phone=${window.config.whatsappVendedor}&text=${encodeURIComponent(mensagem)}`;
     window.open(linkWhatsApp, '_blank');
 
     // Salvar o link para o botão de reenvio

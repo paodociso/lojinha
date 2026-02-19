@@ -2,7 +2,8 @@
 // SISTEMA DE PAGAMENTO - PÃO DO CISO
 // ============================================
 
-const CHAVE_PIX = 'paodociso@gmail.com';
+// Chave PIX centralizada em config.js
+const CHAVE_PIX = window.config.chavePix;
 
 function abrirModalPagamento() {
     console.log("=== ABRINDO PAGAMENTO ===");
