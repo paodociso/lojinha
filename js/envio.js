@@ -132,6 +132,16 @@ function processarFinalizacaoPedido() {
         if (typeof abrirModal === 'function') {
             abrirModal('modal-sucesso');
         }
+
+        // Preencher número do pedido e horário no modal de sucesso
+        const agora = new Date();
+        const horario = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        const numeroPedido = '#' + String(agora.getTime()).slice(-4);
+
+        const elNumero  = document.getElementById('numero-pedido');
+        const elHorario = document.getElementById('horario-pedido');
+        if (elNumero)  elNumero.textContent  = numeroPedido;
+        if (elHorario) elHorario.textContent = horario;
     }, 300);
 }
 

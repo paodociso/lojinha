@@ -41,7 +41,24 @@ async function buscarEnderecoPorCodigoPostal(cepCru) {
 
     try {
         log('🌐 [Debug] Chamando API ViaCEP...');
-        const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+
+        // Timeout de 5s via AbortController — evita spinner preso indefinidamente
+        const controller = new AbortController();
+        const timeoutId  = setTimeout(() => controller.abort(), 5000);
+
+        let resposta;
+        try {
+            resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`, { signal: controller.signal });
+        } catch (erroFetch) {
+            clearTimeout(timeoutId);
+            const mensagem = erroFetch.name === 'AbortError'
+                ? 'Tempo esgotado. Verifique sua conexão e tente novamente.'
+                : 'Sem conexão. Preencha o endereço manualmente.';
+            mostrarErroCEP(mensagem);
+            return;
+        }
+        clearTimeout(timeoutId);
+
         const dados = await resposta.json();
 
         if (dados.erro) {
@@ -98,6 +115,7 @@ async function buscarEnderecoPorCodigoPostal(cepCru) {
 
     } catch (erro) {
         console.error('❌ [Debug] Erro na busca:', erro);
+        mostrarErroCEP('Erro inesperado ao buscar o CEP. Preencha o endereço manualmente.');
     } finally {
         if (typeof mostrarCarregamentoCEP === 'function') {
             mostrarCarregamentoCEP(false);
