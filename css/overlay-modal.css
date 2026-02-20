@@ -1,5 +1,5 @@
 /* ============================================================
-   OVERLAY E ESTRUTURA BASE DOS MODAIS - VERSAO ENCAIXE REAL
+   OVERLAY E ESTRUTURA BASE DOS MODAIS
    ============================================================ */
 
 .overlay-modal {
@@ -14,56 +14,79 @@
     backdrop-filter: blur(3px);
 }
 
+/* ── MODAL BASE ──────────────────────────────────────────────
+   Centralização com transform (comportamento original correto).
+   
+   A correção está no max-height: descontamos explicitamente
+   o topo (10px de folga) + a barra do carrinho (~60px) + folga.
+   
+   "height: auto" garante que modais com pouco conteúdo
+   não crescem além do necessário — o modal abraça o conteúdo.
+   ────────────────────────────────────────────────────────── */
 .modal {
-    left: 50% !important;
-    
-    /* 1. O CALCULO: 
-       Metade da tela (50%) menos metade da altura da barra (30px) */
-    top: calc(50% - 30px) !important;
-    
-    /* 2. O ENCAIXE:
-       Mantemos a centralizacao do proprio modal no novo eixo */
-    transform: translate(-50%, -50%) !important;
-    
-    width: calc(100% - 20px) !important;
-    max-width: calc(100% - 20px) !important;
-    
-    /* 3. A SEGURANÇA:
-       A altura maxima nao pode ultrapassar o espaco util (75% da tela e seguro) */
-    max-height: 75vh !important;
-    
-    height: auto !important;
-    box-sizing: border-box;
-    margin: 0 !important;
     position: fixed;
     z-index: 1001;
+
+    left: 50% !important;
+    top: 50% !important;
+
+    /* Desloca o centro para cima, compensando a barra do carrinho */
+    transform: translate(-50%, calc(-50% - 35px)) !important;
+
+    width: calc(100% - 20px) !important;
+    max-width: calc(100% - 20px) !important;
+
+    /* Altura: abraça o conteúdo mas nunca ultrapassa o espaço útil.
+       100vh - 10px (topo) - 70px (barra carrinho) - 10px (folga) = 100vh - 90px */
+    height: auto !important;
+    max-height: calc(100vh - 90px) !important;
+
+    box-sizing: border-box;
+    margin: 0 !important;
     background: var(--bg-container-modal);
     border-radius: 15px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     overflow: hidden;
+
+    display: none;
+    flex-direction: column;
 }
 
-/* Ajuste para que o conteudo interno role se for maior que o novo max-height */
-.conteudo-modal, 
-.conteudo-modal-produto, 
-.conteudo-modal-carrinho {
-    max-height: calc(100vh - 120px) !important;
-    overflow-y: auto !important;
-    padding: 20px !important;
+/* Quando aberto via JS */
+.modal[style*="display: block"],
+.modal[style*="display:block"],
+.modal[style*="display: flex"],
+.modal[style*="display:flex"] {
+    display: flex !important;
+    flex-direction: column !important;
 }
+
+/* ── CONTEÚDO INTERNO PADRÃO ─────────────────────────────────
+   Para modais simples (carrinho, dados-cliente, etc.)
+   ────────────────────────────────────────────────────────── */
+.conteudo-modal,
+.conteudo-modal-carrinho {
+    flex: 1 1 auto;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px !important;
+    max-height: none !important;
+    min-height: 0;
+}
+
+/* conteudo-modal-produto é controlado pelo modal-produto.css */
 
 @keyframes modalEntrada {
-    from { opacity: 0; top: 10px !important; }
-    to { opacity: 1; top: 20px !important; }
+    from { opacity: 0; transform: translate(-50%, calc(-50% - 25px)); }
+    to   { opacity: 1; transform: translate(-50%, calc(-50% - 35px)); }
 }
 
-/* DESKTOP (PC - a partir de 769px) */
-/* Ajuste no PC para manter a mesma proporção */
+/* ── DESKTOP (a partir de 769px) ─────────────────────────── */
 @media (min-width: 769px) {
     .modal {
         max-width: 500px !important;
         width: 90% !important;
-        top: calc(50% - 30px) !important;
-        max-height: 80vh !important;
+        max-height: calc(100vh - 100px) !important;
+        transform: translate(-50%, calc(-50% - 35px)) !important;
     }
 }

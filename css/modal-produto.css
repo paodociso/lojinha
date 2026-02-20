@@ -1,50 +1,43 @@
 /* ============================================================
-   MODAL DE PRODUTO - VERSÃO ATUALIZADA
+   MODAL DE PRODUTO
    ============================================================ */
 
-/* 🔒 ESTADO INICIAL */
-#modal-produto {
-    display: none;
-    width: 100% !important;
-    max-width: 100vw;
-    max-height: 95vh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
+/* ── ESTRUTURA DE 3 ZONAS ────────────────────────────────────
+   O modal tem height:auto — abraça o conteúdo até max-height.
+   Internamente, flex-column divide em 3 zonas:
 
-/* 📱 TELEMÓVEL (Padrão) */
+   [.conteudo-modal-produto]  imagem + nome + desc  → fixo (flex-shrink:0)
+   [#corpo-modal-produto]     opcionais + subtotal  → rola (flex:1)
+   [.botoes-modal-produto]    botões                → fixo (flex-shrink:0)
+   ────────────────────────────────────────────────────────── */
 
+/* ── ZONA 1: CABEÇALHO FIXO (imagem + nome + descrição) ──── */
 .conteudo-modal-produto {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
+    flex-shrink: 0 !important;
+    overflow: hidden !important;
+    max-height: none !important;        /* anula herança do overlay-modal */
+    padding: 16px 20px 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background: var(--bg-container-modal);
 }
 
-/* Cabeçalho do Produto */
-.nome-produto-modal {
-    font-size: 1.1rem !important;
-    font-weight: 900;
-    color: var(--texto);
-    margin-bottom: 15px !important;
-    text-align: center;
-    order: -1;
-}
-
-/* Moldura e Imagem do Produto */
 .imagem-produto-container {
     width: 100% !important;
-    max-height: 150px !important; /* Reduzido conforme solicitado */
-    height: 150px !important;     
-    margin: 0 0 15px 0 !important;
-    border-radius: 12px;
+    aspect-ratio: 2 / 1 !important;  /* largura:altura = 2:1 → altura = metade da largura */
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 0 12px 0 !important;
+    border-radius: 12px !important;
+    border: 2px solid var(--borda-nav) !important;
     background: var(--branco);
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid var(--borda-nav) !important;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
-    cursor: zoom-in; /* Indicativo de clique para ampliar */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    cursor: zoom-in;
+    flex-shrink: 0;
 }
 
 .imagem-produto-modal {
@@ -55,15 +48,44 @@
     display: block;
 }
 
+.nome-produto-modal {
+    font-size: 1.1rem !important;
+    font-weight: 900;
+    color: var(--marrom-cafe);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    /* Visual tipo resumo-pedido do carrinho */
+    background: #fdfaf5;
+    border: 1px solid var(--bege-escuro);
+    border-radius: 12px;
+    padding: 12px 16px !important;
+
+    /* Fica fora do .moldura-padrao-modal, então precisa de margem lateral */
+    margin: 0 0 0 0 !important;  /* a margem inferior vem do padding do .conteudo-modal-produto */
+}
+
 .descricao-produto-modal {
     font-size: 0.85rem !important;
     line-height: 1.4 !important;
     color: var(--cinza-escuro);
     text-align: center;
     font-weight: 700;
+    margin: 0 !important;
 }
 
-/* Blocos de Informação */
+/* ── ZONA 2: CORPO ROLÁVEL (opcionais + subtotal) ─────────── */
+#corpo-modal-produto {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 20px 8px !important;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;                      /* essencial para flex+overflow */
+}
+
 .moldura-padrao-modal,
 .info-produto-modal,
 .controle-quantidade-produto {
@@ -74,18 +96,18 @@
     border: 1px solid var(--cinza-medio);
 }
 
-/* Bloco de Opcionais SEM Scroll */
 .moldura-agrupadora-opcionais {
     padding: 10px !important;
     margin: 8px 0 !important;
     background-color: #f2f2f2;
     border-radius: 12px;
     border: 1px solid var(--cinza-medio);
-    max-height: none !important; /* Scroll eliminado */
+    max-height: none !important;
     overflow: visible !important;
 }
 
-.titulo-modal-pequeno, .titulo-opcionais {
+.titulo-modal-pequeno,
+.titulo-opcionais {
     font-size: 0.85rem;
     font-weight: 900;
     color: var(--marrom-cafe);
@@ -95,7 +117,6 @@
     text-align: center;
 }
 
-/* Itens Opcionais */
 .opcional-item-moldura {
     display: flex !important;
     flex-direction: row !important;
@@ -111,7 +132,7 @@
 
 .opcional-info {
     display: flex;
-    flex-direction: column; /* Move o preço para baixo do nome */
+    flex-direction: column;
     text-align: left;
 }
 
@@ -138,10 +159,9 @@
 .quantidade-opcional {
     font-weight: 900;
     min-width: 25px;
-    text-align: center; /* Centraliza o número entre os botões */
+    text-align: center;
 }
 
-/* Quantidade Principal */
 .controles-quantidade {
     display: flex;
     align-items: center;
@@ -155,10 +175,9 @@
     font-weight: 900;
     color: var(--verde-militar);
     min-width: 40px !important;
-    text-align: center; /* Centralização garantida */
+    text-align: center;
 }
 
-/* SUBTOTAL (CENTRALIZADO) */
 #container-subtotal-produto {
     background: #ffeded;
     padding: 12px;
@@ -169,7 +188,7 @@
     justify-content: center;
     text-align: center;
     border: 1px solid #ffcccc;
-    margin-bottom: 10px;
+    margin: 8px 0 4px;
 }
 
 .subtitulo-subtotal {
@@ -187,20 +206,15 @@
     width: 100%;
 }
 
-/* ============================================================
-   RODAPÉ DE AÇÕES (BOTÕES)
-   ============================================================ */
-
+/* ── ZONA 3: RODAPÉ FIXO (botões) ────────────────────────── */
 .botoes-modal-produto {
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 15px 20px 20px;
-    background: var(--branco);
+    padding: 12px 20px 16px;
+    background: var(--bg-container-modal);
     border-top: 1px solid var(--cinza-medio);
-    position: sticky;
-    bottom: 0;
-    z-index: 100;
 }
 
 .botao-continuar-comprando {
@@ -235,21 +249,18 @@
     box-shadow: 0 4px 6px var(--sombra-suave);
 }
 
-/* 💻 DESKTOP (PC) */
+/* ── DESKTOP ─────────────────────────────────────────────── */
 @media (min-width: 769px) {
-    .imagem-produto-container {
-        max-height: 300px !important;
-        height: 300px !important;
-    }
-    
+    /* imagem-produto-container usa aspect-ratio, não precisa de override */
+
     .nome-produto-modal {
         font-size: 1.4rem !important;
     }
 }
 
-/* MODAL DE ZOOM (AMPLIAÇÃO) */
+/* ── MODAL DE ZOOM ───────────────────────────────────────── */
 #modal-zoom-imagem {
-    display: none; 
+    display: none;
     position: fixed;
     z-index: 9999;
     left: 0;
