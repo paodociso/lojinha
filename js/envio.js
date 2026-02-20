@@ -46,7 +46,7 @@ function enviarPedidoParaPlanilha(dadosCliente) {
     };
 
     // 3. Executar o envio
-    console.log("📤 Enviando para planilha...");
+    log("📤 Enviando para planilha...");
     fetch(URL_PLANILHA, {
         method: 'POST',
         mode: 'no-cors', 
@@ -54,7 +54,7 @@ function enviarPedidoParaPlanilha(dadosCliente) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dados)
     })
-    .then(() => console.log("✅ Dados enviados para a planilha com sucesso!"))
+    .then(() => log("✅ Dados enviados para a planilha com sucesso!"))
     .catch(error => console.error("❌ Erro ao enviar para planilha:", error));
 }
 

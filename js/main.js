@@ -2,7 +2,7 @@
 // INICIALIZAÇÃO PRINCIPAL - PÃO DO CISO
 // ============================================
 function inicializarSistema() {
-    console.log('Inicializando sistema Pão do Ciso...');
+    log('Inicializando sistema Pão do Ciso...');
     
     // 1. CARREGAR CARRINHO PRIMEIRO (IMPORTANTE!)
     if (typeof carregarCarrinhoSalvo === 'function') {
@@ -50,10 +50,10 @@ function inicializarSistema() {
     }
     
     // 9. VERIFICAR AddressManager (APENAS PARA DEBUG)
-    console.log('🔍 Verificando AddressManager...');
+    log('🔍 Verificando AddressManager...');
     setTimeout(() => {
         if (window.AddressManager) {
-            console.log('✅ AddressManager carregado com sucesso!');
+            log('✅ AddressManager carregado com sucesso!');
         } else {
             console.error('❌ AddressManager NÃO foi carregado!');
         }
@@ -61,25 +61,25 @@ function inicializarSistema() {
     
     // 10. INICIAR RECUPERAÇÃO DE CARRINHO
     setTimeout(() => {
-        console.log('🔄 Timer de recuperação disparado...');
+        log('🔄 Timer de recuperação disparado...');
         
         // NOVA CHECAGEM DE SEGURANÇA: Só tenta recuperar se o carrinho existir e tiver itens
         const temItens = window.carrinho && Object.keys(window.carrinho).length > 0;
 
         if (temItens && window.iniciarRecuperacaoCarrinho) {
-            console.log('✅ Carrinho detectado com itens. Executando recuperação...');
+            log('✅ Carrinho detectado com itens. Executando recuperação...');
             window.iniciarRecuperacaoCarrinho();
         } else {
-            console.log('✅ Carrinho vazio ou função não encontrada. Nenhuma ação.');
+            log('✅ Carrinho vazio ou função não encontrada. Nenhuma ação.');
         }
     }, 800);
 
-    console.log('✅ Sistema inicializado. Carrinho:', carrinho);
+    log('✅ Sistema inicializado. Carrinho:', carrinho);
 }
 
 // INICIALIZAR QUANDO O DOM CARREGAR - APENAS UMA VEZ!
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM carregado, verificando dependências...');
+    log('DOM carregado, verificando dependências...');
     
     // Verificar se dados iniciais estão carregados
     if (!window.dadosIniciais) {

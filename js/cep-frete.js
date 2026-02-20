@@ -27,7 +27,7 @@ function formatarCodigoPostal(input) {
 // --- 2. BUSCA DE ENDEREÇO (API) ---
 async function buscarEnderecoPorCodigoPostal(cepCru) {
     const cep = String(cepCru).replace(/\D/g, '');
-    console.log('🚀 [Debug] Iniciando busca para o CEP:', cep);
+    log('🚀 [Debug] Iniciando busca para o CEP:', cep);
 
     if (!cep || cep.length !== 8) {
         console.warn('⚠️ [Debug] CEP inválido ou incompleto detectado:', cep);
@@ -35,12 +35,12 @@ async function buscarEnderecoPorCodigoPostal(cepCru) {
     }
 
     if (typeof mostrarCarregamentoCEP === 'function') {
-        console.log('⏳ [Debug] Ativando loading...');
+        log('⏳ [Debug] Ativando loading...');
         mostrarCarregamentoCEP(true);
     }
 
     try {
-        console.log('🌐 [Debug] Chamando API ViaCEP...');
+        log('🌐 [Debug] Chamando API ViaCEP...');
         const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
         const dados = await resposta.json();
 
@@ -74,20 +74,20 @@ async function buscarEnderecoPorCodigoPostal(cepCru) {
             return;
         }
 
-        console.log('✅ [Debug] Dados recebidos da API:', dados);
+        log('✅ [Debug] Dados recebidos da API:', dados);
 
         if (typeof renderizarCarrinho === 'function') {
-            console.log('🔄 [Debug] Chamando renderizarCarrinho()...');
+            log('🔄 [Debug] Chamando renderizarCarrinho()...');
             renderizarCarrinho();
         }
 
         if (typeof preencherCamposEndereco === 'function') {
-            console.log('📝 [Debug] Preenchendo campos de endereço...');
+            log('📝 [Debug] Preenchendo campos de endereço...');
             preencherCamposEndereco(dados);
         }
 
         if (dados.bairro && typeof calcularFretePorBairro === 'function') {
-            console.log(`🚚 [Debug] Calculando frete para: ${dados.bairro}`);
+            log(`🚚 [Debug] Calculando frete para: ${dados.bairro}`);
             calcularFretePorBairro(dados.bairro);
         }
 
@@ -101,7 +101,7 @@ async function buscarEnderecoPorCodigoPostal(cepCru) {
     } finally {
         if (typeof mostrarCarregamentoCEP === 'function') {
             mostrarCarregamentoCEP(false);
-            console.log('🏁 [Debug] Processo finalizado.');
+            log('🏁 [Debug] Processo finalizado.');
         }
     }
 }

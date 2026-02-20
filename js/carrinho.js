@@ -406,7 +406,7 @@ function aplicarCupom() {
 }
 
 function alterarModoEntrega(modo) {
-    console.log(`[CEP] Alterando modo entrega para: ${modo}`);
+    log(`[CEP] Alterando modo entrega para: ${modo}`);
 
     estadoAplicativo.modoEntrega = modo;
 
@@ -454,7 +454,7 @@ function alterarModoEntrega(modo) {
 }
 
 function prosseguirParaDadosCliente() {
-    console.log('[CEP] Prosseguindo para dados do cliente...');
+    log('[CEP] Prosseguindo para dados do cliente...');
 
     if (Object.keys(carrinho).length === 0) {
         window.mostrarNotificacao('Adicione itens ao carrinho antes de prosseguir.', 'aviso');
@@ -478,7 +478,7 @@ function prosseguirParaDadosCliente() {
                     const cepJaNoCampo = campoCepDados.value.replace(/\D/g, '');
 
                     if (cepJaNoCampo !== cepAtualCarrinho) {
-                        console.log('[CEP] CEP alterado. Forçando nova busca...');
+                        log('[CEP] CEP alterado. Forçando nova busca...');
                         // 🔑 Usa window.formatarCEP de utils.js
                         campoCepDados.value = window.formatarCEP(cepAtualCarrinho);
 
@@ -507,7 +507,7 @@ function atualizarDisplayFreteCarrinho(valor) {
     }
 
     estadoAplicativo.taxaEntrega = valor;
-    console.log(`[CEP] Taxa salva: R$ ${valor.toFixed(2)}`);
+    log(`[CEP] Taxa salva: R$ ${valor.toFixed(2)}`);
 
     atualizarResumoFinanceiroCarrinho();
 }
@@ -604,4 +604,4 @@ window.atualizarDisplayFreteCarrinho = atualizarDisplayFreteCarrinho;
 window.formatarCampoCEP             = formatarCampoCEP;
 window.validarCEPAuto               = validarCEPAuto;
 
-console.log('✅ carrinho.js carregado');
+log('✅ carrinho.js carregado');

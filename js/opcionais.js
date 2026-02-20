@@ -5,7 +5,7 @@
 // opcionais.js
 
 function alterarQuantidadeOpcional(nomeOpcional, precoOpcional, valor) {
-    console.log(`--- ALTERANDO OPCIONAL: ${nomeOpcional} ---`);
+    log(`--- ALTERANDO OPCIONAL: ${nomeOpcional} ---`);
 
     // 1. Se o produto principal for 0, não permite adicionar opcionais
     if (produtoAtual.quantidade === 0 && valor > 0) {
@@ -27,12 +27,12 @@ function alterarQuantidadeOpcional(nomeOpcional, precoOpcional, valor) {
     if (novaQuantidade < 0) return;
     
     produtoAtual.opcionais[nomeOpcional].quantidade = novaQuantidade;
-    console.log(`✅ Opcional ${nomeOpcional}: ${novaQuantidade}`);
+    log(`✅ Opcional ${nomeOpcional}: ${novaQuantidade}`);
     
     // 2. Se a quantidade do opcional zerar, removemos a chave para limpar o objeto
     if (novaQuantidade === 0) {
         delete produtoAtual.opcionais[nomeOpcional];
-        console.log(`🗑️ Opcional ${nomeOpcional} removido por quantidade zero.`);
+        log(`🗑️ Opcional ${nomeOpcional} removido por quantidade zero.`);
     }
     
     // 3. Atualizar o número na tela (ID gerado na nossa nova função modularizada)

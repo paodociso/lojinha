@@ -38,7 +38,7 @@ function validarDadosCliente() {
 
 // ===================== FUNÇÃO DE TESTE DO ADDRESSMANAGER =====================
 /*function testarAddressManager() {
-    console.log('🧪 TESTANDO AddressManager...');
+    log('🧪 TESTANDO AddressManager...');
     
     // Verifica se o AddressManager foi carregado
     if (!window.AddressManager) {
@@ -47,8 +47,8 @@ function validarDadosCliente() {
     }
     
     // Testa os métodos principais
-    console.log('1. Método getEndereco():', window.AddressManager.getEndereco());
-    console.log('2. Método validar():', window.AddressManager.validar());
+    log('1. Método getEndereco():', window.AddressManager.getEndereco());
+    log('2. Método validar():', window.AddressManager.validar());
     
     // Preenche automaticamente com dados de teste
     const camposTeste = {
@@ -73,7 +73,7 @@ function validarDadosCliente() {
     
     // Feedback para o usuário
     const enderecoTeste = window.AddressManager.getEndereco();
-    console.log('✅ Dados de teste preenchidos:', enderecoTeste);
+    log('✅ Dados de teste preenchidos:', enderecoTeste);
     
     // Mostra mensagem amigável
     const mensagem = `✅ DADOS DE TESTE PREENCHIDOS:\n\n` +
@@ -113,16 +113,16 @@ function salvarDadosCliente() {
     };
     
     localStorage.setItem('dados_cliente_pao_do_ciso', JSON.stringify(dados));
-    console.log('💾 Dados do cliente e endereço salvos no LocalStorage');
+    log('💾 Dados do cliente e endereço salvos no LocalStorage');
 }
 
 function carregarDadosCliente() {
-    console.log('📂 Tentando recuperar dados do LocalStorage...');
+    log('📂 Tentando recuperar dados do LocalStorage...');
     try {
         const dadosSalvos = localStorage.getItem('dados_cliente_pao_do_ciso');
         if (dadosSalvos) {
             const dados = JSON.parse(dadosSalvos);
-            console.log('✅ Dados encontrados:', dados);
+            log('✅ Dados encontrados:', dados);
 
             if (dados.nome) document.getElementById('nome-cliente').value = dados.nome;
             if (dados.telefone) document.getElementById('whatsapp-cliente').value = dados.telefone;
@@ -136,7 +136,7 @@ function carregarDadosCliente() {
             }
             return true;
         }
-        console.log('ℹ️ Nenhum dado salvo anteriormente.');
+        log('ℹ️ Nenhum dado salvo anteriormente.');
     } catch (error) {
         console.error('❌ Erro no carregamento de dados:', error);
     }
@@ -146,20 +146,20 @@ function carregarDadosCliente() {
 
 // ===================== DIAGNOSTICAR PROBLEMA DE CEP =====================
 function diagnosticarCep() {
-    console.log("=== 🩺 DIAGNÓSTICO CEP ===");
-    console.log("1. CEP no estado:", estadoAplicativo.cepCalculado);
-    console.log("2. Modo entrega:", estadoAplicativo.modoEntrega);
-    console.log("3. Endereço salvo:", enderecoCliente);
-    console.log("4. Campos visíveis no modal:");
+    log("=== 🩺 DIAGNÓSTICO CEP ===");
+    log("1. CEP no estado:", estadoAplicativo.cepCalculado);
+    log("2. Modo entrega:", estadoAplicativo.modoEntrega);
+    log("3. Endereço salvo:", enderecoCliente);
+    log("4. Campos visíveis no modal:");
     
     const campos = ['codigo-postal-cliente', 'logradouro-cliente', 'bairro-cliente', 'cidade-cliente'];
     campos.forEach(id => {
         const campo = elemento(id);
         if (campo) {
-            console.log(`   ${id}: "${campo.value}"`);
+            log(`   ${id}: "${campo.value}"`);
         }
     });
-    console.log("=== FIM DIAGNÓSTICO ===");
+    log("=== FIM DIAGNÓSTICO ===");
 }
 
 // ===================== EXPORTAR FUNÇÕES GLOBAIS =====================

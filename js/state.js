@@ -33,10 +33,10 @@ function carregarCarrinhoSalvo() {
         const carrinhoSalvo = localStorage.getItem('carrinho_pao_do_ciso');
         if (carrinhoSalvo) {
             window.carrinho = JSON.parse(carrinhoSalvo);
-            console.log('🛒 Carrinho carregado do localStorage:', window.carrinho);
+            log('🛒 Carrinho carregado do localStorage:', window.carrinho);
         } else {
             window.carrinho = {};
-            console.log('🆕 Carrinho inicializado vazio');
+            log('🆕 Carrinho inicializado vazio');
         }
     } catch (error) {
         console.error('❌ Erro ao carregar carrinho:', error);
@@ -47,7 +47,7 @@ function carregarCarrinhoSalvo() {
 function salvarCarrinho() {
     try {
         localStorage.setItem('carrinho_pao_do_ciso', JSON.stringify(window.carrinho));
-        console.log('💾 Carrinho salvo no localStorage:', window.carrinho);
+        log('💾 Carrinho salvo no localStorage:', window.carrinho);
     } catch (error) {
         console.error('❌ Erro ao salvar carrinho:', error);
     }
@@ -79,7 +79,7 @@ function resetarEstado() {
     };
     
     localStorage.removeItem('carrinho_pao_do_ciso');
-    console.log('🔄 Estado resetado completamente');
+    log('🔄 Estado resetado completamente');
 }
 
 // EXPORTAR FUNÇÕES

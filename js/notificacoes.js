@@ -13,12 +13,12 @@
  * @param {'success'|'error'|'aviso'|'info'} tipo - Estilo visual da notificação.
  */
 function mostrarNotificacao(mensagem, tipo = 'info') {
-    console.log(`💬 Exibindo notificação [${tipo}]: ${mensagem}`);
+    log(`💬 Exibindo notificação [${tipo}]: ${mensagem}`);
 
     // Remove notificação anterior para não empilhar
     const antiga = document.querySelector('.notificacao-flutuante');
     if (antiga) {
-        console.log('🗑️ Removendo notificação anterior');
+        log('🗑️ Removendo notificação anterior');
         antiga.remove();
     }
 
@@ -27,22 +27,22 @@ function mostrarNotificacao(mensagem, tipo = 'info') {
     notificacao.innerHTML = `<span>${mensagem}</span>`;
 
     document.body.appendChild(notificacao);
-    console.log(`✅ Notificação criada: "${mensagem}"`);
+    log(`✅ Notificação criada: "${mensagem}"`);
 
     // Animação de entrada
     setTimeout(() => {
         notificacao.classList.add('ativo');
-        console.log('🎬 Animação de entrada ativada');
+        log('🎬 Animação de entrada ativada');
     }, 10);
 
     // Remove após 3 segundos
     setTimeout(() => {
-        console.log(`⏰ Removendo notificação: "${mensagem}"`);
+        log(`⏰ Removendo notificação: "${mensagem}"`);
         notificacao.classList.remove('ativo');
         setTimeout(() => {
             if (notificacao.parentNode) {
                 notificacao.remove();
-                console.log('🗑️ Notificação removida do DOM');
+                log('🗑️ Notificação removida do DOM');
             }
         }, 300);
     }, 3000);

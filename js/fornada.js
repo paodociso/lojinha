@@ -3,7 +3,7 @@
 // ============================================
 
 function configurarDatasFornada() {
-    console.log('⚙️ Configurando datas da fornada...');
+    log('⚙️ Configurando datas da fornada...');
     
     // Verifica se temos dados de fornada
     if (!window.dadosIniciais || !window.dadosIniciais.fornada) {
@@ -34,7 +34,7 @@ function configurarDatasFornada() {
         const dataFornadaFormatada = formatarDataSemAno(dataFornada);
         const dataLimiteFormatada = formatarDataSemAno(dataLimite);
         
-        console.log('📅 Datas formatadas (sem ano):', {
+        log('📅 Datas formatadas (sem ano):', {
             fornada: dataFornadaFormatada,
             limite: dataLimiteFormatada + ' às ' + horaLimite
         });
@@ -63,7 +63,7 @@ function configurarDatasFornada() {
             elementoLimiteFornadaModal.textContent = dataLimiteFormatada + ' às ' + horaLimite;
         }
         
-        console.log('✅ Datas da fornada configuradas com sucesso!');
+        log('✅ Datas da fornada configuradas com sucesso!');
         
         // VERIFICAR SE JÁ PASSOU DO PRAZO
         const agora = new Date();
@@ -82,7 +82,7 @@ function configurarDatasFornada() {
             console.warn('⚠️ Prazo da fornada já expirou!');
             desabilitarFornada();
         } else {
-            console.log('✅ Fornada ainda disponível para pedidos!');
+            log('✅ Fornada ainda disponível para pedidos!');
             habilitarFornada();
         }
         
@@ -128,7 +128,7 @@ function habilitarFornada() {
 // ✅ Migrado de: cardapio.js
 // Calcula e formata as datas de fornada e limite de pedido
 function calcularDatasFornada(infoFornada) {
-    console.log('📅 Calculando datas da fornada:', infoFornada);
+    log('📅 Calculando datas da fornada:', infoFornada);
 
     const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
@@ -148,7 +148,7 @@ function calcularDatasFornada(infoFornada) {
         limite:  `${diaLimite}, ${dataLimiteFormatada} às ${infoFornada.horaLimite}`
     };
 
-    console.log('📅 Resultado do cálculo:', resultado);
+    log('📅 Resultado do cálculo:', resultado);
     return resultado;
 }
 
