@@ -75,6 +75,13 @@ function inicializarSistema() {
     }, 800);
 
     log('✅ Sistema inicializado. Carrinho:', carrinho);
+
+    // INICIALIZAR LINK DE CONTATO WHATSAPP
+    const linkWA = document.getElementById('link-whatsapp-contato');
+    const textoWA = document.getElementById('texto-whatsapp-contato');
+    const num = window.config?.whatsappVendedor || '';
+    if (linkWA) linkWA.href = `https://wa.me/${num}`;
+    if (textoWA) textoWA.textContent = num.replace(/(\d{2})(\d{2})(\d{5})(\d{4})/, '+$1 ($2) $3-$4');
 }
 
 // INICIALIZAR QUANDO O DOM CARREGAR - APENAS UMA VEZ!
