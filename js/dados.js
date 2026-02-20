@@ -477,7 +477,7 @@ window.dadosIniciais = {
     "itens": [
       {
         "nome": "Capuccino",
-        "descricao": "Seja mais sóbrio, evite exclamações. acrescente as palavras-chave: praticidade e facilidade.",
+        "descricao": "A combinação clássica do café intenso com a cremosidade do leite vaporizado cria uma textura suave e envolvente a cada gole. É o convite perfeito para uma pausa restauradora, unindo sabor equilibrado e o conforto de uma bebida preparada com cuidado.",
         "preco": 20,
         "imagem": "img/capuccino.webp",
         "visivel": true,
@@ -489,7 +489,7 @@ window.dadosIniciais = {
       },
       {
         "nome": "Café cremoso",
-        "descricao": "Seja mais sóbrio, evite exclamações. acrescente as palavras-chave: praticidade e facilidade.",
+        "descricao": "Feito batendo apenas café solúvel e açúcar, este café surpreende por sua textura aveludada e densa. Sua praticidade de preparo entrega um sabor marcante que transforma qualquer momento em uma experiência especial.",
         "preco": 20,
         "imagem": "img/cafe-cremoso.webp",
         "visivel": true,
