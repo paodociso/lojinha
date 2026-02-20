@@ -42,29 +42,7 @@ function formatarCEP(valor) {
     return numeros;
 }
 
-function calcularTotalCarrinho() {
-    let total = 0;
-
-    Object.values(window.carrinho).forEach(item => {
-        if (window.dadosIniciais?.secoes?.[item.indiceSessao]?.itens?.[item.indiceItem]) {
-            const produto = window.dadosIniciais.secoes[item.indiceSessao].itens[item.indiceItem];
-            total += produto.preco * item.quantidade;
-
-            Object.values(item.opcionais || {}).forEach(opcional => {
-                total += opcional.quantidade * opcional.preco;
-            });
-        }
-    });
-
-    return total;
-}
-
 // FUNÇÕES DE VALIDAÇÃO
-function validarEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-}
-
 function validarTelefone(telefone) {
     const numeros = telefone.replace(/\D/g, '');
     return numeros.length === 11;
@@ -131,7 +109,5 @@ window.formatarMoeda          = window.formatarMoeda;
 window.formatarWhatsApp       = formatarWhatsApp;
 window.formatarCEP            = formatarCEP;
 window.aplicarMascaraCEP      = aplicarMascaraCEP;
-window.calcularTotalCarrinho  = calcularTotalCarrinho;
-window.validarEmail           = validarEmail;
 window.validarTelefone        = validarTelefone;
 window.validarEnderecoCompleto = validarEnderecoCompleto;

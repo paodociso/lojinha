@@ -2,20 +2,14 @@
 // SISTEMA DE PAGAMENTO - PÃO DO CISO
 // ============================================
 
-// Lê a chave PIX em tempo de execução (não no carregamento do script)
-// para garantir que config.js já foi carregado antes
 function obterChavePix() {
     return window.config?.chavePix || '';
 }
 
 function abrirModalPagamento() {
-    console.log("=== ABRINDO PAGAMENTO ===");
-
     if (typeof window.atualizarResumoPagamentoFinal === 'function') {
         window.atualizarResumoPagamentoFinal();
-        console.log("✅ Resumo financeiro gerado com sucesso pela função do carrinho.");
     } else {
-        console.error("❌ ERRO CRÍTICO: Função atualizarResumoPagamentoFinal não encontrada.");
         mostrarNotificacao('Erro ao carregar valores. Por favor, recarregue a página.', 'erro');
         return;
     }
@@ -26,15 +20,12 @@ function abrirModalPagamento() {
 function selecionarPagamento(forma, elementoHtml) {
     estadoAplicativo.formaPagamento = forma;
 
-    // Remover seleção de todos usando classList
     document.querySelectorAll('.opcao-pagamento').forEach(opcao => {
         opcao.classList.remove('ativa');
     });
 
-    // Selecionar atual usando classList
     elementoHtml.classList.add('ativa');
 
-    // Atualizar valor do PIX
     if (forma === 'PIX') {
         const chave = obterChavePix();
 

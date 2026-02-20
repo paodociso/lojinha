@@ -270,29 +270,29 @@ function gerarHTMLBotoesAcaoCarrinho() {
 
 function gerarHTMLResumo(totalProdutos, desconto, taxaEntrega, totalGeral, modoEntrega) {
     return `
-        <div class="resumo-carrinho-container">
-            <div class="resumo-cabecalho">
-                <span class="resumo-titulo">Resumo do Pedido</span>
+        <div style="margin-top: 20px; margin-bottom: 25px; border: 1px solid var(--borda-nav); border-radius: 12px; background-color: var(--branco); overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: left;">
+            <div style="background-color: var(--bege-claro); padding: 10px 15px; border-bottom: 1px solid var(--borda-nav);">
+                <span style="font-size: 13px; color: var(--marrom-cafe); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Resumo do Pedido</span>
             </div>
-            <div class="resumo-corpo">
-                <div class="resumo-linha">
-                    <span class="resumo-label">Produtos</span>
-                    <span class="resumo-valor">${formatarMoeda(totalProdutos)}</span>
+            <div style="padding: 15px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span style="font-size: 14px; color: var(--cinza-escuro);">Produtos</span>
+                    <span style="font-size: 14px; font-weight: 500;">${formatarMoeda(totalProdutos)}</span>
                 </div>
                 ${desconto > 0 ? `
-                <div class="resumo-linha resumo-linha--desconto">
-                    <span class="resumo-label">🏷️ Desconto</span>
-                    <span class="resumo-valor">- ${formatarMoeda(desconto)}</span>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span style="font-size: 14px; color: var(--red);">🏷️ Desconto</span>
+                    <span style="font-size: 14px; color: var(--red); font-weight: bold;">- ${formatarMoeda(desconto)}</span>
                 </div>` : ''}
                 ${modoEntrega === 'entrega' ? `
-                <div class="resumo-linha">
-                    <span class="resumo-label">🚚 Taxa de Entrega</span>
-                    <span class="resumo-valor">${taxaEntrega > 0 ? formatarMoeda(taxaEntrega) : 'Grátis'}</span>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span style="font-size: 14px; color: var(--cinza-escuro);">🚚 Taxa de Entrega</span>
+                    <span style="font-size: 14px; font-weight: 500;">${taxaEntrega > 0 ? formatarMoeda(taxaEntrega) : 'Grátis'}</span>
                 </div>` : ''}
-                <div class="resumo-divisor"></div>
-                <div class="resumo-linha resumo-linha--total">
-                    <span class="resumo-label-total">TOTAL GERAL</span>
-                    <span class="resumo-valor-total">${formatarMoeda(totalGeral)}</span>
+                <div style="border-top: 1px dashed var(--borda-nav); margin: 12px 0;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 16px; font-weight: bold; color: var(--verde-militar);">TOTAL GERAL</span>
+                    <span style="font-size: 20px; font-weight: 800; color: var(--verde-militar);">${formatarMoeda(totalGeral)}</span>
                 </div>
             </div>
         </div>

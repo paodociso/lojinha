@@ -132,7 +132,11 @@
 }
 
 .pix-chave span {
-    font-size: 0.75rem !important;
+    font-family: monospace;
+    font-size: 0.85rem !important;
+    color: var(--verde-militar) !important;
+    font-weight: bold;
+    word-break: break-all;
     margin-bottom: 5px !important;
 }
 

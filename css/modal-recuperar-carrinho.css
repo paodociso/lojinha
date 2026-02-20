@@ -35,6 +35,12 @@
 @media (min-width: 769px) {
     #modal-recuperar-carrinho .botoes-recuperacao {
         flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    #modal-recuperar-carrinho .botao-acao {
+        flex: 1;
+        min-width: 0;
     }
 
     #modal-recuperar-carrinho .botao-acao:hover {
