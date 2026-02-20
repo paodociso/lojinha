@@ -187,7 +187,7 @@
                 </div>
             </div>
 
-            <button class="botao-acao botao-verde-militar" style="width: 100%; margin-top: 10px;" onclick="fecharModal('modal-informacoes-fornada')">
+            <button class="botao-acao botao-verde-militar" onclick="fecharModal('modal-informacoes-fornada')">
                 ENTENDI
             </button>
         </div>
@@ -456,14 +456,12 @@
                 <button id="botao-finalizar-pedido" 
                         class="botao-acao botao-verde-militar"
                         onclick="finalizarPedido()"
-                        disabled
-                        style="background-color: var(--verde-militar); color: var(--branco); border: none; padding: 14px 20px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+                        disabled>
                     FINALIZAR PEDIDO <i class="fab fa-whatsapp"></i>
                 </button>
                 
                 <button class="botao-acao botao-bege"
-                        onclick="fecharModal('modal-pagamento'); abrirModal('modal-dados-cliente');"
-                        style="background-color: var(--bege-escuro); color: var(--marrom-cafe); border: 1px solid var(--marrom-detalhe); padding: 14px 20px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+                        onclick="fecharModal('modal-pagamento'); abrirModal('modal-dados-cliente');">
                     <i class="fas fa-arrow-left"></i> VOLTAR PARA MEUS DADOS
                 </button>
             </div>
@@ -532,23 +530,23 @@
 <!-- ===================== SCRIPTS JAVASCRIPT ===================== -->
 <!-- ORDEM CORRETA DE CARREGAMENTO -->
     <script src="js/config.js"></script>
-    <script src="js/config.local.js"></script>  ← adicionar esta linha
-    <script src="js/dados.js"></script>
-    <script src="js/state.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/modais.js"></script>
-    <script src="js/notificacoes.js"></script>
-    <script src="js/fornada.js"></script>
-    <script src="js/cardapio.js"></script>
-    <script src="js/opcionais.js"></script>
-    <script src="js/produto-modal.js"></script>
-    <script src="js/carrinho.js"></script>
-    <script src="js/dados-cliente.js"></script>
-    <script src="js/cep-frete.js"></script>     
-    <script src="js/pagamento.js"></script>
-    <script src="js/envio.js"></script>
-    <script src="js/address-manager.js"></script>
-    <script src="js/recuperacao-carrinho.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/config.local.js"></script>
+    <script src="js/dados.js" defer></script>
+    <script src="js/state.js" defer></script>
+    <script src="js/utils.js" defer></script>
+    <script src="js/modais.js" defer></script>
+    <script src="js/notificacoes.js" defer></script>
+    <script src="js/fornada.js" defer></script>
+    <script src="js/cardapio.js" defer></script>
+    <script src="js/opcionais.js" defer></script>
+    <script src="js/produto-modal.js" defer></script>
+    <script src="js/carrinho.js" defer></script>
+    <script src="js/dados-cliente.js" defer></script>
+    <script src="js/cep-frete.js" defer></script>     
+    <script src="js/pagamento.js" defer></script>
+    <script src="js/envio.js" defer></script>
+    <script src="js/address-manager.js" defer></script>
+    <script src="js/recuperacao-carrinho.js" defer></script>
+    <script src="js/main.js" defer></script>
     </body>
 </html>
