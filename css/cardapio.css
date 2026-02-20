@@ -86,25 +86,23 @@ html, body {
    PRODUTO ESGOTADO
    ============================================================ */
 
-.badge-esgotado,
 .card.esgotado .card-imagem-wrapper::after {
     content: "ESGOTADO";
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) rotate(-25deg) !important;
-    background-color: #8B4513 !important; 
-    color: #FFFFFF !important;
-    padding: 8px 20px !important;
-    font-weight: 900 !important;
-    font-size: 0.8rem !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-25deg);
+    background-color: #8B4513;
+    color: #FFFFFF;
+    padding: 8px 20px;
+    font-weight: 900;
+    font-size: 0.8rem;
     text-align: center;
     border: 2px solid #FFFFFF;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     z-index: 10;
     white-space: nowrap;
     pointer-events: none;
-    width: auto !important;
 }
 
 .card.esgotado .card-imagem-wrapper::before {
@@ -192,10 +190,9 @@ footer, .rodape-container {
         font-size: 1.1rem; /* Diminuído de 1.3rem */
     }
 
-    .badge-esgotado,
     .card.esgotado .card-imagem-wrapper::after {
-        padding: 8px 30px !important;
-        font-size: 0.9rem !important;
+        padding: 8px 30px;
+        font-size: 0.9rem;
     }
 }
 

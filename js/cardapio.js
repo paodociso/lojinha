@@ -18,7 +18,7 @@ function criarCardProduto(sessao, indiceSessao, item, indiceItem) {
     // HTML Limpo: Sem descrição, sem divisor e sem botão +
     card.innerHTML = `
         <div class="card-imagem-wrapper">
-            ${estaEsgotado ? '<div class="badge-esgotado">ESGOTADO</div>' : ''}
+            
             
             ${quantidadeNoCarrinho > 0 ? `
             <div class="badge-quantidade" style="display: flex;">
