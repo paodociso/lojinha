@@ -196,9 +196,15 @@
     <!-- ===================== MODAL 2: DETALHES DO PRODUTO ===================== -->
         <div id="modal-produto" class="modal">
         <button class="botao-fechar-modal" onclick="fecharModal('modal-produto')">&times;</button>
-        
-        <div id="corpo-modal-produto" class="conteudo-modal-produto">
-            <!-- Conteúdo será injetado dinamicamente -->
+
+        <!-- ZONA FIXA: imagem + nome + descrição (injetados pelo JS) -->
+        <div id="cabecalho-modal-produto" class="cabecalho-modal-produto">
+            <!-- Imagem, nome e descrição serão injetados aqui pelo produto-modal.js -->
+        </div>
+
+        <!-- ZONA ROLÁVEL: opcionais, quantidade, subtotal (injetados pelo JS) -->
+        <div id="corpo-modal-produto" class="corpo-modal-produto-scroll">
+            <!-- Opcionais e controles serão injetados aqui pelo produto-modal.js -->
         </div>
         
         <div class="botoes-modal-produto">
