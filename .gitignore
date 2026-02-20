@@ -1,0 +1,15 @@
+# Configurações locais com dados sensíveis
+config.local.js
+
+# Dependências
+node_modules/
+
+# Arquivos de backup
+*.bkp
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Pasta de arquivos temporários
+junk/
