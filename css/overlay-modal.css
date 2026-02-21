@@ -76,11 +76,6 @@
 
 /* conteudo-modal-produto é controlado pelo modal-produto.css */
 
-@keyframes modalEntrada {
-    from { opacity: 0; transform: translate(-50%, calc(-50% - 25px)); }
-    to   { opacity: 1; transform: translate(-50%, calc(-50% - 35px)); }
-}
-
 /* ── DESKTOP (a partir de 769px) ─────────────────────────── */
 @media (min-width: 769px) {
     .modal {

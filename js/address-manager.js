@@ -1,6 +1,5 @@
 // address-manager.js - VERSÃO MELHORADA
 window.AddressManager = {
-    enderecoAtual: {},
     cepAnterior: '', // Para detectar quando CEP é removido
     
     init: function() {
@@ -65,7 +64,6 @@ window.AddressManager = {
         }
         
         input.value = valor;
-        this.enderecoAtual.cep = valor.replace(/\D/g, '');
     },
     
     verificarCEPRemovido: function(event) {
@@ -97,9 +95,6 @@ window.AddressManager = {
         });
         
         // Atualiza estado
-        this.enderecoAtual.logradouro = '';
-        this.enderecoAtual.bairro = '';
-        this.enderecoAtual.cidade = '';
     },
     
     validarEbuscarCEP: function(event) {
@@ -186,7 +181,6 @@ window.AddressManager = {
             
             // Evento para atualizar estado
             campo.addEventListener('input', () => {
-                this.enderecoAtual[nomePropriedade] = campo.value;
                 log(`Campo ${idCampo} atualizado para:`, campo.value);
             });
             
@@ -318,7 +312,6 @@ window.AddressManager = {
             } 
         });
         
-        this.enderecoAtual = {};
         this.cepAnterior = '';
         log('✅ Todos os campos limpos e estado resetado');
     },
@@ -337,7 +330,6 @@ window.AddressManager = {
         const cepLimpo = cep.replace(/\D/g, '');
 
         campoCEPDados.value = window.formatarCEP(cepLimpo);
-        this.enderecoAtual.cep = cepLimpo;
         this.cepAnterior = cepLimpo;
 
         if (cepLimpo.length === 8 && typeof window.buscarEnderecoPorCodigoPostal === 'function') {
