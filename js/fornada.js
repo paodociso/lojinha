@@ -15,7 +15,9 @@ function configurarDatasFornada() {
     
     try {
         // Parse da data da fornada
-        const dataFornada = new Date(dataISO);
+        // ⚠️ T12:00:00 é intencional: sem hora explícita, JS interpreta dataISO como
+        // UTC meia-noite, que no fuso de Brasília (UTC-3) recua para o dia anterior.
+        const dataFornada = new Date(dataISO + 'T12:00:00');
         
         // Data limite para pedidos (data da fornada menos dias de antecedência)
         const dataLimite = new Date(dataFornada);

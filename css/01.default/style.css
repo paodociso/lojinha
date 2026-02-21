@@ -46,6 +46,15 @@
     --sombra-suave: rgba(0, 0, 0, 0.1);
     --sombra-media: rgba(0, 0, 0, 0.15);
     --bege-claro: #f9f5f0;
+
+    /* NOVAS — cores recorrentes nos módulos, sem variável prévia */
+    --cinza-input: #cccccc;           /* bordas de inputs genéricos       */
+    --cinza-fundo: #f2f2f2;           /* fundo de molduras internas       */
+    --cinza-divisor: #dcdcdc;         /* separadores entre opcionais      */
+    --branco-quase: #fdfdfd;          /* fundo de grupo-campo em formulários */
+    --vermelho-borda: #ffcccc;        /* borda do bloco de subtotal       */
+    --verde-notif-bg: #e8f5e9;        /* fundo de notificação de sucesso  */
+    --verde-notif-texto: #2e7d32;     /* texto de notificação de sucesso  */
 }
 
 /* ===================== RESET E ESTILOS GERAIS ===================== */

@@ -19,7 +19,7 @@
 #modal-dados-cliente .conteudo-modal {
     display: flex;
     flex-direction: column;
-    background-color: #ffffff !important;
+    background-color: var(--branco) !important;
     width: 95% !important;
     max-width: 450px !important;
     margin: 0 auto !important;
@@ -49,7 +49,7 @@
 /* 4. CONTAINERS DE GRUPO */
 .formulario-dados > .grupo-campo,
 #secao-endereco {
-    background: #fdfdfd;
+    background: var(--branco-quase);
     padding: 15px;
     border-radius: 12px;
     border: 1px solid var(--cinza-medio);

@@ -127,7 +127,7 @@
 }
 
 .barra-carrinho-fixa:hover {
-    background-color: #2d3a27 !important;
+    background-color: var(--verde-militar) !important;
     transform: translateY(-2px);
 }
 
@@ -237,7 +237,7 @@
     flex: 1 !important;
     min-width: 0 !important;
     height: 45px !important;
-    border: 1px solid #ccc !important;
+    border: 1px solid var(--cinza-input) !important;
     border-radius: 8px !important;
     padding: 0 12px !important;
     font-size: 14px !important;

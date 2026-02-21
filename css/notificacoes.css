@@ -55,8 +55,8 @@
 /* Aviso interno no modal (Seu código original) */
 #status-adicionado-produto {
     text-align: center;
-    background: #e8f5e9;
-    color: #2e7d32;
+    background: var(--verde-notif-bg);
+    color: var(--verde-notif-texto);
     padding: 10px;
     border-radius: 8px;
     font-weight: bold;

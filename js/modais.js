@@ -19,6 +19,11 @@ function abrirModal(id, callback) {
 
     document.body.style.overflow = 'hidden';
 
+    // Atualiza datas ao abrir o modal de informações da fornada
+    if (id === 'modal-informacoes-fornada' && typeof atualizarDadosModalFornada === 'function') {
+        atualizarDadosModalFornada();
+    }
+
     // Inicializa o AddressManager ao abrir o modal de dados do cliente
     if (id === 'modal-dados-cliente' && window.AddressManager) {
         window.AddressManager.init();

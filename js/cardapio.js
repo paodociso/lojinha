@@ -278,45 +278,6 @@ function verificarDisponibilidade(indiceSessao, indiceItem) {
     return true;
 }
 
-// Função para mostrar notificações
-function mostrarNotificacao(mensagem, tipo = 'info') {
-    log(`💬 Exibindo notificação [${tipo}]: ${mensagem}`);
-    
-    // Remover notificações antigas
-    const notificacaoAntiga = document.querySelector('.notificacao-flutuante');
-    if (notificacaoAntiga) {
-        log("🗑️ Removendo notificação anterior");
-        notificacaoAntiga.remove();
-    }
-    
-    // Criar nova notificação
-    const notificacao = document.createElement('div');
-    notificacao.className = `notificacao-flutuante notificacao-${tipo}`;
-    notificacao.innerHTML = `
-        <span>${mensagem}</span>
-    `;
-    
-    document.body.appendChild(notificacao);
-    log(`✅ Notificação criada: "${mensagem}"`, notificacao);
-    
-    // Animação de entrada
-    setTimeout(() => {
-        notificacao.classList.add('ativo');
-        log(`🎬 Animação de entrada ativada para notificação`);
-    }, 10);
-    
-    // Remover após 3 segundos
-    setTimeout(() => {
-        log(`⏰ Removendo notificação: "${mensagem}"`);
-        notificacao.classList.remove('ativo');
-        setTimeout(() => {
-            if (notificacao.parentNode) {
-                notificacao.remove();
-                log(`🗑️ Notificação removida do DOM`);
-            }
-        }, 300);
-    }, 3000);
-}
 
 // ÚNICA VERSÃO DA FUNÇÃO adicionarRapido (a versão otimizada)
 function adicionarRapido(indiceSessao, indiceItem) {
@@ -516,7 +477,7 @@ window.adicionarRapido = adicionarRapido;
 window.atualizarBadgeNoCard = atualizarBadgeNoCard;
 window.validarProduto = validarProduto;
 window.verificarDisponibilidade = verificarDisponibilidade;
-window.mostrarNotificacao = mostrarNotificacao;
+// window.mostrarNotificacao — exportada por notificacoes.js (fonte única)
 window.atualizarCardUnico = atualizarCardUnico;
 window.atualizarBadgesAposRemocao = atualizarBadgesAposRemocao;
 window.diagnosticarBadges = diagnosticarBadges;

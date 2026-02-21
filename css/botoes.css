@@ -105,21 +105,21 @@
 /* Ajustes de Responsividade Extraídos do Backup */
 @media (max-width: 768px) {
     .botao-acao {
-        padding: 12px 15px !important;
-        font-size: 0.85rem !important;
-        margin-top: 8px !important;
-        min-height: unset !important;
+        padding: 12px 15px;
+        font-size: 0.85rem;
+        margin-top: 8px;
+        min-height: unset;
     }
 
     .botao-quantidade {
-        width: 35px !important;
-        height: 35px !important;
-        font-size: 1rem !important;
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
     }
 
     .botao-quantidade-pequeno {
-        width: 25px !important;
-        height: 25px !important;
-        font-size: 0.9rem !important;
+        width: 25px;
+        height: 25px;
+        font-size: 0.9rem;
     }
 }

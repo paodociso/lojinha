@@ -122,7 +122,10 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
     
-    // Inicializar sistema
+    // ⏱️ setTimeout(100ms) intencional: garante que todos os scripts com `defer`
+    // (em especial dados.js, que popula window.dadosIniciais) tenham terminado
+    // de executar antes da inicialização. Remover apenas se a ordem de carregamento
+    // for garantida por outro mecanismo (ex: ES modules com import/export).
     setTimeout(() => {
         inicializarSistema();
     }, 100);
@@ -176,25 +179,8 @@ function atualizarDadosModalFornada() {
     }
 }
 
-// ============================================
-// INTERCEPTADOR DE MODAIS (MUDANÇA SOLICITADA)
-// ============================================
-const abrirModalOriginal = window.abrirModal;
-
-// ✅ Passa callback adiante para não quebrar modais.js (AddressManager.init, etc.)
-window.abrirModal = function(id, callback) {
-    if (id === 'modal-informacoes-fornada') {
-        atualizarDadosModalFornada();
-    }
-
-    if (typeof abrirModalOriginal === 'function') {
-        abrirModalOriginal(id, callback);
-    } else {
-        const modal = document.getElementById(id);
-        if (modal) modal.style.display = 'block';
-        if (typeof callback === 'function') callback();
-    }
-};
+// atualizarDadosModalFornada é chamada diretamente por abrirModal() em modais.js
+// quando id === 'modal-informacoes-fornada' — sem necessidade de interceptador.
 
 window.addEventListener('resize', ajustarAlturaModal);
 

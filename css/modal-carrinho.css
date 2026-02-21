@@ -372,7 +372,7 @@
     background: var(--branco);
     border-radius: 12px;
     border: 1px solid var(--bege-escuro);
-    animation: fadeIn 0.3s ease;
+    animation: fadeInSuave 0.3s ease;
 }
 
 .opcao-pagamento.ativa .opcao-conteudo {
@@ -462,7 +462,7 @@
 
 /* .barra-carrinho-fixa — definida em layout-base.css */
 
-@keyframes fadeIn {
+@keyframes fadeInSuave {
     from { opacity: 0; transform: translateY(-5px); }
     to   { opacity: 1; transform: translateY(0); }
 }

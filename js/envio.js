@@ -218,8 +218,40 @@ function gerarMensagemWhatsApp(nome, whatsapp, endereco, metodoPagamento) {
 }
 
 function reiniciarFluxoCompra() {
+    // ✅ Substituído location.reload() por reset de estado em memória
+    // Evita: flash branco, recarregamento de assets, perda de contexto
+
+    // 1. Limpar carrinho (memória + localStorage)
+    window.carrinho = {};
     localStorage.removeItem('carrinho_pao_do_ciso');
-    window.location.reload();
+
+    // 2. Resetar estadoAplicativo para valores iniciais
+    if (window.estadoAplicativo) {
+        window.estadoAplicativo.dadosCliente      = {};
+        window.estadoAplicativo.modoEntrega       = 'retirada';
+        window.estadoAplicativo.taxaEntrega       = 0;
+        window.estadoAplicativo.cepCalculado      = null;
+        window.estadoAplicativo.bairroIdentificado = null;
+        window.estadoAplicativo.formaPagamento    = null;
+        window.estadoAplicativo.cupomAplicado     = null;
+        window.estadoAplicativo.descontoCupom     = 0;
+        window.estadoAplicativo.totalGeral        = 0;
+    }
+
+    // 3. Fechar todos os modais
+    if (typeof fecharTodosModais === 'function') {
+        fecharTodosModais();
+    }
+
+    // 4. Re-renderizar cardápio com badges zerados
+    if (typeof renderizarCardapio === 'function') {
+        renderizarCardapio();
+    }
+
+    // 5. Zerar barra do carrinho
+    if (typeof atualizarBarraCarrinho === 'function') {
+        atualizarBarraCarrinho();
+    }
 }
 
 function reenviarPedidoWhatsapp() {

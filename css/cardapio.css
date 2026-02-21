@@ -4,11 +4,6 @@
 
 /* 📱 TELEMÓVEL (Padrão) */
 
-/* Correção de largura global e transbordo horizontal */
-html, body {
-    max-width: 100%;
-    overflow-x: hidden;
-}
 
 .botao-adicionar-card, 
 .card-desc,

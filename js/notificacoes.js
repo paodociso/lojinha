@@ -48,3 +48,5 @@ function mostrarNotificacao(mensagem, tipo = 'info') {
     }, 3000);
 }
 
+
+window.mostrarNotificacao = mostrarNotificacao;
