@@ -13,7 +13,7 @@ window.dadosIniciais = {
 },
 
     fornada: {
-  "dataISO": "2026-02-23",
+  "dataISO": "2026-02-27",
   "diasAntecedencia": 2,
   "horaLimite": "23:59h"
 },
@@ -311,6 +311,33 @@ window.dadosIniciais = {
     "nome": "Panini",
     "itens": [
       {
+        "nome": "Canadense",
+        "descricao": "Sanduíche feito com lombo canadense Ceratti.",
+        "preco": 7,
+        "imagem": "img/panino-lombocanadense.webp",
+        "opcionais": "Panini",
+        "opcionais_ativos": [
+          "Ciabatta",
+          "Focaccia",
+          "Chancliche",
+          "Chancliche apimentado",
+          "Muçarela",
+          "Provolone",
+          "Queijo Prato",
+          "Melanzane sottolio",
+          "Azeite extravirgem",
+          "Manteiga",
+          "Maionese",
+          "Pesto de azeitona",
+          "Pesto tradicional (manjericão)",
+          "Alface",
+          "Rúcula",
+          "Tomate"
+        ],
+        "visivel": true,
+        "esgotado": false
+      },
+      {
         "nome": "Giovanni",
         "descricao": "Sanduíche feito com mortadela Giovanni Ceratti.",
         "preco": 7,
@@ -365,60 +392,6 @@ window.dadosIniciais = {
         "esgotado": false
       },
       {
-        "nome": "Piripiri",
-        "descricao": "Monte seu sanduíche de lombo piripiri (lombo suíno apimentado).",
-        "preco": 9,
-        "imagem": "img/panino-piripiri.webp",
-        "opcionais": "Panini",
-        "opcionais_ativos": [
-          "Focaccia",
-          "Ciabatta",
-          "Chancliche",
-          "Chancliche apimentado",
-          "Muçarela",
-          "Provolone",
-          "Queijo Prato",
-          "Azeite extravirgem",
-          "Manteiga",
-          "Maionese",
-          "Pesto de azeitona",
-          "Pesto tradicional (manjericão)",
-          "Melanzane sottolio",
-          "Alface",
-          "Tomate",
-          "Rúcula"
-        ],
-        "visivel": true,
-        "esgotado": false
-      },
-      {
-        "nome": "Canadense",
-        "descricao": "Sanduíche feito com lombo canadense Ceratti.",
-        "preco": 7,
-        "imagem": "img/panino-lombocanadense.webp",
-        "opcionais": "Panini",
-        "opcionais_ativos": [
-          "Ciabatta",
-          "Focaccia",
-          "Chancliche",
-          "Chancliche apimentado",
-          "Muçarela",
-          "Provolone",
-          "Queijo Prato",
-          "Melanzane sottolio",
-          "Azeite extravirgem",
-          "Manteiga",
-          "Maionese",
-          "Pesto de azeitona",
-          "Pesto tradicional (manjericão)",
-          "Alface",
-          "Rúcula",
-          "Tomate"
-        ],
-        "visivel": true,
-        "esgotado": false
-      },
-      {
         "nome": "Peru",
         "descricao": "Sanduíche feito com peito de peru defumado Ceratti.",
         "preco": 7,
@@ -441,6 +414,33 @@ window.dadosIniciais = {
           "Alface",
           "Rúcula",
           "Tomate"
+        ],
+        "visivel": true,
+        "esgotado": false
+      },
+      {
+        "nome": "Piripiri",
+        "descricao": "Monte seu sanduíche de lombo piripiri (lombo suíno apimentado).",
+        "preco": 9,
+        "imagem": "img/panino-piripiri.webp",
+        "opcionais": "Panini",
+        "opcionais_ativos": [
+          "Focaccia",
+          "Ciabatta",
+          "Chancliche",
+          "Chancliche apimentado",
+          "Muçarela",
+          "Provolone",
+          "Queijo Prato",
+          "Azeite extravirgem",
+          "Manteiga",
+          "Maionese",
+          "Pesto de azeitona",
+          "Pesto tradicional (manjericão)",
+          "Melanzane sottolio",
+          "Alface",
+          "Tomate",
+          "Rúcula"
         ],
         "visivel": true,
         "esgotado": false
@@ -470,7 +470,7 @@ window.dadosIniciais = {
       {
         "nome": "Monte seu Panino",
         "descricao": "Sanduíche feito na focaccia.",
-        "preco": 5,
+        "preco": 10,
         "imagem": "img/panino-monteoseu.webp",
         "opcionais": "Panini",
         "opcionais_ativos": [
@@ -509,10 +509,10 @@ window.dadosIniciais = {
     "nome": "Cafés",
     "itens": [
       {
-        "nome": "Capuccino",
-        "descricao": "A combinação clássica do café intenso com a cremosidade do leite vaporizado cria uma textura suave e envolvente a cada gole. É o convite perfeito para uma pausa restauradora, unindo sabor equilibrado e o conforto de uma bebida preparada com cuidado.",
-        "preco": 20,
-        "imagem": "img/capuccino.webp",
+        "nome": "Café cremoso",
+        "descricao": "Feito batendo apenas café solúvel e açúcar, este café surpreende por sua textura aveludada e densa. Sua praticidade de preparo entrega um sabor marcante que transforma qualquer momento em uma experiência especial.",
+        "preco": 15,
+        "imagem": "img/cafe-cremoso.webp",
         "visivel": true,
         "esgotado": false,
         "opcionais_ativos": [
@@ -521,10 +521,10 @@ window.dadosIniciais = {
         ]
       },
       {
-        "nome": "Café cremoso",
-        "descricao": "Feito batendo apenas café solúvel e açúcar, este café surpreende por sua textura aveludada e densa. Sua praticidade de preparo entrega um sabor marcante que transforma qualquer momento em uma experiência especial.",
+        "nome": "Capuccino",
+        "descricao": "A combinação clássica do café intenso com a cremosidade do leite vaporizado cria uma textura suave e envolvente a cada gole. É o convite perfeito para uma pausa restauradora, unindo sabor equilibrado e o conforto de uma bebida preparada com cuidado.",
         "preco": 20,
-        "imagem": "img/cafe-cremoso.webp",
+        "imagem": "img/capuccino.webp",
         "visivel": true,
         "esgotado": false,
         "opcionais_ativos": [
@@ -539,16 +539,30 @@ window.dadosIniciais = {
     "itens": [
       {
         "nome": "Tábua de frios",
-        "descricao": "Tábua de frios variados.",
+        "descricao": "Monte sua tábua de frios de acordo com seu gosto. O preço inicial é da tábua em si, a ela acrescente tudo o que quiser :)",
         "preco": 49,
         "imagem": "img/tabuadefrios.webp",
         "opcionais": "Tábuas",
         "opcionais_ativos": [
+          "Lombo piripiri",
+          "Mortadela",
+          "Pastrame",
+          "Presunto cru",
           "Salame",
+          "Chancliche",
+          "Chancliche apimentado",
           "Muçarela",
           "Provolone",
-          "Azeite extravirgem",
-          "Tomate"
+          "Queijo Prato",
+          "Alichella",
+          "Sardella",
+          "Melanzane sottolio",
+          "Confit de alho",
+          "Confit de alho e tomates cereja",
+          "Picles de cebola",
+          "Tomate",
+          "Pastinha de goronzola",
+          "Azeite extravirgem"
         ],
         "visivel": true,
         "esgotado": true
