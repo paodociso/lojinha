@@ -691,6 +691,16 @@ const CRUD = {
         modalContainer.querySelector('.modal').appendChild(temp);
         modalContainer.style.display = 'flex';
 
+        // Botão Google — abre busca de imagens WebP no tamanho certo
+        const btnGoogle = modalContainer.querySelector('.btn-google-search');
+        btnGoogle.onclick = () => {
+            const nomeProduto = document.getElementById('prod-nome').value.trim() || 'pão artesanal';
+            const query = encodeURIComponent(nomeProduto + ' webp');
+            // isz=m → tamanho médio (~600px), itp=photo → apenas fotos, imgsz=m
+            const url = `https://www.google.com/search?tbm=isch&q=${query}&tbs=itp:photo,isz:m`;
+            window.open(url, '_blank');
+        };
+
         // Campo editável manualmente
         const campoCaminho = document.getElementById('prod-img');
         campoCaminho.removeAttribute('readonly');
