@@ -3,7 +3,7 @@ const CACHE_NAME = 'pao-do-ciso-v4';
 const ASSETS_ESSENCIAIS = [
     './',
     './index.html',
-    './css/style.css',
+    './css/01.default/style.css',
     './css/layout-base.css',
     './css/botoes.css',
     './css/cardapio.css',
