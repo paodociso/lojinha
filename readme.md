@@ -184,4 +184,4 @@ Qualquer servidor estático funciona. Com a extensão **Live Server** do VSCode,
 
 ---
 
-*Desenvolvido com carinho para uma nanopadaria artesanal que vende cerca de 10 pães por semana — e merecia uma arquitetura à altura.* 🍞
+*Desenvolvido com carinho para uma nanopadaria artesanal que vende cerca de 10 pães por semana — e merecia uma arquitetura de software à altura.* 🍞
