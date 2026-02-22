@@ -231,7 +231,7 @@ window.dadosIniciais = {
           "Melanzane sottolio (100g)",
           "Potinho de vidro"
         ],
-        "esgotado": false,
+        "esgotado": true,
         "visivel": true
       }
     ]
@@ -281,7 +281,7 @@ window.dadosIniciais = {
         "preco": 20,
         "imagem": "img/manteiga-temperada.webp",
         "visivel": true,
-        "esgotado": false,
+        "esgotado": true,
         "opcionais_ativos": [
           "Potinho de vidro"
         ]
@@ -292,7 +292,7 @@ window.dadosIniciais = {
         "preco": 20,
         "imagem": "img/tomate-confitado.webp",
         "visivel": true,
-        "esgotado": false,
+        "esgotado": true,
         "opcionais_ativos": [
           "Potinho de vidro"
         ]
@@ -303,7 +303,7 @@ window.dadosIniciais = {
         "preco": 20,
         "imagem": "img/alho-confitado.webp",
         "visivel": true,
-        "esgotado": false,
+        "esgotado": true,
         "opcionais_ativos": [
           "Potinho de vidro"
         ]
@@ -454,7 +454,7 @@ window.dadosIniciais = {
         "preco": 7,
         "imagem": "img/panino-vegano.jpg",
         "visivel": true,
-        "esgotado": false,
+        "esgotado": true,
         "opcionais_ativos": [
           "Ciabatta",
           "Focaccia",
@@ -637,7 +637,7 @@ window.dadosIniciais = {
         "preco": 20,
         "imagem": "img/cannariculi.webp",
         "visivel": true,
-        "esgotado": false,
+        "esgotado": true,
         "opcionais_ativos": []
       },
       {
@@ -646,7 +646,7 @@ window.dadosIniciais = {
         "preco": 25,
         "imagem": "img/tiramissu1.webp",
         "visivel": true,
-        "esgotado": false,
+        "esgotado": true,
         "opcionais_ativos": []
       }
     ]
