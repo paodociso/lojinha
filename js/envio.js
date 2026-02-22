@@ -80,6 +80,14 @@ function processarFinalizacaoPedido() {
         mostrarNotificacao('Por favor, selecione uma forma de pagamento.', 'erro');
         return;
     }
+
+    // ✅ Validar número do vendedor antes de prosseguir
+    const whatsappDestino = window.config?.whatsappVendedor || '';
+    if (!whatsappDestino) {
+        console.error('❌ whatsappVendedor não configurado em config.local.js');
+        mostrarNotificacao('Erro de configuração: número do vendedor não definido.', 'erro');
+        return;
+    }
     
     // Coletar endereço se for entrega
     let enderecoTexto = 'Retirada no local';
@@ -115,9 +123,11 @@ function processarFinalizacaoPedido() {
     
     // Gerar mensagem para WhatsApp
     const mensagem = gerarMensagemWhatsApp(nome, whatsappNumeros, enderecoTexto, metodoPagamento);
+
+    log('📱 Número destino:', whatsappDestino);
+    log('📝 Mensagem gerada:\n', mensagem);
     
     // Abrir WhatsApp com a URL do config
-    const whatsappDestino = window.config ? window.config.whatsappVendedor : '';
     const linkWhatsApp = `https://api.whatsapp.com/send?phone=${whatsappDestino}&text=${encodeURIComponent(mensagem)}`;
     window.open(linkWhatsApp, '_blank');
 
@@ -155,20 +165,25 @@ function gerarMensagemWhatsApp(nome, whatsapp, endereco, metodoPagamento) {
             const produto = secao?.itens?.[item.indiceItem];
 
             if (produto) {
-                let precoUnitarioTotal = Number(produto.preco || 0);
+                // ✅ CORREÇÃO: separar preço base dos opcionais.
+                // O preço base é por unidade e se multiplica por item.quantidade.
+                // Os opcionais já têm sua própria quantidade (ex: 2x Alichella) e
+                // NÃO devem ser multiplicados por item.quantidade novamente.
+                const precoBase = Number(produto.preco || 0);
+                let subtotalOpcionais = 0;
                 let listaOpcionaisTexto = '';
 
                 if (item.opcionais && Object.keys(item.opcionais).length > 0) {
                     Object.entries(item.opcionais).forEach(([nomeOpcional, dadosOpcional]) => {
                         const qtdOpc = Number(dadosOpcional.quantidade || 0);
                         const precoOpc = Number(dadosOpcional.preco || 0);
-                        
-                        precoUnitarioTotal += (precoOpc * qtdOpc);
+                        subtotalOpcionais += precoOpc * qtdOpc;
                         listaOpcionaisTexto += `   ├ ${qtdOpc}x ${nomeOpcional}\n`;
                     });
                 }
 
-                const subtotalItem = precoUnitarioTotal * item.quantidade;
+                // subtotal = (preço unitário × qtd) + opcionais
+                const subtotalItem = (precoBase * item.quantidade) + subtotalOpcionais;
                 totalProdutos += subtotalItem;
                 
                 itensTexto += `• ${item.quantidade}x ${produto.nome} (${formatarMoeda(subtotalItem)})\n`;
