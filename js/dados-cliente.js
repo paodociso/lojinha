@@ -163,6 +163,14 @@ function diagnosticarCep() {
 }
 
 // ===================== EXPORTAR FUNÇÕES GLOBAIS =====================
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.diagnosticarCep = diagnosticarCep;
+window.PaoDoCiso.validarDadosCliente = validarDadosCliente;
+window.PaoDoCiso.salvarDadosCliente = salvarDadosCliente;
+window.PaoDoCiso.carregarDadosCliente = carregarDadosCliente;
+
+// Aliases de compatibilidade
 window.diagnosticarCep = diagnosticarCep;
 window.validarDadosCliente = validarDadosCliente;
 window.salvarDadosCliente = salvarDadosCliente;

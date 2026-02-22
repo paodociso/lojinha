@@ -103,7 +103,15 @@ function aplicarMascaraCEP(input) {
     input.value = formatarCEP(input.value);
 }
 
-// EXPORTAR FUNÇÕES
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.formatarWhatsApp       = formatarWhatsApp;
+window.PaoDoCiso.formatarCEP            = formatarCEP;
+window.PaoDoCiso.aplicarMascaraCEP      = aplicarMascaraCEP;
+window.PaoDoCiso.validarTelefone        = validarTelefone;
+window.PaoDoCiso.validarEnderecoCompleto = validarEnderecoCompleto;
+
+// Aliases de compatibilidade
 window.elemento               = window.elemento;
 window.formatarMoeda          = window.formatarMoeda;
 window.formatarWhatsApp       = formatarWhatsApp;

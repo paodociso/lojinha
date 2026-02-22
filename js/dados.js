@@ -580,3 +580,5 @@ window.dadosIniciais = {
   }
 ]
 };
+
+window.PaoDoCiso = window.PaoDoCiso || {}; window.PaoDoCiso.dadosIniciais = window.dadosIniciais;

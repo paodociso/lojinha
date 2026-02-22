@@ -471,6 +471,19 @@ function diagnosticarBadges() {
 }
 
 // EXPORTAR FUNÇÕES
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.renderizarCardapio       = renderizarCardapio;
+window.PaoDoCiso.atualizarDatasFornada    = atualizarDatasFornada;
+window.PaoDoCiso.adicionarRapido          = adicionarRapido;
+window.PaoDoCiso.atualizarBadgeNoCard     = atualizarBadgeNoCard;
+window.PaoDoCiso.validarProduto           = validarProduto;
+window.PaoDoCiso.verificarDisponibilidade = verificarDisponibilidade;
+window.PaoDoCiso.atualizarCardUnico       = atualizarCardUnico;
+window.PaoDoCiso.atualizarBadgesAposRemocao = atualizarBadgesAposRemocao;
+window.PaoDoCiso.diagnosticarBadges       = diagnosticarBadges;
+
+// Aliases de compatibilidade
 window.renderizarCardapio = renderizarCardapio;
 window.atualizarDatasFornada = atualizarDatasFornada;
 window.adicionarRapido = adicionarRapido;

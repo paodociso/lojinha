@@ -591,6 +591,22 @@ document.addEventListener('input', function(e) {
 
 // ===================== EXPORTAÇÕES =====================
 
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.atualizarBarraCarrinho        = atualizarBarraCarrinho;
+window.PaoDoCiso.abrirModalCarrinho            = abrirModalCarrinho;
+window.PaoDoCiso.removerItemDoCarrinho         = removerItemDoCarrinho;
+window.PaoDoCiso.sincronizarProdutoNoCarrinho  = sincronizarProdutoNoCarrinho;
+window.PaoDoCiso.aplicarCupom                  = aplicarCupom;
+window.PaoDoCiso.alterarModoEntrega            = alterarModoEntrega;
+window.PaoDoCiso.prosseguirParaDadosCliente    = prosseguirParaDadosCliente;
+window.PaoDoCiso.calcularTotalFinal            = calcularTotalFinal;
+window.PaoDoCiso.atualizarResumoPagamentoFinal = atualizarResumoPagamentoFinal;
+window.PaoDoCiso.atualizarDisplayFreteCarrinho = atualizarDisplayFreteCarrinho;
+window.PaoDoCiso.formatarCampoCEP             = formatarCampoCEP;
+window.PaoDoCiso.validarCEPAuto               = validarCEPAuto;
+
+// Aliases de compatibilidade
 window.atualizarBarraCarrinho       = atualizarBarraCarrinho;
 window.abrirModalCarrinho           = abrirModalCarrinho;
 window.removerItemDoCarrinho        = removerItemDoCarrinho;

@@ -263,6 +263,13 @@ function reenviarPedidoWhatsapp() {
 }
 
 // Exportações para o escopo global
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.processarFinalizacaoPedido = processarFinalizacaoPedido;
+window.PaoDoCiso.reiniciarFluxoCompra = reiniciarFluxoCompra;
+window.PaoDoCiso.reenviarPedidoWhatsapp = reenviarPedidoWhatsapp;
+
+// Aliases de compatibilidade
 window.processarFinalizacaoPedido = processarFinalizacaoPedido;
 window.reiniciarFluxoCompra = reiniciarFluxoCompra;
 window.reenviarPedidoWhatsapp = reenviarPedidoWhatsapp;

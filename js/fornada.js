@@ -154,7 +154,14 @@ function calcularDatasFornada(infoFornada) {
     return resultado;
 }
 
-// EXPORTAR FUNÇÕES
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.configurarDatasFornada = configurarDatasFornada;
+window.PaoDoCiso.calcularDatasFornada   = calcularDatasFornada;
+window.PaoDoCiso.desabilitarFornada     = desabilitarFornada;
+window.PaoDoCiso.habilitarFornada       = habilitarFornada;
+
+// Aliases de compatibilidade
 window.configurarDatasFornada = configurarDatasFornada;
 window.calcularDatasFornada    = calcularDatasFornada;
 window.desabilitarFornada = desabilitarFornada;

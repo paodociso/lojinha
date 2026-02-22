@@ -408,6 +408,18 @@ document.addEventListener('input', function(e) {
 
 // --- 7. EXPORTAÇÕES ---
 
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.obterTaxaEntregaAtual           = obterTaxaEntregaAtual;
+window.PaoDoCiso.configurarRemocaoDestaqueCampos = configurarRemocaoDestaqueCampos;
+window.PaoDoCiso.formatarCodigoPostal            = formatarCodigoPostal;
+window.PaoDoCiso.buscarEnderecoPorCodigoPostal   = buscarEnderecoPorCodigoPostal;
+window.PaoDoCiso.calcularFretePorBairro          = calcularFretePorBairro;
+window.PaoDoCiso.obterDadosEnderecoCliente       = obterEnderecoFormatado;
+window.PaoDoCiso.limparEnderecoCliente           = limparEnderecoCliente;
+window.PaoDoCiso.configurarEventosCEP            = configurarEventosCEP;
+
+// Aliases de compatibilidade
 window.obterTaxaEntregaAtual           = obterTaxaEntregaAtual;
 window.configurarRemocaoDestaqueCampos = configurarRemocaoDestaqueCampos;
 window.formatarCodigoPostal            = formatarCodigoPostal;

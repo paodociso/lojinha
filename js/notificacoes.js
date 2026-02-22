@@ -49,4 +49,9 @@ function mostrarNotificacao(mensagem, tipo = 'info') {
 }
 
 
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.mostrarNotificacao = mostrarNotificacao;
+
+// Alias de compatibilidade — mantém chamadas diretas funcionando
 window.mostrarNotificacao = mostrarNotificacao;

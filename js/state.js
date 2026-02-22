@@ -83,6 +83,13 @@ function resetarEstado() {
 }
 
 // EXPORTAR FUNÇÕES
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.carregarCarrinhoSalvo = carregarCarrinhoSalvo;
+window.PaoDoCiso.salvarCarrinho = salvarCarrinho;
+window.PaoDoCiso.resetarEstado = resetarEstado;
+
+// Aliases de compatibilidade
 window.carregarCarrinhoSalvo = carregarCarrinhoSalvo;
 window.salvarCarrinho = salvarCarrinho;
 window.resetarEstado = resetarEstado;

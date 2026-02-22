@@ -56,5 +56,10 @@ function alterarQuantidadeOpcional(nomeOpcional, precoOpcional, valor) {
 }
 
 // EXPORTAR FUNÇÕES
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.alterarQuantidadeOpcional = alterarQuantidadeOpcional;
+
+// Alias de compatibilidade
 window.alterarQuantidadeOpcional = alterarQuantidadeOpcional;
 //window.obterOpcionaisAtivos = obterOpcionaisAtivos;

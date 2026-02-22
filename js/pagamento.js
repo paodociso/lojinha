@@ -80,6 +80,14 @@ function finalizarPedido() {
 }
 
 // EXPORTAR FUNÇÕES
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.abrirModalPagamento = abrirModalPagamento;
+window.PaoDoCiso.selecionarPagamento = selecionarPagamento;
+window.PaoDoCiso.copiarChavePix = copiarChavePix;
+window.PaoDoCiso.finalizarPedido = finalizarPedido;
+
+// Aliases de compatibilidade
 window.abrirModalPagamento = abrirModalPagamento;
 window.selecionarPagamento = selecionarPagamento;
 window.copiarChavePix = copiarChavePix;

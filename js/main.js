@@ -184,4 +184,10 @@ function atualizarDadosModalFornada() {
 
 window.addEventListener('resize', ajustarAlturaModal);
 
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.inicializarSistema = inicializarSistema;
+window.PaoDoCiso.atualizarDadosModalFornada = atualizarDadosModalFornada;
+
+// Alias de compatibilidade
 window.inicializarSistema = inicializarSistema;

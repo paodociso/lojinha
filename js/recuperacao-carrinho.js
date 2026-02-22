@@ -87,6 +87,13 @@ function iniciarRecuperacaoCarrinho() {
 }
 
 // ===================== EXPORTAR FUNÇÕES =====================
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.verificarCarrinhoRecuperado = verificarCarrinhoRecuperado;
+window.PaoDoCiso.limparCarrinhoRecuperado = limparCarrinhoRecuperado;
+window.PaoDoCiso.iniciarRecuperacaoCarrinho = iniciarRecuperacaoCarrinho;
+
+// Aliases de compatibilidade
 window.verificarCarrinhoRecuperado = verificarCarrinhoRecuperado;
 window.limparCarrinhoRecuperado = limparCarrinhoRecuperado;
 window.iniciarRecuperacaoCarrinho = iniciarRecuperacaoCarrinho;

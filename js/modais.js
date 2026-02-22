@@ -87,7 +87,14 @@ function configurarEventosGerais() {
     }
 }
 
-// EXPORTAR FUNÇÕES
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.abrirModal              = abrirModal;
+window.PaoDoCiso.fecharModal             = fecharModal;
+window.PaoDoCiso.fecharTodosModais       = fecharTodosModais;
+window.PaoDoCiso.configurarEventosGerais = configurarEventosGerais;
+
+// Aliases de compatibilidade
 window.abrirModal             = abrirModal;
 window.fecharModal            = fecharModal;
 window.fecharTodosModais      = fecharTodosModais;

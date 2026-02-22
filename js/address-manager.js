@@ -347,3 +347,6 @@ window.AddressManager = {
         }
     }
 };
+// Namespace
+window.PaoDoCiso = window.PaoDoCiso || {};
+window.PaoDoCiso.AddressManager = window.AddressManager;
