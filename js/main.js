@@ -191,3 +191,15 @@ window.PaoDoCiso.atualizarDadosModalFornada = atualizarDadosModalFornada;
 
 // Alias de compatibilidade
 window.inicializarSistema = inicializarSistema;
+
+// ===================== ONESIGNAL — PEDIDO DE PERMISSÃO =====================
+// Pede permissão só após o primeiro item adicionado ao carrinho
+function solicitarPermissaoNotificacao() {
+    if (!window.OneSignalDeferred) return;
+    if (localStorage.getItem('onesignal-permissao-solicitada')) return;
+    localStorage.setItem('onesignal-permissao-solicitada', '1');
+    OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.Notifications.requestPermission();
+    });
+}
+window.solicitarPermissaoNotificacao = solicitarPermissaoNotificacao;

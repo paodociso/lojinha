@@ -32,6 +32,19 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2d3a27">
 
+    <!-- OneSignal Push Notifications -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.init({
+                appId: "a6e252da-0dc0-494d-baa6-a79812543154",
+                notifyButton: { enable: false },
+                allowLocalhostAsSecureOrigin: true,
+            });
+        });
+    </script>
+
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -46,7 +59,27 @@
 
 </head>
 <body>
-    <!-- ===================== CABEÇALHO PRINCIPAL ===================== -->
+
+    <!-- ===================== BANNER DE INSTALAÇÃO PWA ===================== -->
+    <div id="banner-instalar-app" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999;
+         background:#2d3a27; color:#fdf5e6; padding:14px 20px;
+         box-shadow:0 -4px 20px rgba(0,0,0,0.3); align-items:center; gap:12px;">
+        <img src="img/logo192x192.png" alt="Pao do Ciso" style="width:44px; height:44px; border-radius:10px; flex-shrink:0;">
+        <div style="flex:1; min-width:0;">
+            <div style="font-weight:bold; font-size:0.95rem;">Instalar Pao do Ciso</div>
+            <div id="banner-instalar-subtexto" style="font-size:0.78rem; opacity:0.8; margin-top:2px;"></div>
+        </div>
+        <button id="btn-instalar-app" style="background:#fdf5e6; color:#2d3a27; border:none; border-radius:8px;
+                padding:8px 16px; font-weight:bold; cursor:pointer; font-size:0.9rem; flex-shrink:0; display:none;">
+            Instalar
+        </button>
+        <button onclick="document.getElementById('banner-instalar-app').style.display='none'; localStorage.setItem('pwa-banner-dispensado','1');"
+                style="background:none; border:none; color:#fdf5e6; opacity:0.6; cursor:pointer; font-size:1.2rem; padding:4px; flex-shrink:0;">
+            x
+        </button>
+    </div>
+
+    <!-- ===================== CABECALHO PRINCIPAL ===================== -->
     <header class="cabecalho-principal">
         <div class="cabecalho-container">
             
@@ -548,5 +581,47 @@
     <script src="js/address-manager.js" defer></script>
     <script src="js/recuperacao-carrinho.js" defer></script>
     <script src="js/main.js" defer></script>
+
+    <!-- ===================== PWA — BANNER DE INSTALAÇÃO ===================== -->
+    <script>
+        (function() {
+            // Não mostra se o usuário já dispensou
+            if (localStorage.getItem('pwa-banner-dispensado')) return;
+            // Não mostra se já está rodando como PWA instalado
+            if (window.matchMedia('(display-mode: standalone)').matches) return;
+
+            const banner   = document.getElementById('banner-instalar-app');
+            const subtexto = document.getElementById('banner-instalar-subtexto');
+            const btnInstalar = document.getElementById('btn-instalar-app');
+            let promptEvento = null;
+
+            // Android/Desktop — captura o evento nativo do browser
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                promptEvento = e;
+                subtexto.textContent = 'Adicione o app na tela inicial para pedir mais facilmente.';
+                btnInstalar.style.display = 'block';
+                btnInstalar.onclick = async () => {
+                    promptEvento.prompt();
+                    const { outcome } = await promptEvento.userChoice;
+                    banner.style.display = 'none';
+                    if (outcome === 'accepted') {
+                        localStorage.setItem('pwa-banner-dispensado', '1');
+                    }
+                };
+                banner.style.display = 'flex';
+            });
+
+            // iOS (Safari) — não tem beforeinstallprompt, mostra instrução manual
+            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+            if (isIOS && isSafari) {
+                subtexto.textContent = 'Toque em Compartilhar > "Adicionar à Tela de Início".';
+                btnInstalar.style.display = 'none';
+                banner.style.display = 'flex';
+            }
+        })();
+    </script>
+
     </body>
 </html>

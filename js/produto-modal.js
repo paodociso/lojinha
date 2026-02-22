@@ -250,6 +250,7 @@ function adicionarItemAoCarrinho() {
     sincronizarProdutoNoCarrinho();
     fecharModal('modal-produto');
     mostrarNotificacao('Item adicionado ao carrinho!');
+    if (typeof solicitarPermissaoNotificacao === 'function') solicitarPermissaoNotificacao();
 }
 
 function adicionarEIrParaCarrinho() {

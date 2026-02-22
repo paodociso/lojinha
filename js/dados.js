@@ -154,6 +154,9 @@ window.dadosIniciais = {
         "Cafés": [
             {"nome":"Potinho de plástico","preco":2},
             {"nome":"Potinho de vidro","preco":5}
+        ],
+        "Sobremesas": [
+            {"nome":"Novo Item","preco":0}
         ]
     },
 
@@ -622,6 +625,29 @@ window.dadosIniciais = {
         ],
         "visivel": true,
         "esgotado": false
+      }
+    ]
+  },
+  {
+    "nome": "Sobremesas",
+    "itens": [
+      {
+        "nome": "Cannariculi",
+        "descricao": "Feito com uma massa simples de vinho tinto e especiarias, o canariculo é um doce típico calabrês que surge em pequenas rosquinhas ou tirinhas fritas até dourarem . Banhados em mel perfumado, eles derretem na boca revelando o sabor inconfundível das festas italianas . Uma herança de família que atravessa gerações.",
+        "preco": 20,
+        "imagem": "img/cannariculi.webp",
+        "visivel": true,
+        "esgotado": false,
+        "opcionais_ativos": []
+      },
+      {
+        "nome": "Tiramissú",
+        "descricao": "Feito com camadas de biscoitos embebidos em café e um creme suave de mascarpone, o tiramisu é uma sobremesa italiana clássica. Sua textura cremosa contrasta delicadamente com o sabor marcante do café e o toque final de cacado. Uma combinação simples e equilibrada para encerrar a refeição.",
+        "preco": 25,
+        "imagem": "img/tiramissu1.webp",
+        "visivel": true,
+        "esgotado": false,
+        "opcionais_ativos": []
       }
     ]
   }
