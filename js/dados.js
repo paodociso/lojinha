@@ -271,6 +271,39 @@ window.dadosIniciais = {
         ],
         "visivel": true,
         "esgotado": false
+      },
+      {
+        "nome": "Manteiga temperada",
+        "descricao": "Manteiga temperada com alho e ervas finas",
+        "preco": 20,
+        "imagem": "img/manteiga-temperada.webp",
+        "visivel": true,
+        "esgotado": false,
+        "opcionais_ativos": [
+          "Potinho de vidro"
+        ]
+      },
+      {
+        "nome": "Tomates confitado",
+        "descricao": "Tomates cereja confitado no azeite.",
+        "preco": 20,
+        "imagem": "img/tomate-confitado.webp",
+        "visivel": true,
+        "esgotado": false,
+        "opcionais_ativos": [
+          "Potinho de vidro"
+        ]
+      },
+      {
+        "nome": "Alho confitado",
+        "descricao": "Alho confitado no azeite.",
+        "preco": 20,
+        "imagem": "img/alho-confitado.webp",
+        "visivel": true,
+        "esgotado": false,
+        "opcionais_ativos": [
+          "Potinho de vidro"
+        ]
       }
     ]
   },
@@ -580,5 +613,3 @@ window.dadosIniciais = {
   }
 ]
 };
-
-window.PaoDoCiso = window.PaoDoCiso || {}; window.PaoDoCiso.dadosIniciais = window.dadosIniciais;
