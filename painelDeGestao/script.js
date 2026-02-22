@@ -196,9 +196,16 @@ function criarLinhaProduto(sIdx, iIdx, item) {
     tr.innerHTML = `
         <td class="col-drag"><i class="fas fa-bars drag-handle" style="color:#ddd"></i></td>
         <td class="col-prod">
-            <div style="font-weight:bold;">${item.nome}</div>
-            <div style="font-size:0.8rem; color:#666;">${item.descricao.substring(0, 40)}...</div>
-            <div class="mini-tags-container">${tagsHtml}</div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img src="../${item.imagem}" alt="${item.nome}"
+                     style="width:48px; height:48px; object-fit:cover; border-radius:6px; border:1px solid #eee; flex-shrink:0;"
+                     onerror="this.style.background='#ffebee'; this.style.border='1px solid #ffcdd2'; this.title='Imagem não encontrada: ${item.imagem}';">
+                <div>
+                    <div style="font-weight:bold;">${item.nome}</div>
+                    <div style="font-size:0.8rem; color:#666;">${item.descricao.substring(0, 40)}...</div>
+                    <div class="mini-tags-container">${tagsHtml}</div>
+                </div>
+            </div>
         </td>
         <td class="col-preco">R$ ${parseFloat(item.preco).toFixed(2)}</td>
         <td class="col-status">
