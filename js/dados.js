@@ -632,8 +632,8 @@ window.dadosIniciais = {
     "nome": "Sobremesas",
     "itens": [
       {
-        "nome": "Cannariculi",
-        "descricao": "Feito com uma massa simples de vinho tinto e especiarias, o canariculo é um doce típico calabrês que surge em pequenas rosquinhas ou tirinhas fritas até dourarem . Banhados em mel perfumado, eles derretem na boca revelando o sabor inconfundível das festas italianas . Uma herança de família que atravessa gerações.",
+        "nome": "Cannaricoli",
+        "descricao": "Feito com uma massa aromática de vinho, azeite e especiarias, o cannariculo é um doce típico calabrês modelado em bolinhas estriadas fritas até dourarem perfeitamente. Banhados em mel, os cannariculi derretem na boca, revelando o sabor inconfundível das festas italianas. Uma herança de família que atravessa gerações.",
         "preco": 20,
         "imagem": "img/cannariculi.webp",
         "visivel": true,
