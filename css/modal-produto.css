@@ -1,224 +1,273 @@
 /* ============================================================
-   MODAL DE PRODUTO
+   MODAL DE PRODUTO — VISUAL CARDÁPIO
+   ============================================================
+
+   ESTRUTURA DE 3 ZONAS (flex-column):
+   ┌─────────────────────────────────────────┐
+   │ #cabecalho-modal-produto  → fixo        │  nome + imagem + desc
+   ├─────────────────────────────────────────┤
+   │ #corpo-modal-produto      → rolável     │  quantidade + opcionais + subtotal
+   ├─────────────────────────────────────────┤
+   │ .botoes-modal-produto     → fixo        │  botões de ação
+   └─────────────────────────────────────────┘
    ============================================================ */
 
-/* ── ESTRUTURA DE 3 ZONAS ────────────────────────────────────
-   O modal tem height:auto — abraça o conteúdo até max-height.
-   Internamente, flex-column divide em 3 zonas:
 
-   [.conteudo-modal-produto]  imagem + nome + desc  → fixo (flex-shrink:0)
-   [#corpo-modal-produto]     opcionais + subtotal  → rola (flex:1)
-   [.botoes-modal-produto]    botões                → fixo (flex-shrink:0)
-   ────────────────────────────────────────────────────────── */
+/* ── ZONA 1: CABEÇALHO FIXO ──────────────────────────────── */
 
-/* ── ZONA 1: CABEÇALHO FIXO (imagem + nome + descrição) ──── */
-.conteudo-modal-produto {
-    flex-shrink: 0 !important;
-    overflow: hidden !important;
-    max-height: none !important;        /* anula herança do overlay-modal */
-    padding: 16px 20px 12px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    background: var(--bg-container-modal);
-}
-
-/* ── CONTAINER DO NOME (acima da imagem) ─────────────────── */
-.container-nome-produto-modal {
-    padding: 12px 0 !important;
-    margin: 0 !important;
-}
-
-.imagem-produto-container {
-    width: 100% !important;
-    aspect-ratio: 2 / 1 !important;  /* largura:altura = 2:1 → altura = metade da largura */
-    height: auto !important;
-    max-height: none !important;
-    margin: 0 0 12px 0 !important;
-    border-radius: 12px !important;
-    border: 2px solid var(--borda-nav) !important;
-    background: var(--branco);
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    cursor: zoom-in;
+#cabecalho-modal-produto {
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-container-modal);
+    overflow: hidden;
 }
 
-.imagem-produto-modal {
-    width: 100% !important;
-    height: 100% !important;
-    max-height: none !important;
-    object-fit: cover !important;
-    display: block;
+.container-nome-produto-modal {
+    padding: 16px 16px 0;
 }
 
 .nome-produto-modal {
-    font-size: 1.1rem !important;
+    font-size: 1rem;
     font-weight: 900;
-    color: var(--marrom-cafe);
-    text-align: center;
+    color: var(--preto);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-
-    /* Visual tipo resumo-pedido do carrinho */
-    background: var(--bege-claro);
-    border: 1px solid var(--bege-escuro);
+    line-height: 1.2;
+    margin: 0;
+    padding: 10px 14px;
+    background: var(--branco);
+    border: 1px solid var(--cinza-medio);
     border-radius: 12px;
-    padding: 12px 16px !important;
+    box-shadow: 0 2px 6px var(--sombra-suave);
+    text-align: center;
+}
 
-    /* Fica fora do .moldura-padrao-modal, então precisa de margem lateral */
-    margin: 0 !important;
+.imagem-produto-container {
+    margin: 12px 16px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--cinza-medio);
+    box-shadow: 0 4px 12px var(--sombra-suave);
+    background: var(--cinza-claro);
+    aspect-ratio: 2 / 1;
+    flex-shrink: 0;
+    cursor: zoom-in;
+}
+
+.imagem-produto-modal {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.container-descricao-produto-modal {
+    padding: 10px 16px 14px;
 }
 
 .descricao-produto-modal {
-    font-size: 0.85rem !important;
-    line-height: 1.4 !important;
-    color: var(--cinza-escuro);
-    text-align: center;
+    font-size: 0.82rem;
     font-weight: 700;
-    margin: 0 !important;
+    color: var(--cinza-escuro);
+    line-height: 1.45;
+    text-align: center;
+    margin: 0;
 }
 
-/* ── ZONA 2: CORPO ROLÁVEL (opcionais + subtotal) ─────────── */
+#status-no-carrinho {
+    margin: 0 16px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #f0f7ed;
+    border: 1px solid #c8dfc2;
+    color: #4b6b35;
+    font-weight: 800;
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+
+/* ── ZONA 2: CORPO ROLÁVEL ───────────────────────────────── */
+
 #corpo-modal-produto {
-    flex: 1 1 auto !important;
-    overflow-y: auto !important;
+    flex: 1 1 auto;
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 4px 20px 8px !important;
+    min-height: 0;
+    padding: 8px 16px 12px;
     display: flex;
     flex-direction: column;
-    min-height: 0;                      /* essencial para flex+overflow */
+    gap: 8px;
 }
 
-.moldura-padrao-modal,
-.info-produto-modal,
-.controle-quantidade-produto {
-    padding: 10px !important;
-    margin: 8px 0 !important;
-    background-color: var(--cinza-fundo);
-    border-radius: 12px;
+.moldura-padrao-modal {
+    background: var(--branco);
     border: 1px solid var(--cinza-medio);
+    border-radius: 12px;
+    box-shadow: 0 2px 6px var(--sombra-suave);
+    padding: 12px 14px;
+    margin: 0;
 }
 
+/* Controle de quantidade */
+.linha-quantidade-modal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.label-quantidade-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.label-quantidade-modal span:first-child {
+    font-size: 0.78rem;
+    font-weight: 900;
+    color: var(--preto);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.label-quantidade-modal .preco-unitario {
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--verde-militar);
+}
+
+.controles-quantidade-modal {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.controles-quantidade-modal span {
+    font-size: 1.1rem;
+    font-weight: 900;
+    min-width: 22px;
+    text-align: center;
+    color: var(--preto);
+}
+
+/* Opcionais */
 .moldura-agrupadora-opcionais {
-    padding: 10px !important;
-    margin: 8px 0 !important;
-    background-color: var(--cinza-fundo);
-    border-radius: 12px;
+    background: var(--branco);
     border: 1px solid var(--cinza-medio);
-    max-height: none !important;
-    overflow: visible !important;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px var(--sombra-suave);
+    padding: 10px 14px;
+    margin: 0;
 }
 
-.titulo-modal-pequeno,
-.titulo-opcionais {
-    font-size: 0.85rem;
+.titulo-opcionais,
+.titulo-modal-pequeno {
+    font-size: 0.78rem;
     font-weight: 900;
     color: var(--marrom-cafe);
-    margin-bottom: 8px;
-    display: block;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
     text-align: center;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.titulo-subcategoria {
+    font-size: 0.75rem;
+    font-weight: 900;
+    color: var(--cinza-escuro);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin: 10px 0 6px;
 }
 
 .opcional-item-moldura {
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    padding: 12px 0 !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
     border-bottom: 1px solid var(--cinza-divisor);
 }
 
 .opcional-item-moldura:last-child {
     border-bottom: none;
+    padding-bottom: 0;
 }
 
-.opcional-info {
+.opcional-texto-lado-a-lado {
     display: flex;
     flex-direction: column;
-    text-align: left;
+    gap: 2px;
 }
 
 .opcional-nome {
+    font-size: 0.88rem;
     font-weight: 800;
-    font-size: 0.9rem;
-    color: var(--texto);
+    color: var(--preto);
 }
 
 .opcional-preco {
-    font-size: 0.8rem;
-    color: var(--verde-militar);
+    font-size: 0.78rem;
     font-weight: 700;
-    margin-top: 2px;
+    color: var(--verde-militar);
 }
 
 .controles-opcional {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 12px !important;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .quantidade-opcional {
     font-weight: 900;
-    min-width: 25px;
+    font-size: 0.95rem;
+    min-width: 22px;
     text-align: center;
+    color: var(--preto);
 }
 
-.controles-quantidade {
-    display: flex;
-    align-items: center;
-    gap: 15px !important;
-    justify-content: center;
-    margin-top: 10px;
-}
-
-.quantidade-display {
-    font-size: 1.2rem !important;
-    font-weight: 900;
-    color: var(--verde-militar);
-    min-width: 40px !important;
-    text-align: center;
-}
-
+/* Subtotal */
 #container-subtotal-produto {
-    background: var(--vermelho-suave);
-    padding: 12px;
+    background: var(--branco);
+    border: 1px solid var(--cinza-medio);
     border-radius: 12px;
+    box-shadow: 0 2px 6px var(--sombra-suave);
+    padding: 12px 14px;
+    margin: 0;
+}
+
+.linha-flex-modal {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    text-align: center;
-    border: 1px solid var(--vermelho-borda);
-    margin: 8px 0 4px;
+    width: 100%;
 }
 
 .subtitulo-subtotal {
-    font-size: 0.75rem;
-    color: var(--red);
+    font-size: 0.78rem;
     font-weight: 900;
+    color: var(--marrom-cafe);
     text-transform: uppercase;
-    width: 100%;
+    letter-spacing: 0.4px;
 }
 
 .valor-subtotal {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 900;
-    color: var(--red);
-    width: 100%;
+    color: var(--verde-militar);
 }
 
-/* ── ZONA 3: RODAPÉ FIXO (botões) ────────────────────────── */
+
+/* ── ZONA 3: RODAPÉ FIXO ─────────────────────────────────── */
+
 .botoes-modal-produto {
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 12px 20px 16px;
+    padding: 12px 16px 16px;
     background: var(--bg-container-modal);
     border-top: 1px solid var(--cinza-medio);
 }
@@ -255,12 +304,11 @@
     box-shadow: 0 4px 6px var(--sombra-suave);
 }
 
+
 /* ── DESKTOP ─────────────────────────────────────────────── */
+
 @media (min-width: 769px) {
-    /* imagem-produto-container usa aspect-ratio, não precisa de override */
-
-    .nome-produto-modal {
-        font-size: 1.4rem !important;
-    }
+    .nome-produto-modal      { font-size: 1.3rem; }
+    .label-quantidade-modal .preco-unitario { font-size: 1.1rem; }
+    .valor-subtotal          { font-size: 1.4rem; }
 }
-

@@ -164,55 +164,57 @@ function gerarHTMLSecaoOpcionais(produto) {
 // --- FUNÇÕES PADRÃO (RENDER, CÁLCULO, ETC) ---
 // ATUALIZAÇÃO: CORREÇÃO DE VISIBILIDADE
 function renderizarModalProduto(produto) {
-    const container = document.getElementById('corpo-modal-produto');
-    if (!container) return;
+    // ── ZONA 1: cabeçalho fixo (nome + imagem + descrição + status) ──
+    const cabecalho = document.getElementById('cabecalho-modal-produto');
+    if (cabecalho) {
+        const displayStatus = produtoAtual.quantidade > 0 ? 'flex' : 'none';
+        cabecalho.innerHTML = `
+            <div class="container-nome-produto-modal">
+                <h2 class="nome-produto-modal">${produto.nome}</h2>
+            </div>
 
-    // Lógica infalível de visibilidade
-    const displayStatus = produtoAtual.quantidade > 0 ? 'block' : 'none';
-    
-    // O subtotal também deve sumir se for zero
+            <div class="imagem-produto-container">
+                <img src="${produto.imagem}" alt="${produto.nome}" class="imagem-produto-modal">
+            </div>
+
+            <div class="container-descricao-produto-modal">
+                <p class="descricao-produto-modal">${produto.descricao || ''}</p>
+            </div>
+
+            <div id="status-no-carrinho" style="display:${displayStatus};">
+                <i class="fas fa-check-circle"></i> Item adicionado ao carrinho
+            </div>
+        `;
+    }
+
+    // ── ZONA 2: corpo rolável (quantidade + opcionais + subtotal) ──
+    const corpo = document.getElementById('corpo-modal-produto');
+    if (!corpo) return;
+
     const displaySubtotal = produtoAtual.quantidade > 0 ? 'block' : 'none';
 
-    container.innerHTML = `
-        <div class="container-nome-produto-modal">
-            <h2 class="nome-produto-modal">${produto.nome}</h2>
-        </div>
-
-        <div class="imagem-produto-container">
-            <img src="${produto.imagem}" alt="${produto.nome}" class="imagem-produto-modal">
-        </div>
-
-        <div id="status-no-carrinho" 
-             style="display: ${displayStatus}; text-align: center; color: #4b6b35; font-weight: bold; font-size: 0.85rem; padding: 10px 0; background-color: #f0f7ed; border-bottom: 1px solid #e0eadd;">
-            <i class="fas fa-check-circle"></i> Item adicionado ao carrinho
-        </div>
-        
+    corpo.innerHTML = `
         <div class="moldura-padrao-modal">
-            <p class="descricao-produto-modal">${produto.descricao || ''}</p>
-        </div>
-        
-        <div class="moldura-padrao-modal">
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <div style="display: flex; flex-direction: column;">
-                    <span style="font-weight: bold; font-size: 1rem; color: #000;">Quantidade</span>
-                    <span style="font-size: 0.9rem; color: #666;">${formatarMoeda(produto.preco)}</span>
+            <div class="linha-quantidade-modal">
+                <div class="label-quantidade-modal">
+                    <span>Quantidade</span>
+                    <span class="preco-unitario">${formatarMoeda(produto.preco)}</span>
                 </div>
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <button class="botao-quantidade-pequeno" onclick="alterarQuantidadeProduto(-1)" style="width: 30px; height: 30px; border-radius: 50%; border: none; background-color: #332616; color: white; cursor: pointer;">-</button>
-                    <span id="quantidade-produto-modal" style="font-weight: bold; font-size: 1rem; min-width: 20px; text-align: center;">${produtoAtual.quantidade}</span>
-                    <button class="botao-quantidade-pequeno" onclick="alterarQuantidadeProduto(1)" style="width: 30px; height: 30px; border-radius: 50%; border: none; background-color: #332616; color: white; cursor: pointer;">+</button>
+                <div class="controles-quantidade-modal">
+                    <button class="botao-quantidade-pequeno" onclick="alterarQuantidadeProduto(-1)">-</button>
+                    <span id="quantidade-produto-modal">${produtoAtual.quantidade}</span>
+                    <button class="botao-quantidade-pequeno" onclick="alterarQuantidadeProduto(1)">+</button>
                 </div>
             </div>
         </div>
-        
+
         <div id="secao-opcionais-dinamica">
             ${gerarHTMLSecaoOpcionais(produto)}
         </div>
-        
-        <div id="container-subtotal-produto" class="moldura-padrao-modal" 
-             style="display: ${displaySubtotal}; background-color: #e8e8e8 !important;">
+
+        <div id="container-subtotal-produto" style="display:${displaySubtotal};">
             <div class="linha-flex-modal">
-                <span class="subtitulo-subtotal">SUBTOTAL DO ITEM</span>
+                <span class="subtitulo-subtotal">Subtotal do item</span>
                 <span id="valor-subtotal-produto" class="valor-subtotal">${formatarMoeda(calcularSubtotalProduto())}</span>
             </div>
         </div>
