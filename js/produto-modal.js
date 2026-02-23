@@ -174,6 +174,10 @@ function renderizarModalProduto(produto) {
     const displaySubtotal = produtoAtual.quantidade > 0 ? 'block' : 'none';
 
     container.innerHTML = `
+        <div class="container-nome-produto-modal">
+            <h2 class="nome-produto-modal">${produto.nome}</h2>
+        </div>
+
         <div class="imagem-produto-container">
             <img src="${produto.imagem}" alt="${produto.nome}" class="imagem-produto-modal">
         </div>
@@ -184,7 +188,6 @@ function renderizarModalProduto(produto) {
         </div>
         
         <div class="moldura-padrao-modal">
-            <h2 class="nome-produto-modal">${produto.nome}</h2>
             <p class="descricao-produto-modal">${produto.descricao || ''}</p>
         </div>
         
