@@ -192,19 +192,17 @@
 }
 
 /* RODAPÉ */
-.rodape {
-    background-color: var(--verde-militar);
-    color: var(--branco);
-    padding: 20px 0;
-    text-align: center;
-    margin-top: 50px;
-    width: 100%;
-    padding-bottom: 100px !important; 
-}
+    .rodape {
+        background-color: var(--marrom-militar);
+        color: var(--branco);
+        padding: 200px 0; /* Diminuído de 20px para 10px (topo e laterais) */
+        text-align: center;
+        margin-top: 50px; /* Opcional: diminui a distância entre o conteúdo e o rodapé */
+        width: 100%;
+        padding-bottom: 30px !important; /* Diminuído de 100px para 70px para a barra do carrinho */
+    }
 
-
-
-/* Scrollbar */
+    /* Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-creme); }
 ::-webkit-scrollbar-thumb { background: var(--verde-militar); border-radius: 4px; }
