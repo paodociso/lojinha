@@ -30,64 +30,28 @@ function validarDadosCliente() {
             return;
         }
         enderecoCliente = window.AddressManager.getEndereco();
+
+        // ── Sincroniza o frete a partir do CEP informado neste modal ──────────
+        // O usuário pode ter alterado o CEP em dados-cliente; garante que o
+        // estadoAplicativo.taxaEntrega reflita o bairro/CEP atual antes de
+        // abrir o pagamento.
+        const cepAtual = estadoAplicativo.cepCalculado
+            ? String(estadoAplicativo.cepCalculado).replace(/\D/g, '')
+            : '';
+
+        const bairroAtual = estadoAplicativo.dadosCliente?.bairro
+            || (window.AddressManager.getEndereco()?.bairro)
+            || '';
+
+        if (bairroAtual && typeof calcularFretePorBairro === 'function') {
+            // Recalcula silenciosamente — atualiza estadoAplicativo.taxaEntrega
+            calcularFretePorBairro(bairroAtual, cepAtual);
+        }
     }
     
     fecharModal('modal-dados-cliente');
     abrirModalPagamento();
 } 
-
-// ===================== FUNÇÃO DE TESTE DO ADDRESSMANAGER =====================
-/*function testarAddressManager() {
-    log('🧪 TESTANDO AddressManager...');
-    
-    // Verifica se o AddressManager foi carregado
-    if (!window.AddressManager) {
-        alert('❌ AddressManager não foi carregado!\nVerifique se o arquivo address-manager.js está incluído.');
-        return;
-    }
-    
-    // Testa os métodos principais
-    log('1. Método getEndereco():', window.AddressManager.getEndereco());
-    log('2. Método validar():', window.AddressManager.validar());
-    
-    // Preenche automaticamente com dados de teste
-    const camposTeste = {
-        'codigo-postal-cliente': '01001-000',
-        'logradouro-cliente': 'Praça da Sé',
-        'bairro-cliente': 'Sé',
-        'cidade-cliente': 'São Paulo/SP',
-        'numero-residencia-cliente': '123',
-        'complemento-residencia-cliente': 'Sobreloja',
-        'ponto-referencia-entrega': 'Em frente à catedral'
-    };
-    
-    // Preenche cada campo
-    Object.keys(camposTeste).forEach(id => {
-        const campo = document.getElementById(id);
-        if (campo) {
-            campo.value = camposTeste[id];
-            // Dispara evento de change para atualizar o AddressManager
-            campo.dispatchEvent(new Event('change'));
-        }
-    });
-    
-    // Feedback para o usuário
-    const enderecoTeste = window.AddressManager.getEndereco();
-    log('✅ Dados de teste preenchidos:', enderecoTeste);
-    
-    // Mostra mensagem amigável
-    const mensagem = `✅ DADOS DE TESTE PREENCHIDOS:\n\n` +
-                    `CEP: ${enderecoTeste.cep || 'Não preenchido'}\n` +
-                    `Rua: ${enderecoTeste.logradouro || 'Não preenchido'}\n` +
-                    `Bairro: ${enderecoTeste.bairro || 'Não preenchido'}\n` +
-                    `Número: ${enderecoTeste.numero || 'Não preenchido'}\n\n` +
-                    `Agora clique em "ESCOLHER PAGAMENTO" para testar a validação.`;
-    
-    alert(mensagem);
-}
-
-// Exporta a função para uso global
-window.testarAddressManager = testarAddressManager;*/
 
 // ===================== SALVAR E CARREGAR DADOS DO CLIENTE =====================
 function salvarDadosCliente() {
@@ -109,6 +73,8 @@ function salvarDadosCliente() {
             bairro: bairroCampo ? bairroCampo.value.trim() : '',
             numero: numeroCampo ? numeroCampo.value.trim() : ''
         },
+        // Persiste também a taxa de entrega para restaurar corretamente
+        taxaEntrega: estadoAplicativo.taxaEntrega || 0,
         timestamp: new Date().getTime()
     };
     
@@ -133,6 +99,19 @@ function carregarDadosCliente() {
                 if (dados.endereco.rua) document.getElementById('logradouro-cliente').value = dados.endereco.rua;
                 if (dados.endereco.bairro) document.getElementById('bairro-cliente').value = dados.endereco.bairro;
                 if (dados.endereco.numero) document.getElementById('numero-residencia-cliente').value = dados.endereco.numero;
+
+                // Restaura o bairro/frete no estadoAplicativo a partir dos dados salvos
+                if (dados.endereco.bairro && estadoAplicativo.modoEntrega === 'entrega') {
+                    if (typeof calcularFretePorBairro === 'function') {
+                        calcularFretePorBairro(
+                            dados.endereco.bairro,
+                            dados.endereco.cep ? dados.endereco.cep.replace(/\D/g, '') : ''
+                        );
+                    } else if (dados.taxaEntrega) {
+                        // Fallback: restaura taxa salva se a função ainda não estiver disponível
+                        estadoAplicativo.taxaEntrega = dados.taxaEntrega;
+                    }
+                }
             }
             return true;
         }
@@ -150,7 +129,8 @@ function diagnosticarCep() {
     log("1. CEP no estado:", estadoAplicativo.cepCalculado);
     log("2. Modo entrega:", estadoAplicativo.modoEntrega);
     log("3. Endereço salvo:", enderecoCliente);
-    log("4. Campos visíveis no modal:");
+    log("4. Taxa de entrega atual:", estadoAplicativo.taxaEntrega);
+    log("5. Campos visíveis no modal:");
     
     const campos = ['codigo-postal-cliente', 'logradouro-cliente', 'bairro-cliente', 'cidade-cliente'];
     campos.forEach(id => {
@@ -175,6 +155,3 @@ window.diagnosticarCep = diagnosticarCep;
 window.validarDadosCliente = validarDadosCliente;
 window.salvarDadosCliente = salvarDadosCliente;
 window.carregarDadosCliente = carregarDadosCliente;
-
-// Função de debug/teste (manter comentada para produção)
-// window.testarAddressManager = testarAddressManager;

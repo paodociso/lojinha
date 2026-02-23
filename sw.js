@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pao-do-ciso-v4';
+const CACHE_NAME = 'pao-do-ciso-v5';
 
 const ASSETS_ESSENCIAIS = [
     './',
@@ -69,6 +69,11 @@ self.addEventListener('activate', event => {
 
 // ── FETCH: tenta rede, cai no cache se offline ───────────────────
 self.addEventListener('fetch', event => {
+    // Ignora requisições de outros domínios que não estão no cache
+    // (ex: ViaCEP, OneSignal) — deixa o browser tratar normalmente
+    const url = new URL(event.request.url);
+    if (url.origin !== self.location.origin) return;
+
     event.respondWith(
         fetch(event.request)
             .then(resposta => {
@@ -81,6 +86,8 @@ self.addEventListener('fetch', event => {
                 }
                 return resposta;
             })
-            .catch(() => caches.match(event.request))
+            .catch(() => caches.match(event.request)
+                .then(cached => cached || new Response('Offline', { status: 503 }))
+            )
     );
 });

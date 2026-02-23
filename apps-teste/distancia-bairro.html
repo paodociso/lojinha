@@ -109,7 +109,7 @@
                 </tr>`;
             
             // Pausa obrigatória de 1.5s para evitar bloqueio 403/429
-            await new Promise(r => setTimeout(r, 1500));
+            await new Promise(r => setTimeout(r, 4000));
         }
         progresso.innerText = "Concluído.";
     }

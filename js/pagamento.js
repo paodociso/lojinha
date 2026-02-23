@@ -7,6 +7,21 @@ function obterChavePix() {
 }
 
 function abrirModalPagamento() {
+    // Garante que a taxa de entrega esteja sincronizada antes de abrir o modal.
+    // Se o bairro for conhecido mas a taxa estiver zerada (ex: recarga de página),
+    // recalcula silenciosamente.
+    if (
+        estadoAplicativo.modoEntrega === 'entrega' &&
+        estadoAplicativo.bairroIdentificado &&
+        !estadoAplicativo.taxaEntrega &&
+        typeof calcularFretePorBairro === 'function'
+    ) {
+        calcularFretePorBairro(
+            estadoAplicativo.bairroIdentificado,
+            estadoAplicativo.cepCalculado
+        );
+    }
+
     if (typeof window.atualizarResumoPagamentoFinal === 'function') {
         window.atualizarResumoPagamentoFinal();
     } else {

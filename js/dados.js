@@ -32,9 +32,11 @@ window.dadosIniciais = {
             {"nome":"Jardim Europa","taxa":10},
             {"nome":"Jardim América","taxa":10},
             {"nome":"Bosques da Pedra","taxa":18},
-            {"nome":"Jardim Fraternidade","taxa":18},
+            {"nome":"Jardim Fraternidade","taxa":20},
             {"nome":"Jardim São Miguel","taxa":15},
-            {"nome":"Taboão","taxa":10}
+            {"nome":"Taboão","taxa":10},
+            {"nome": "Cidade Planejada II", "taxa": 20},
+            {"nome": "Cidade Planejada I", "taxa": 20}
         ]
     },
 
