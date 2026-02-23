@@ -4,7 +4,7 @@
 
 /* CABEÇALHO PRINCIPAL */
 .cabecalho-principal {
-    background: var(--verde-militar);
+    background: var(--marrom-militar);
     padding: 15px 20px;
     color: var(--branco);
     position: relative;
