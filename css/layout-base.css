@@ -4,7 +4,7 @@
 
 /* CABEÇALHO PRINCIPAL */
 .cabecalho-principal {
-    background: var(--marrom-militar);
+    background: var(--verde-escuro1);
     padding: 15px 20px;
     color: var(--branco);
     position: relative;
@@ -193,7 +193,7 @@
 
 /* RODAPÉ */
     .rodape {
-        background-color: var(--marrom-militar);
+        background-color: var(--verde-escuro1);
         color: var(--branco);
         padding: 200px 0; /* Diminuído de 20px para 10px (topo e laterais) */
         text-align: center;
