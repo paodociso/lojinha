@@ -1,152 +1,58 @@
 /* ============================================================
-   MODAL DO CARRINHO E PAGAMENTO - VERSÃO FINAL CONSOLIDADA
+   MODAL DO CARRINHO — VISUAL CARDÁPIO
    ============================================================ */
 
-/* 🔒 ESTADO INICIAL */
+/* ── ESTADO INICIAL ──────────────────────────────────────── */
 #modal-carrinho {
     display: none;
     overflow-y: auto !important;
     padding-bottom: 20px !important;
 }
 
-/* 📱 TELEMÓVEL (Padrão) */
+/* conteudo-modal-carrinho rola normalmente — definido em overlay-modal.css */
 .conteudo-modal-carrinho {
-    padding: 20px;
-    max-height: none !important;
-    height: auto !important;
+    padding: 16px !important;
 }
 
-/* ============================================================
-   NOTIFICAÇÕES FLUTUANTES
-   Migrado de: notificacoes.js > adicionarEstilosNotificacoes()
-   ============================================================ */
 
-@keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to   { transform: translateX(0);    opacity: 1; }
-}
-
-@keyframes slideOut {
-    from { transform: translateX(0);    opacity: 1; }
-    to   { transform: translateX(100%); opacity: 0; }
-}
-
-.notificacao-flutuante {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 9999;
-    font-weight: bold;
-    font-size: 0.9rem;
-    transform: translateX(100%);
-    opacity: 0;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    color: white;
-    background: var(--verde-sucesso, #4caf50);
-}
-
-.notificacao-flutuante.ativo {
-    transform: translateX(0);
-    opacity: 1;
-}
-
-.notificacao-flutuante.notificacao-success { background: var(--verde-sucesso, #4caf50); }
-.notificacao-flutuante.notificacao-error   { background: #d32f2f; }
-.notificacao-flutuante.notificacao-aviso   { background: var(--marrom-cafe, #795548); color: white; }
-.notificacao-flutuante.notificacao-info    { background: var(--verde-sucesso, #4caf50); }
-
-/* ============================================================
-   COMPONENTES DO CARRINHO
-   Migrado de: notificacoes.js > adicionarEstilosNotificacoes()
-   ============================================================ */
-
-.tag-esgotado {
-    background: #ffcccc;
-    color: #cc0000;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-.btn-adicionar {
-    background: var(--verde-militar);
-    color: white;
-    border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.3s;
-}
-
-.btn-adicionar:hover {
-    background: #3a5a24;
-    transform: scale(1.1);
-}
-
-.carrinho-vazio {
-    text-align: center;
-    padding: 40px 20px;
-}
-
+/* ── TÍTULO ──────────────────────────────────────────────── */
 .titulo-carrinho {
-    text-align: center;
+    font-size: 1rem;
     font-weight: 900;
     text-transform: uppercase;
-    color: var(--marrom-cafe);
-    margin-bottom: 20px;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
+    color: var(--preto);
+    text-align: center;
+    padding: 10px 14px;
+    background: var(--branco);
+    border: 1px solid var(--cinza-medio);
+    border-radius: 12px;
+    box-shadow: 0 2px 6px var(--sombra-suave);
+    margin: 0 0 12px;
 }
 
-/* --- LISTA DE ITENS NO CARRINHO --- */
+
+/* ── LISTA DE ITENS ──────────────────────────────────────── */
 .lista-itens-carrinho {
-    background: #f9f9f9;
-    padding: 15px;
+    background: var(--branco);
+    border: 1px solid var(--cinza-medio);
     border-radius: 12px;
-    border: 1px solid #eee;
-    margin-bottom: 15px;
-    max-height: 300px;
-    overflow-y: auto;
+    box-shadow: 0 2px 6px var(--sombra-suave);
+    padding: 10px 14px;
+    margin-bottom: 12px;
 }
 
 .item-carrinho {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--cinza-medio, #eee);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--cinza-divisor);
 }
 
 .item-carrinho:last-child {
-    margin-bottom: 0;
-    padding-bottom: 0;
     border-bottom: none;
-}
-
-.item-carrinho-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.item-carrinho-nome {
-    font-weight: 700;
-    color: var(--texto);
-    font-size: 0.95rem;
-}
-
-.item-carrinho-preco {
-    color: var(--verde-militar);
-    font-weight: 900;
+    padding-bottom: 0;
 }
 
 .info-item-carrinho { flex-grow: 1; }
@@ -154,35 +60,39 @@
 .nome-quantidade-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 5px;
+    gap: 8px;
+    margin-bottom: 4px;
 }
 
 .quantidade-item {
+    font-size: 0.85rem;
     font-weight: 900;
-    color: #222;
-    min-width: 25px;
+    color: var(--marrom-cafe);
+    min-width: 24px;
 }
 
 .nome-item {
+    font-size: 0.9rem;
     font-weight: 900;
-    color: #222;
-    font-size: 0.95rem;
+    color: var(--preto);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .opcional-carrinho {
-    font-size: 0.8rem;
-    color: #666;
-    margin-left: 35px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--cinza-escuro);
+    margin-left: 32px;
     margin-bottom: 2px;
 }
 
 .subtotal-item {
-    font-weight: bold;
-    color: var(--verde-militar);
     font-size: 0.9rem;
+    font-weight: 900;
+    color: var(--verde-militar);
     margin-top: 4px;
-    margin-left: 35px;
+    margin-left: 32px;
 }
 
 .botao-remover-item {
@@ -199,56 +109,75 @@
     flex-shrink: 0;
 }
 
-/* --- CUPOM E ENTREGA --- */
-.opcoes-carrinho { margin-bottom: 20px; }
+.carrinho-vazio {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+
+/* ── CUPOM ───────────────────────────────────────────────── */
+.opcoes-carrinho { margin-bottom: 12px; }
 
 .grupo-cupom {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 12px;
 }
 
 .campo-cupom {
-    flex-grow: 1;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 0.8rem;
-    font-weight: bold;
+    flex: 1;
+    min-width: 0;
+    padding: 0 12px;
+    height: 45px;
+    border: 1px solid var(--cinza-medio);
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    background: var(--branco);
+    color: var(--preto);
+    margin: 0;
 }
 
 .botao-aplicar-cupom {
+    flex: 0 0 auto;
+    height: 45px;
+    padding: 0 20px;
     background: var(--marrom-cafe);
-    color: white;
+    color: var(--branco);
     border: none;
-    padding: 12px 20px;
-    border-radius: 8px;
+    border-radius: 10px;
     font-weight: 900;
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     cursor: pointer;
     white-space: nowrap;
 }
 
+
+/* ── ENTREGA ─────────────────────────────────────────────── */
 .grupo-entrega {
-    background: #f9f9f9;
-    padding: 15px;
+    background: var(--branco);
+    border: 1px solid var(--cinza-medio);
     border-radius: 12px;
-    border: 1px solid #eee;
+    box-shadow: 0 2px 6px var(--sombra-suave);
+    padding: 14px;
 }
 
 .titulo-entrega {
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     font-weight: 900;
-    color: #444;
-    margin-bottom: 10px;
+    color: var(--marrom-cafe);
     text-transform: uppercase;
+    letter-spacing: 0.5px;
     text-align: center;
+    margin: 0 0 12px;
 }
 
 .opcoes-entrega {
     display: flex;
     gap: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 14px;
 }
 
 .opcao-entrega {
@@ -257,144 +186,149 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     padding: 12px;
-    border: 2px solid #ccc;
-    border-radius: 8px;
+    border: 2px solid var(--cinza-medio);
+    border-radius: 10px;
     cursor: pointer;
+    font-size: 0.75rem;
     font-weight: 900;
-    font-size: 0.7rem;
-    background: white;
-    transition: all 0.3s;
+    background: var(--branco);
+    text-transform: uppercase;
+    transition: border-color 0.2s, background 0.2s;
 }
 
 .opcao-entrega.selecionada {
     border-color: var(--marrom-cafe);
-    background: #fdfaf7;
+    background: var(--bege-claro);
 }
 
 .opcao-entrega input[type="radio"] { display: none; }
 
 .informacao-taxa {
-    border: 2px dashed var(--borda-nav);
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
-    font-size: 0.85rem;
-    font-weight: bold;
-    color: var(--marrom-detalhe);
-}
-
-/* --- RESUMO DO PEDIDO --- */
-.resumo-pedido {
-    background: #fdfaf5;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid var(--bege-escuro);
-    margin: 20px 0;
-}
-
-.resumo-item {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.95rem;
+    font-size: 0.78rem;
+    font-weight: 700;
     color: var(--cinza-escuro);
+    text-align: center;
+    padding: 8px 10px;
+    border: 1px dashed var(--cinza-medio);
+    border-radius: 8px;
     margin-bottom: 10px;
 }
 
-.resumo-item.desconto {
-    color: var(--red);
-    font-weight: 600;
+.campo-input-carrinho {
+    flex: 1;
+    min-width: 0;
+    padding: 0 12px;
+    height: 45px;
+    border: 1px solid var(--cinza-medio);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    background: var(--branco);
 }
 
-.resumo-total {
-    display: flex;
-    justify-content: space-between;
-    font-size: 1.25rem;
+
+/* ── RESUMO DO PEDIDO ────────────────────────────────────── */
+.resumo-pedido {
+    background: var(--branco);
+    border: 1px solid var(--cinza-medio);
+    border-radius: 12px;
+    box-shadow: 0 2px 6px var(--sombra-suave);
+    overflow: hidden;
+    margin: 12px 0;
+}
+
+.resumo-pedido-header {
+    background: var(--bege-claro);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--cinza-medio);
+}
+
+.resumo-pedido-header span {
+    font-size: 0.78rem;
     font-weight: 900;
     color: var(--marrom-cafe);
-    padding-top: 15px;
-    margin-top: 10px;
-    border-top: 1px dashed var(--cinza-medio);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.detalhes-resumo {
-    padding: 5px 15px;
-    margin-bottom: 10px;
-}
+.resumo-pedido-body { padding: 14px; }
 
-.linha-resumo {
+.resumo-linha {
     display: flex;
     justify-content: space-between;
-    font-size: 0.85rem;
-    color: #666;
-    margin-bottom: 5px;
-}
-
-.linha-resumo.desconto { color: #cc0000; }
-
-.total-geral-carrinho {
-    background: #ffeded;
-    padding: 15px;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    border: 1px solid #ffcccc;
-    margin-bottom: 20px;
+    font-size: 0.88rem;
+    color: var(--cinza-escuro);
+    margin-bottom: 8px;
 }
 
-.rotulo-total {
-    font-size: 0.7rem;
-    color: #cc0000;
-    letter-spacing: 1px;
-    font-weight: bold;
-    text-transform: uppercase;
+.resumo-linha.desconto { color: var(--red); font-weight: 700; }
+
+.resumo-divisor {
+    border: none;
+    border-top: 1px dashed var(--cinza-medio);
+    margin: 10px 0;
 }
 
-.valor-total {
-    font-size: 1.6rem;
+.resumo-total-linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.resumo-total-label {
+    font-size: 0.88rem;
     font-weight: 900;
-    color: #cc0000;
+    color: var(--verde-militar);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
 }
 
+.resumo-total-valor {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--verde-militar);
+}
+
+/* Botões de ação */
 .botoes-carrinho {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    margin-top: 4px;
 }
 
-/* --- CONTEÚDOS EXPANSÍVEIS (PAGAMENTO) --- */
+
+/* ── PAGAMENTO — PIX ─────────────────────────────────────── */
 .opcao-conteudo {
     display: none;
-    margin-top: 15px;
-    padding: 20px;
+    margin-top: 14px;
+    padding: 16px;
     background: var(--branco);
+    border: 1px solid var(--cinza-medio);
     border-radius: 12px;
-    border: 1px solid var(--bege-escuro);
+    box-shadow: 0 2px 6px var(--sombra-suave);
     animation: fadeInSuave 0.3s ease;
 }
 
-.opcao-pagamento.ativa .opcao-conteudo {
-    display: block;
-}
+.opcao-pagamento.ativa .opcao-conteudo { display: block; }
 
-/* Detalhes do PIX */
 .pix-valor {
     background: var(--bege-claro);
     border: 1px solid var(--verde-militar);
     padding: 10px;
-    border-radius: 8px;
+    border-radius: 10px;
     font-weight: 900;
-    margin-bottom: 15px;
     color: var(--verde-militar);
     text-align: center;
     font-size: 1.1rem;
+    margin-bottom: 14px;
 }
 
 .pix-qrcode {
     text-align: center;
-    margin-bottom: 15px;
+    margin-bottom: 14px;
 }
 
 .pix-qrcode img {
@@ -406,19 +340,18 @@
     background: var(--branco);
     display: block;
     margin: 0 auto;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
 .pix-chave {
     border: 2px dashed var(--verde-militar);
     background: var(--bege-claro);
-    padding: 15px;
-    border-radius: 8px;
+    padding: 14px;
+    border-radius: 10px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: 5px;
     width: 100%;
     box-sizing: border-box;
@@ -426,7 +359,7 @@
 
 .pix-chave span {
     font-family: monospace;
-    font-size: 1.05rem;
+    font-size: 1rem;
     color: var(--verde-militar);
     font-weight: 900;
     word-break: break-all;
@@ -435,15 +368,10 @@
     width: 100%;
 }
 
-/* Detalhes do Dinheiro e Cartão */
-.campo-troco,
-.info-cartao {
-    text-align: left;
-}
-
-.campo-troco label {
-    font-size: 0.8rem;
-    font-weight: 800;
+.campo-troco label,
+.info-cartao label {
+    font-size: 0.78rem;
+    font-weight: 900;
     color: var(--marrom-cafe);
     display: block;
     margin-bottom: 6px;
@@ -453,24 +381,91 @@
 .input-troco {
     width: 100%;
     padding: 12px;
-    border: 1px solid var(--borda-nav);
-    border-radius: 8px;
+    border: 1px solid var(--cinza-medio);
+    border-radius: 10px;
     outline: none;
     font-size: 1rem;
     background: var(--branco);
 }
 
-/* .barra-carrinho-fixa — definida em layout-base.css */
+.tag-esgotado {
+    background: #ffcccc;
+    color: #cc0000;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 900;
+}
 
+.btn-adicionar {
+    background: var(--verde-militar);
+    color: var(--branco);
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.btn-adicionar:hover {
+    background: #3a5a24;
+    transform: scale(1.1);
+}
+
+
+/* ── NOTIFICAÇÕES FLUTUANTES ─────────────────────────────── */
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0);    opacity: 1; }
+    to   { transform: translateX(100%); opacity: 0; }
+}
+
+.notificacao-flutuante {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 9999;
+    font-weight: 800;
+    font-size: 0.88rem;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    color: var(--branco);
+    background: var(--verde-sucesso, #4caf50);
+}
+
+.notificacao-flutuante.ativo    { transform: translateX(0); opacity: 1; }
+.notificacao-flutuante.notificacao-success { background: var(--verde-sucesso, #4caf50); }
+.notificacao-flutuante.notificacao-error   { background: #d32f2f; }
+.notificacao-flutuante.notificacao-aviso   { background: var(--marrom-cafe); }
+.notificacao-flutuante.notificacao-info    { background: var(--verde-sucesso, #4caf50); }
+
+
+/* ── ANIMAÇÕES ───────────────────────────────────────────── */
 @keyframes fadeInSuave {
     from { opacity: 0; transform: translateY(-5px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* 💻 DESKTOP */
+
+/* ── DESKTOP ─────────────────────────────────────────────── */
 @media (min-width: 769px) {
     .opcoes-pagamento {
         max-width: 450px;
         margin: 0 auto 25px;
     }
+    .titulo-carrinho   { font-size: 1.2rem; }
+    .resumo-total-valor { font-size: 1.6rem; }
 }
