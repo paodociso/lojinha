@@ -108,7 +108,6 @@ function renderizarCarrinho() {
     }
 
     container.innerHTML = `
-        <h3 class="titulo-carrinho">Carrinho de Compras</h3>
         <div class="lista-itens-carrinho">
             ${itens.map(item => gerarHTMLItemCarrinho(item)).join('')}
         </div>
@@ -253,12 +252,12 @@ function gerarHTMLOpcoesEntregaCupom() {
 
 function gerarHTMLBotoesAcaoCarrinho() {
     return `
-        <div class="botoes-carrinho" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-            <button class="botao-acao botao-verde-militar" onclick="prosseguirParaDadosCliente()">
-                PROSSEGUIR PARA O PAGAMENTO <i class="fas fa-chevron-right"></i>
-            </button>
+        <div class="par-botoes" style="margin-top: 20px;">
             <button class="botao-acao botao-bege" onclick="fecharModal('modal-carrinho')">
-                CONTINUAR COMPRANDO
+                <i class="fas fa-plus"></i> MAIS ITENS
+            </button>
+            <button class="botao-acao botao-verde-militar" onclick="prosseguirParaDadosCliente()">
+                PAGAR <i class="fas fa-chevron-right"></i>
             </button>
         </div>
     `;

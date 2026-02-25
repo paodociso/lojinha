@@ -76,6 +76,81 @@
 
 /* conteudo-modal-produto é controlado pelo modal-produto.css */
 
+/* ── CABEÇALHO PADRONIZADO DOS MODAIS ────────────────────────
+   Usado por: modal-dados-cliente, modal-pagamento
+   Título + botão fechar lado a lado, fundo marrom-cafe
+   ────────────────────────────────────────────────────────── */
+.cabecalho-modal {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: var(--verde-escuro1);
+    border-radius: 15px 15px 0 0;
+}
+
+.titulo-cabecalho-modal {
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--branco);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    flex: 1;
+    text-align: center;
+    padding-left: 30px; /* compensa o botão fechar à direita */
+}
+
+.cabecalho-modal .botao-fechar-modal {
+    position: static !important;
+    background: rgba(255,255,255,0.15) !important;
+    color: var(--branco) !important;
+    border: none !important;
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 50% !important;
+    font-size: 1.1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: none !important;
+    top: auto !important;
+    right: auto !important;
+}
+
+/* ── PAR DE BOTÕES — lado a lado em todos os modais ─────────
+   Mobile e desktop: sempre flex, sempre lado a lado.
+   ────────────────────────────────────────────────────────── */
+.par-botoes {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.par-botoes .botao-acao {
+    flex: 1;
+    margin-top: 0 !important;
+}
+
+
+/* ── PAR DE BOTÕES — lado a lado em todos os modais ─────────
+   Mobile e desktop: sempre flex, sempre lado a lado.
+   ────────────────────────────────────────────────────────── */
+.par-botoes {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.par-botoes .botao-acao {
+    flex: 1;
+    margin-top: 0 !important;
+}
+
 /* ── DESKTOP (a partir de 769px) ─────────────────────────── */
 @media (min-width: 769px) {
     .modal {

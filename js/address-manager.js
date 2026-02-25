@@ -24,6 +24,7 @@ window.AddressManager = {
         this.configurarCampoEditavel('logradouro-cliente', 'logradouro');
         this.configurarCampoEditavel('bairro-cliente', 'bairro');
         this.configurarCampoEditavel('cidade-cliente', 'cidade');
+        this.configurarCampoEditavel('estado-cliente', 'estado');
         this.configurarCampoEditavel('numero-residencia-cliente', 'numero');
         this.configurarCampoEditavel('complemento-residencia-cliente', 'complemento');
         this.configurarCampoEditavel('ponto-referencia-entrega', 'referencia');
@@ -82,14 +83,15 @@ window.AddressManager = {
         const camposParaLimpar = [
             'logradouro-cliente',
             'bairro-cliente', 
-            'cidade-cliente'
+            'cidade-cliente',
+            'estado-cliente'
         ];
         
         camposParaLimpar.forEach(id => {
             const campo = document.getElementById(id);
             if (campo) {
                 campo.value = '';
-                campo.placeholder = 'Preencha manualmente';
+                campo.placeholder = id === 'estado-cliente' ? 'UF' : 'Preencha manualmente';
                 campo.classList.remove('campo-valido', 'campo-invalido');
             }
         });
@@ -138,7 +140,8 @@ window.AddressManager = {
         const campos = [
             'logradouro-cliente',
             'bairro-cliente',
-            'cidade-cliente'
+            'cidade-cliente',
+            'estado-cliente'
         ];
         
         campos.forEach(id => {
@@ -175,6 +178,9 @@ window.AddressManager = {
                 idCampo === 'bairro-cliente' || 
                 idCampo === 'cidade-cliente') {
                 campo.placeholder = 'Digite ou será preenchido pelo CEP';
+            }
+            if (idCampo === 'estado-cliente') {
+                campo.placeholder = 'UF';
             }
             
             log(`✅ Campo ${idCampo} configurado como editável`);
@@ -269,6 +275,7 @@ window.AddressManager = {
             logradouro: document.getElementById('logradouro-cliente')?.value || '',
             bairro: document.getElementById('bairro-cliente')?.value || '',
             cidade: document.getElementById('cidade-cliente')?.value || '',
+            estado: document.getElementById('estado-cliente')?.value || '',
             numero: document.getElementById('numero-residencia-cliente')?.value || '',
             complemento: document.getElementById('complemento-residencia-cliente')?.value || '',
             referencia: document.getElementById('ponto-referencia-entrega')?.value || ''
@@ -287,6 +294,7 @@ window.AddressManager = {
             'logradouro-cliente',
             'bairro-cliente',
             'cidade-cliente',
+            'estado-cliente',
             'numero-residencia-cliente',
             'complemento-residencia-cliente',
             'ponto-referencia-entrega'
@@ -299,7 +307,7 @@ window.AddressManager = {
                 campo.classList.remove('campo-valido', 'campo-invalido');
                 
                 // Restaura placeholders
-                if (id === 'logradouro-cliente' || id === 'bairro-cliente' || id === 'cidade-cliente') {
+                if (id === 'logradouro-cliente' || id === 'bairro-cliente' || id === 'cidade-cliente' || id === 'estado-cliente') {
                     campo.placeholder = 'Os dados podem ser preenchidos pelo CEP';
                 }
                 

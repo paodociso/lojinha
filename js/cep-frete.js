@@ -136,6 +136,7 @@ function preencherCamposEndereco(dados) {
     const campoLogradouro = elemento('logradouro-cliente');
     const campoBairro     = elemento('bairro-cliente');
     const campoCidade     = elemento('cidade-cliente');
+    const campoEstado     = elemento('estado-cliente');
 
     if (campoLogradouro) {
         campoLogradouro.value = dados.logradouro || '';
@@ -146,8 +147,12 @@ function preencherCamposEndereco(dados) {
         campoBairro.classList.add('campo-valido');
     }
     if (campoCidade) {
-        campoCidade.value = dados.localidade ? `${dados.localidade}/${dados.uf}` : '';
+        campoCidade.value = dados.localidade || '';
         campoCidade.classList.add('campo-valido');
+    }
+    if (campoEstado) {
+        campoEstado.value = dados.uf || '';
+        campoEstado.classList.add('campo-valido');
     }
 
     const campoNumero = elemento('numero-residencia-cliente');

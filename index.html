@@ -257,9 +257,8 @@
 
     <!-- ===================== MODAL 2: DETALHES DO PRODUTO ===================== -->
         <div id="modal-produto" class="modal">
-        <button class="botao-fechar-modal" onclick="fecharModal('modal-produto')">&times;</button>
 
-        <!-- ZONA FIXA: imagem + nome + descrição (injetados pelo JS) -->
+        <!-- ZONA FIXA: nome + botão fechar (injetados pelo JS em produto-modal.js) -->
         <div id="cabecalho-modal-produto" class="cabecalho-modal-produto">
             <!-- Imagem, nome e descrição serão injetados aqui pelo produto-modal.js -->
         </div>
@@ -278,7 +277,7 @@
                 <button id="botao-adicionar-simples" 
                         class="botao-acao botao-bege" 
                         onclick="adicionarItemAoCarrinho()">
-                    <i class="fas fa-plus"></i> CONTINUAR
+                    <i class="fas fa-plus"></i> MAIS ITENS
                 </button>
                 <button id="botao-adicionar-e-ir-para-carrinho" 
                         class="botao-acao botao-verde botao-avancar" 
@@ -292,8 +291,12 @@
     
     <!-- ===================== MODAL 3: CARRINHO DE COMPRAS ===================== -->
     <div id="modal-carrinho" class="modal">
-        <button class="botao-fechar-modal" onclick="fecharModal('modal-carrinho')">&times;</button>
-        
+
+        <div class="cabecalho-modal">
+            <span class="titulo-cabecalho-modal">Carrinho de Compras</span>
+            <button class="botao-fechar-modal" onclick="fecharModal('modal-carrinho')">&times;</button>
+        </div>
+
         <div id="conteudo-carrinho" class="conteudo-modal-carrinho">
             <!-- Conteúdo será injetado dinamicamente pelo JavaScript -->
         </div>
@@ -301,12 +304,13 @@
 
     <!-- ===================== MODAL 4: DADOS DO CLIENTE ===================== -->
     <div id="modal-dados-cliente" class="modal">
+
+        <div class="cabecalho-modal">
+            <span class="titulo-cabecalho-modal">Seus Dados</span>
             <button class="botao-fechar-modal" onclick="fecharModal('modal-dados-cliente')">&times;</button>
-            
-            <div class="conteudo-modal">
-                
-                    
-                    <h3 class="titulo-modal">Seus Dados</h3>
+        </div>
+
+        <div class="conteudo-modal">
                     
                     <div class="formulario-dados">
                         <div class="grupo-campo">
@@ -373,8 +377,8 @@
                                 </div>
                                 
                                 <div class="grupo-campo">
-                                    <label for="cidade-cliente" class="rotulo-campo">
-                                        CIDADE/UF
+                                    <label for="cidade-cliente" class="rotulo-campo obrigatorio">
+                                        CIDADE
                                     </label>
                                     <input type="text" 
                                         id="cidade-cliente" 
@@ -382,7 +386,7 @@
                                         placeholder="Será preenchido automaticamente">
                                 </div>
                             </div>
-                            
+
                             <div class="grupo-duplo">
                                 <div class="grupo-campo">
                                     <label for="numero-residencia-cliente" class="rotulo-campo obrigatorio">
@@ -396,15 +400,26 @@
                                 </div>
                                 
                                 <div class="grupo-campo">
-                                    <label for="complemento-residencia-cliente" class="rotulo-campo">
-                                        COMPLEMENTO
+                                    <label for="estado-cliente" class="rotulo-campo">
+                                        ESTADO
                                     </label>
                                     <input type="text" 
-                                        id="complemento-residencia-cliente" 
-                                        class="campo-entrada"
-                                        placeholder="Apto 45, Bloco B"
-                                        autocomplete="address-line3">
+                                        id="estado-cliente" 
+                                        class="campo-entrada campo-leitura"
+                                        placeholder="UF"
+                                        maxlength="2">
                                 </div>
+                            </div>
+                            
+                            <div class="grupo-campo">
+                                <label for="complemento-residencia-cliente" class="rotulo-campo">
+                                    COMPLEMENTO
+                                </label>
+                                <input type="text" 
+                                    id="complemento-residencia-cliente" 
+                                    class="campo-entrada"
+                                    placeholder="Apto 45, Bloco B"
+                                    autocomplete="address-line3">
                             </div>
                             
                             <div class="grupo-campo">
@@ -417,26 +432,28 @@
                                     placeholder="Ex: Próximo ao mercado, portão azul">
                             </div>
                             
-                            <div id="informacao-frete" class="card-informacao-frete" style="display: none;">
-                                <i class="fas fa-motorcycle"></i>
-                                <div class="info-frete-conteudo">
-                                    <span class="info-frete-titulo">FRETE CALCULADO:</span>
-                                    <span id="valor-frete" class="info-frete-valor">R$ 0,00</span>
+                            <div id="informacao-frete" class="card-frete-calculado" style="display: none;">
+                                <div class="card-frete-icone">
+                                    <i class="fas fa-motorcycle"></i>
+                                </div>
+                                <div class="card-frete-info">
+                                    <span class="card-frete-label">Taxa de entrega</span>
+                                    <span id="valor-frete" class="card-frete-valor">R$ 0,00</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="botoes-acao">
+                    <div class="par-botoes">
+                        <button class="botao-acao botao-bege"
+                                onclick="fecharModal('modal-dados-cliente'); abrirModal('modal-carrinho');">
+                            <i class="fas fa-arrow-left"></i> VOLTAR
+                        </button>
+
                         <button id="botao-prosseguir-pagamento" 
                                 class="botao-acao botao-verde-militar"
                                 onclick="validarDadosCliente()">
-                            ESCOLHER PAGAMENTO <i class="fas fa-credit-card"></i>
-                        </button>
-                        
-                        <button class="botao-acao botao-bege"
-                                onclick="fecharModal('modal-dados-cliente'); abrirModal('modal-carrinho');">
-                            <i class="fas fa-arrow-left"></i> VOLTAR À CESTA
+                            PAGAR <i class="fas fa-credit-card"></i>
                         </button>
                     </div>
 
@@ -445,10 +462,13 @@
 
     <!-- ===================== MODAL 5: FORMA DE PAGAMENTO ===================== -->
     <div id="modal-pagamento" class="modal">
-        <button class="botao-fechar-modal" onclick="fecharTodosModais()">&times;</button>
-        
+
+        <div class="cabecalho-modal">
+            <span class="titulo-cabecalho-modal">Forma de Pagamento</span>
+            <button class="botao-fechar-modal" onclick="fecharTodosModais()">&times;</button>
+        </div>
+
         <div class="conteudo-modal" style="padding: 20px;">
-            <h3 style="margin-bottom: 25px; color: var(--marrom-cafe); text-align: center; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Forma de Pagamento</h3>
             
             <!-- Resumo do Pedido -->
             <div id="resumo-final-pedido-pagamento"></div>
@@ -471,8 +491,9 @@
                         
                         <div class="pix-qrcode">
                             <img src="img/qrcode-pix.png" alt="QR Code PIX" class="pix-qrcode-img">
-                            <p class="pix-legenda">CLIQUE PARA COPIAR A CHAVE:</p>
                         </div>
+
+                        <p class="pix-legenda">CLIQUE PARA COPIAR A CHAVE:</p>
                         
                         <div class="pix-chave" onclick="copiarChavePix()">
                             <span id="texto-chave-pix"></span>
@@ -517,17 +538,17 @@
             
             <!-- Botões de Ação -->
             <!-- Botões conferir se essa div imediatamente abaixo pode ser removida para o css gerir -->
-            <div class="botoes-acao" style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="par-botoes">
+                <button class="botao-acao botao-bege"
+                        onclick="fecharModal('modal-pagamento'); abrirModal('modal-dados-cliente');">
+                    <i class="fas fa-arrow-left"></i> VOLTAR
+                </button>
+
                 <button id="botao-finalizar-pedido" 
                         class="botao-acao botao-verde-militar"
                         onclick="finalizarPedido()"
                         disabled>
-                    FINALIZAR PEDIDO <i class="fab fa-whatsapp"></i>
-                </button>
-                
-                <button class="botao-acao botao-bege"
-                        onclick="fecharModal('modal-pagamento'); abrirModal('modal-dados-cliente');">
-                    <i class="fas fa-arrow-left"></i> VOLTAR PARA MEUS DADOS
+                    FINALIZAR <i class="fab fa-whatsapp"></i>
                 </button>
             </div>
         </div>

@@ -19,28 +19,33 @@
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    background: #f4f1ea;
-    overflow: hidden;
+    background: var(--verde-escuro1);
+    border-radius: 15px 15px 0 0;
 }
 
 .container-nome-produto-modal {
-    padding: 16px 16px 0;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .nome-produto-modal {
     font-size: 1rem;
     font-weight: 900;
-    color: var(--preto);
+    color: var(--branco);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     line-height: 1.2;
     margin: 0;
-    padding: 10px 14px;
-    background: var(--branco);
-    border: 1px solid var(--cinza-medio);
-    border-radius: 12px;
-    box-shadow: 0 2px 6px var(--sombra-suave);
+    padding: 0;
+    padding-left: 30px; /* compensa botão fechar à direita */
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
     text-align: center;
+    flex: 1;
 }
 
 .imagem-produto-container {
@@ -77,7 +82,7 @@
 }
 
 #status-no-carrinho {
-    margin: 0 16px;
+    margin: 0;
     padding: 8px 12px;
     border-radius: 10px;
     background: #f0f7ed;
@@ -85,11 +90,76 @@
     color: #4b6b35;
     font-weight: 800;
     font-size: 0.82rem;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
 
+/* Botão fechar no cabeçalho do modal produto */
+.container-nome-produto-modal .botao-fechar-modal {
+    position: static !important;
+    background: rgba(255,255,255,0.15) !important;
+    color: var(--branco) !important;
+    border: none !important;
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 50% !important;
+    font-size: 1.1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: none !important;
+    top: auto !important;
+    right: auto !important;
+}
+
+
+
+/* Botão fechar dentro do cabeçalho do modal produto */
+.container-nome-produto-modal .botao-fechar-modal {
+    position: static !important;
+    background: rgba(255,255,255,0.15) !important;
+    color: var(--branco) !important;
+    border: none !important;
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 50% !important;
+    font-size: 1.1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: none !important;
+    top: auto !important;
+    right: auto !important;
+}
+
 /* ── ZONA 2: CORPO ROLÁVEL ───────────────────────────────── */
+
+/* Botão fechar dentro do cabeçalho do modal produto */
+.container-nome-produto-modal .botao-fechar-modal {
+    position: static !important;
+    background: rgba(255,255,255,0.15) !important;
+    color: var(--branco) !important;
+    border: none !important;
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 50% !important;
+    font-size: 1.1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: none !important;
+    top: auto !important;
+    right: auto !important;
+}
 
 #corpo-modal-produto {
     flex: 1 1 auto;
@@ -278,16 +348,6 @@
     margin: 0 0 2px;
 }
 
-/* Botões lado a lado no mobile */
-.botoes-modal-produto .par-botoes {
-    display: flex;
-    gap: 10px;
-}
-
-.botoes-modal-produto .par-botoes button,
-.botoes-modal-produto .par-botoes a {
-    flex: 1;
-}
 
 .botao-continuar-comprando {
     display: block;
@@ -329,9 +389,4 @@
     .label-quantidade-modal .preco-unitario { font-size: 1.1rem; }
     .valor-subtotal          { font-size: 1.4rem; }
 
-    /* Botões lado a lado também no desktop */
-    .botoes-modal-produto .par-botoes {
-        display: flex;
-        gap: 10px;
-    }
 }

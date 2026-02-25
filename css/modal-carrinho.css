@@ -7,11 +7,13 @@
     display: none;
     overflow-y: auto !important;
     padding-bottom: 20px !important;
+    background: #f4f1ea !important;
 }
 
 /* conteudo-modal-carrinho rola normalmente — definido em overlay-modal.css */
 .conteudo-modal-carrinho {
     padding: 16px !important;
+    background: #f4f1ea;
 }
 
 
@@ -27,7 +29,7 @@
     background: var(--branco);
     border: 1px solid var(--cinza-medio);
     border-radius: 12px;
-    box-shadow: 0 2px 6px var(--sombra-suave);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.10);
     margin: 0 0 12px;
 }
 
@@ -37,7 +39,7 @@
     background: var(--branco);
     border: 1px solid var(--cinza-medio);
     border-radius: 12px;
-    box-shadow: 0 2px 6px var(--sombra-suave);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.10);
     padding: 10px 14px;
     margin-bottom: 12px;
 }
@@ -160,7 +162,7 @@
     background: var(--branco);
     border: 1px solid var(--cinza-medio);
     border-radius: 12px;
-    box-shadow: 0 2px 6px var(--sombra-suave);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.10);
     padding: 14px;
 }
 
@@ -233,7 +235,7 @@
     background: var(--branco);
     border: 1px solid var(--cinza-medio);
     border-radius: 12px;
-    box-shadow: 0 2px 6px var(--sombra-suave);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.10);
     overflow: hidden;
     margin: 12px 0;
 }
@@ -294,9 +296,13 @@
 /* Botões de ação */
 .botoes-carrinho {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 10px;
     margin-top: 4px;
+}
+
+.botoes-carrinho .botao-acao {
+    flex: 1;
 }
 
 
@@ -308,7 +314,7 @@
     background: var(--branco);
     border: 1px solid var(--cinza-medio);
     border-radius: 12px;
-    box-shadow: 0 2px 6px var(--sombra-suave);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.10);
     animation: fadeInSuave 0.3s ease;
 }
 

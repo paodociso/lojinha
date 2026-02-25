@@ -164,34 +164,36 @@ function gerarHTMLSecaoOpcionais(produto) {
 // --- FUNÇÕES PADRÃO (RENDER, CÁLCULO, ETC) ---
 // ATUALIZAÇÃO: CORREÇÃO DE VISIBILIDADE
 function renderizarModalProduto(produto) {
-    // ── ZONA 1: cabeçalho fixo (nome + imagem + descrição + status) ──
+    // ── ZONA 1: cabeçalho fixo (nome + botão fechar) ──
     const cabecalho = document.getElementById('cabecalho-modal-produto');
     if (cabecalho) {
-        const displayStatus = produtoAtual.quantidade > 0 ? 'flex' : 'none';
         cabecalho.innerHTML = `
             <div class="container-nome-produto-modal">
                 <h2 class="nome-produto-modal">${produto.nome}</h2>
-            </div>
-
-            <div class="imagem-produto-container">
-                <img src="${produto.imagem}" alt="${produto.nome}" class="imagem-produto-modal">
-            </div>
-
-            <div class="container-descricao-produto-modal">
-                <p class="descricao-produto-modal">${produto.descricao || ''}</p>
-            </div>
-
-            <div id="status-no-carrinho" style="display:${displayStatus};">
-                <i class="fas fa-check-circle"></i> Item adicionado ao carrinho
+                <button class="botao-fechar-modal" onclick="fecharModal('modal-produto')">&times;</button>
             </div>
         `;
     }
 
-    // ── ZONA 2: corpo rolável (quantidade + opcionais + subtotal) ──
+    // ── ZONA 2: corpo rolável (imagem + descrição + status + quantidade + opcionais) ──
     const corpo = document.getElementById('corpo-modal-produto');
     if (!corpo) return;
 
+    const displayStatus = produtoAtual.quantidade > 0 ? 'flex' : 'none';
+
     corpo.innerHTML = `
+        <div class="imagem-produto-container">
+            <img src="${produto.imagem}" alt="${produto.nome}" class="imagem-produto-modal">
+        </div>
+
+        <div class="container-descricao-produto-modal">
+            <p class="descricao-produto-modal">${produto.descricao || ''}</p>
+        </div>
+
+        <div id="status-no-carrinho" style="display:${displayStatus};">
+            <i class="fas fa-check-circle"></i> Item adicionado ao carrinho
+        </div>
+
         <div class="moldura-padrao-modal">
             <div class="linha-quantidade-modal">
                 <div class="label-quantidade-modal">

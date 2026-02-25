@@ -2,12 +2,12 @@
    MODAL DE PAGAMENTO
    ============================================================ */
 
-/* 🔒 ESTADO INICIAL (Obrigatório para não abrir sozinho) */
-/* 1. O container pai (fundo do modal) controla a rolagem */
+/* 🔒 ESTADO INICIAL */
 #modal-pagamento {
     display: none;
     overflow-y: auto !important;
-    padding-bottom: 40px !important; /* Espaço extra no fim para não colar no rodapé */
+    padding-bottom: 40px !important;
+    background: #f4f1ea !important;
 }
 
 /* 2. Removemos a rolagem da caixa branca interna */
@@ -143,6 +143,82 @@
 .pix-qrcode img {
     width: 150px !important;
     height: 150px !important;
+}
+
+/* Mensagem "copiado" — oculta por padrão, JS mostra/esconde */
+#mensagem-copiado {
+    display: none;
+    margin-top: 10px;
+    padding: 8px 14px;
+    background: #f0f7ed;
+    border: 1px solid #c8dfc2;
+    border-radius: 10px;
+    color: #4b6b35;
+    font-weight: 800;
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+/* Legenda acima do botão chave, com espaço do QR code */
+.pix-legenda {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--marrom-cafe);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    text-align: center;
+    margin: 14px 0 6px;
+}
+
+/* QR code centralizado, sem margem colada na legenda */
+.pix-qrcode {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+/* Botões do rodapé — mesma margem inferior do modal dados-cliente (30px) */
+#modal-pagamento .par-botoes {
+    margin-bottom: 30px;
+}
+
+
+/* Mensagem "copiado" — oculta por padrão, JS mostra/esconde */
+#mensagem-copiado {
+    display: none;
+    margin-top: 10px;
+    padding: 8px 14px;
+    background: #f0f7ed;
+    border: 1px solid #c8dfc2;
+    border-radius: 10px;
+    color: #4b6b35;
+    font-weight: 800;
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+/* Legenda acima do botão chave, com espaço do QR code */
+.pix-legenda {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--marrom-cafe);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    text-align: center;
+    margin: 14px 0 6px;
+}
+
+/* QR code centralizado */
+.pix-qrcode {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Botões do rodapé — margem inferior para não colar na borda */
+#modal-pagamento .par-botoes {
+    margin-bottom: 30px;
 }
 
 /* 💻 DESKTOP (PC - a partir de 769px) */
