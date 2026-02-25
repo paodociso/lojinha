@@ -13,7 +13,7 @@ window.dadosIniciais = {
 },
 
     fornada: {
-  "dataISO": "2026-02-27",
+  "dataISO": "2026-03-06",
   "diasAntecedencia": 2,
   "horaLimite": "23:59h"
 },
@@ -35,8 +35,8 @@ window.dadosIniciais = {
             {"nome":"Jardim Fraternidade","taxa":20},
             {"nome":"Jardim São Miguel","taxa":15},
             {"nome":"Taboão","taxa":10},
-            {"nome": "Cidade Planejada II", "taxa": 20},
-            {"nome": "Cidade Planejada I", "taxa": 20}
+            {"nome":"Cidade Planejada II","taxa":20},
+            {"nome":"Cidade Planejada I","taxa":20}
         ]
     },
 
@@ -317,13 +317,11 @@ window.dadosIniciais = {
     "itens": [
       {
         "nome": "Canadense",
-        "descricao": "Sanduíche feito com lombo canadense Ceratti.",
-        "preco": 8,
+        "descricao": "Sanduíche feito com lombo canadense Ceratti, muçarela, pesto de manjericão, rúcula e tomate.",
+        "preco": 21,
         "imagem": "img/panino-lombocanadense.webp",
         "opcionais": "Panini",
         "opcionais_ativos": [
-          "Ciabatta",
-          "Focaccia",
           "Lombo piripiri",
           "Mortadela",
           "Pastrame",
@@ -349,13 +347,11 @@ window.dadosIniciais = {
       },
       {
         "nome": "Giovanni",
-        "descricao": "Sanduíche feito com mortadela Giovanni Ceratti.",
-        "preco": 6,
+        "descricao": "Sanduíche feito com mortadela Giovanni Ceratti, muçarela, pesto de manjericão, rúcula e tomate.",
+        "preco": 19,
         "imagem": "img/panino-mortadela.webp",
         "opcionais": "Panini",
         "opcionais_ativos": [
-          "Ciabatta",
-          "Focaccia",
           "Lombo piripiri",
           "Mortadela",
           "Pastrame",
@@ -382,13 +378,11 @@ window.dadosIniciais = {
       },
       {
         "nome": "Italiano",
-        "descricao": "Sanduíche feito com salame italiano.",
-        "preco": 8,
+        "descricao": "Sanduíche feito com salame italiano, muçarela, pesto de manjericão, rúcula e tomate.",
+        "preco": 21,
         "imagem": "img/panino-salame.webp",
         "opcionais": "Panini",
         "opcionais_ativos": [
-          "Ciabatta",
-          "Focaccia",
           "Lombo piripiri",
           "Mortadela",
           "Pastrame",
@@ -415,13 +409,11 @@ window.dadosIniciais = {
       },
       {
         "nome": "Peru",
-        "descricao": "Sanduíche feito com peito de peru defumado Ceratti.",
-        "preco": 7,
+        "descricao": "Sanduíche feito com peito de peru defumado Ceratti, muçarela, pesto de manjericão, rúcula e tomate.",
+        "preco": 20,
         "imagem": "img/panino-peru.webp",
         "opcionais": "Panini",
         "opcionais_ativos": [
-          "Ciabatta",
-          "Focaccia",
           "Chancliche",
           "Chancliche apimentado",
           "Muçarela",
@@ -442,13 +434,11 @@ window.dadosIniciais = {
       },
       {
         "nome": "Piripiri",
-        "descricao": "Monte seu sanduíche de lombo piripiri (lombo suíno apimentado).",
-        "preco": 8,
+        "descricao": "Monte seu sanduíche de lombo piripiri (lombo suíno apimentado), muçarela, pesto de manjericão, rúcula e tomate.",
+        "preco": 21,
         "imagem": "img/panino-piripiri.webp",
         "opcionais": "Panini",
         "opcionais_ativos": [
-          "Ciabatta",
-          "Focaccia",
           "Chancliche",
           "Chancliche apimentado",
           "Muçarela",
@@ -470,13 +460,11 @@ window.dadosIniciais = {
       {
         "nome": "Vegano",
         "descricao": "Uma combinação cremosa de abacate maduro e ovos cozidos no ponto certo, finalizados com um toque refrescante de limão e azeite extra virgem. Tempero suave e equilibrado. Uma opção nutritiva para qualquer hora do dia.",
-        "preco": 7,
+        "preco": 20,
         "imagem": "img/panino-vegano.jpg",
         "visivel": true,
         "esgotado": true,
         "opcionais_ativos": [
-          "Ciabatta",
-          "Focaccia",
           "Confit de alho",
           "Confit de alho e tomates cereja",
           "Melanzane sottolio",
