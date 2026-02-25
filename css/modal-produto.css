@@ -19,7 +19,7 @@
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    background: var(--bg-container-modal);
+    background: #f4f1ea;
     overflow: hidden;
 }
 
@@ -100,13 +100,14 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    background: #f4f1ea;
 }
 
 .moldura-padrao-modal {
     background: var(--branco);
     border: 1px solid var(--cinza-medio);
     border-radius: 12px;
-    box-shadow: 0 2px 6px var(--sombra-suave);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.10);
     padding: 12px 14px;
     margin: 0;
 }
@@ -157,7 +158,7 @@
     background: var(--branco);
     border: 1px solid var(--cinza-medio);
     border-radius: 12px;
-    box-shadow: 0 2px 6px var(--sombra-suave);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.10);
     padding: 10px 14px;
     margin: 0;
 }
@@ -233,7 +234,7 @@
     background: var(--branco);
     border: 1px solid var(--cinza-medio);
     border-radius: 12px;
-    box-shadow: 0 2px 6px var(--sombra-suave);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.10);
     padding: 12px 14px;
     margin: 0;
 }
@@ -268,8 +269,24 @@
     flex-direction: column;
     gap: 10px;
     padding: 12px 16px 16px;
-    background: var(--bg-container-modal);
+    background: #f4f1ea;
     border-top: 1px solid var(--cinza-medio);
+}
+
+/* Subtotal preso no topo do rodapé, acima dos botões */
+.botoes-modal-produto #container-subtotal-produto {
+    margin: 0 0 2px;
+}
+
+/* Botões lado a lado no mobile */
+.botoes-modal-produto .par-botoes {
+    display: flex;
+    gap: 10px;
+}
+
+.botoes-modal-produto .par-botoes button,
+.botoes-modal-produto .par-botoes a {
+    flex: 1;
 }
 
 .botao-continuar-comprando {
@@ -311,4 +328,10 @@
     .nome-produto-modal      { font-size: 1.3rem; }
     .label-quantidade-modal .preco-unitario { font-size: 1.1rem; }
     .valor-subtotal          { font-size: 1.4rem; }
+
+    /* Botões lado a lado também no desktop */
+    .botoes-modal-produto .par-botoes {
+        display: flex;
+        gap: 10px;
+    }
 }

@@ -191,8 +191,6 @@ function renderizarModalProduto(produto) {
     const corpo = document.getElementById('corpo-modal-produto');
     if (!corpo) return;
 
-    const displaySubtotal = produtoAtual.quantidade > 0 ? 'block' : 'none';
-
     corpo.innerHTML = `
         <div class="moldura-padrao-modal">
             <div class="linha-quantidade-modal">
@@ -211,14 +209,20 @@ function renderizarModalProduto(produto) {
         <div id="secao-opcionais-dinamica">
             ${gerarHTMLSecaoOpcionais(produto)}
         </div>
-
-        <div id="container-subtotal-produto" style="display:${displaySubtotal};">
-            <div class="linha-flex-modal">
-                <span class="subtitulo-subtotal">Subtotal do item</span>
-                <span id="valor-subtotal-produto" class="valor-subtotal">${formatarMoeda(calcularSubtotalProduto())}</span>
-            </div>
-        </div>
     `;
+
+    // Subtotal preso no rodapé fixo
+    const rodapeSubtotal = document.getElementById('rodape-subtotal-produto');
+    if (rodapeSubtotal) {
+        rodapeSubtotal.innerHTML = produtoAtual.quantidade > 0 ? `
+            <div id="container-subtotal-produto">
+                <div class="linha-flex-modal">
+                    <span class="subtitulo-subtotal">Subtotal do item</span>
+                    <span id="valor-subtotal-produto" class="valor-subtotal">${formatarMoeda(calcularSubtotalProduto())}</span>
+                </div>
+            </div>
+        ` : '';
+    }
 
     verificarVisibilidadeBotoesModal();
 }
