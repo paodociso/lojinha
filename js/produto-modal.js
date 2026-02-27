@@ -164,7 +164,7 @@ function gerarHTMLSecaoOpcionais(produto) {
 // --- FUNÇÕES PADRÃO (RENDER, CÁLCULO, ETC) ---
 // ATUALIZAÇÃO: CORREÇÃO DE VISIBILIDADE
 function renderizarModalProduto(produto) {
-    // ── ZONA 1: cabeçalho fixo (nome + botão fechar) ──
+    // ── ZONA 1: cabeçalho fixo (nome + botão fechar como irmãos) ──
     const cabecalho = document.getElementById('cabecalho-modal-produto');
     if (cabecalho) {
         cabecalho.innerHTML = `
@@ -182,12 +182,14 @@ function renderizarModalProduto(produto) {
     const displayStatus = produtoAtual.quantidade > 0 ? 'flex' : 'none';
 
     corpo.innerHTML = `
-        <div class="imagem-produto-container">
-            <img src="${produto.imagem}" alt="${produto.nome}" class="imagem-produto-modal">
-        </div>
+        <div class="container-imagem-descricao-modal">
+            <div class="imagem-produto-container">
+                <img src="${produto.imagem}" alt="${produto.nome}" class="imagem-produto-modal">
+            </div>
 
-        <div class="container-descricao-produto-modal">
-            <p class="descricao-produto-modal">${produto.descricao || ''}</p>
+            <div class="container-descricao-produto-modal">
+                <p class="descricao-produto-modal">${produto.descricao || ''}</p>
+            </div>
         </div>
 
         <div id="status-no-carrinho" style="display:${displayStatus};">
@@ -232,11 +234,24 @@ function renderizarModalProduto(produto) {
 function alterarQuantidadeProduto(valor) {
     const novaQuantidade = Math.max(0, (produtoAtual.quantidade || 0) + valor);
     if (novaQuantidade === produtoAtual.quantidade) return;
+    const eraZero = produtoAtual.quantidade === 0;
     produtoAtual.quantidade = novaQuantidade;
     if (produtoAtual.quantidade === 0) produtoAtual.opcionais = {};
     const produtoBase = dadosIniciais.secoes[produtoAtual.indiceSessao].itens[produtoAtual.indiceItem];
     renderizarModalProduto(produtoBase);
     sincronizarProdutoNoCarrinho();
+
+    // Quando o primeiro "+" é pressionado e o produto tem opcionais,
+    // rola o corpo do modal para que o título dos opcionais fique visível no topo
+    if (eraZero && novaQuantidade === 1 && produtoBase.opcionais_ativos?.length) {
+        requestAnimationFrame(() => {
+            const corpo = document.getElementById('corpo-modal-produto');
+            const secaoOpcionais = document.getElementById('contener-opcionais-produto');
+            if (corpo && secaoOpcionais) {
+                secaoOpcionais.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
 }
 
 function calcularSubtotalProduto() {

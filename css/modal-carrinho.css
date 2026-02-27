@@ -2,13 +2,95 @@
    MODAL DO CARRINHO — VISUAL CARDÁPIO
    ============================================================ */
 
+/* ── CABEÇALHO DOS MODAIS ────────────────────────────────── */
+/*
+   Estrutura real do HTML:
+   <div class="cabecalho-modal">
+       <span class="titulo-cabecalho-modal">Texto</span>
+       <button class="botao-fechar-modal">×</button>
+   </div>
+
+   Estratégia: container position:relative com fundo creme,
+   título ocupa 100% como bloco verde centralizado,
+   botão fechar fica absolute à direita sobreposto ao título.
+*/
+
+.cabecalho-modal {
+    position: relative !important;
+    background: #f4f1ea !important;
+    border-bottom: 1px solid var(--cinza-medio) !important;
+    padding: 12px 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 52px !important;
+    border-radius: 15px 15px 0 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Título: bloco verde retangular, largura total, texto centrado */
+.cabecalho-modal .titulo-cabecalho-modal {
+    display: block !important;
+    width: 100% !important;
+    padding: 13px 46px !important; /* espaço dos dois lados p/ o fechar não sobrepor texto */
+    background: var(--verde-militar) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 6px var(--sombra-suave) !important;
+    font-size: 0.85rem !important;
+    font-weight: 900 !important;
+    color: var(--branco) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    text-align: center !important;
+    line-height: 1.2 !important;
+    box-sizing: border-box !important;
+}
+
+/* Botão fechar: absoluto à direita, centralizado verticalmente sobre o título */
+.cabecalho-modal .botao-fechar-modal {
+    position: absolute !important;
+    right: 22px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background: rgba(0,0,0,0.22) !important;
+    color: var(--branco) !important;
+    border: none !important;
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 6px !important;
+    font-size: 1.1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    box-shadow: none !important;
+    z-index: 2 !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+}
+
 /* ── ESTADO INICIAL ──────────────────────────────────────── */
 #modal-carrinho {
     display: none;
     overflow-y: auto !important;
     padding-bottom: 20px !important;
     background: #f4f1ea !important;
+    scroll-behavior: smooth !important;
 }
+
+/*
+   SCROLL AO TOPO — ao adicionar item ao carrinho em tela pequena,
+   o JS deve rolar o modal de volta ao topo:
+
+       const modal = document.getElementById('modal-carrinho');
+       if (modal) modal.scrollTo({ top: 0, behavior: 'smooth' });
+
+   Ou, se o scroll estiver no overlay/pai:
+       document.querySelector('.conteudo-modal-carrinho')
+               ?.closest('[class*="overlay"], [class*="modal"]')
+               ?.scrollTo({ top: 0, behavior: 'smooth' });
+*/
 
 /* conteudo-modal-carrinho rola normalmente — definido em overlay-modal.css */
 .conteudo-modal-carrinho {
@@ -241,7 +323,7 @@
 }
 
 .resumo-pedido-header {
-    background: var(--bege-claro);
+    background: var(--marrom-cafe);
     padding: 10px 14px;
     border-bottom: 1px solid var(--cinza-medio);
 }
@@ -249,7 +331,7 @@
 .resumo-pedido-header span {
     font-size: 0.78rem;
     font-weight: 900;
-    color: var(--marrom-cafe);
+    color: var(--branco);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -475,3 +557,15 @@
     .titulo-carrinho   { font-size: 1.2rem; }
     .resumo-total-valor { font-size: 1.6rem; }
 }
+
+
+/* ── NOTA HTML: TEXTO DO BOTÃO ───────────────────────────── */
+/*
+   No HTML do modal-carrinho, o botão de avançar deve ter o texto:
+   "PROSSEGUIR"  (substituindo qualquer variante de "Pagar")
+
+   Exemplo:
+   <button class="botao-acao botao-primario" onclick="abrirModalDadosCliente()">
+       Prosseguir
+   </button>
+*/

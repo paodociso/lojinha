@@ -94,6 +94,12 @@ function abrirModalCarrinho() {
     }, 50);
 
     abrirModal('modal-carrinho');
+
+    // Em telas pequenas, garante que o modal role para o topo ao (re)abrir
+    requestAnimationFrame(() => {
+        const modalEl = document.getElementById('modal-carrinho');
+        if (modalEl) modalEl.scrollTo({ top: 0, behavior: 'instant' });
+    });
 }
 
 function renderizarCarrinho() {
@@ -257,7 +263,7 @@ function gerarHTMLBotoesAcaoCarrinho() {
                 <i class="fas fa-plus"></i> MAIS ITENS
             </button>
             <button class="botao-acao botao-verde-militar" onclick="prosseguirParaDadosCliente()">
-                PAGAR <i class="fas fa-chevron-right"></i>
+                PROSSEGUIR <i class="fas fa-chevron-right"></i>
             </button>
         </div>
     `;

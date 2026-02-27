@@ -2,6 +2,8 @@
    MODAL DE PAGAMENTO
    ============================================================ */
 
+/* CABEÇALHO — herda as regras globais de .cabecalho-modal do modal-carrinho.css. */
+
 /* 🔒 ESTADO INICIAL */
 #modal-pagamento {
     display: none;
@@ -178,9 +180,20 @@
     margin-bottom: 0;
 }
 
-/* Botões do rodapé — mesma margem inferior do modal dados-cliente (30px) */
+/* Botões do rodapé — margem inferior proporcional aos demais modais */
 #modal-pagamento .par-botoes {
-    margin-bottom: 30px;
+    margin-top: 20px;
+    margin-bottom: 14px;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 10px !important;
+    width: 100% !important;
+}
+
+#modal-pagamento .par-botoes .botao-acao {
+    flex: 1 !important;
+    margin: 0 !important;
+    padding: 14px 0 !important;
 }
 
 
@@ -214,11 +227,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-/* Botões do rodapé — margem inferior para não colar na borda */
-#modal-pagamento .par-botoes {
-    margin-bottom: 30px;
 }
 
 /* 💻 DESKTOP (PC - a partir de 769px) */
@@ -264,14 +272,14 @@
 }
 
 .resumo-cabecalho {
-    background-color: var(--bege-claro);
+    background-color: var(--marrom-cafe);
     padding: 10px 15px;
     border-bottom: 1px solid var(--borda-nav);
 }
 
 .resumo-titulo {
     font-size: 13px;
-    color: var(--marrom-cafe);
+    color: var(--branco);
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.5px;

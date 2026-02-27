@@ -2,6 +2,9 @@
    MODAL: DADOS DO CLIENTE - AJUSTE DE ENCAIXE E BORDA
    ============================================================ */
 
+/* CABEÇALHO — herda as regras globais de .cabecalho-modal do modal-carrinho.css.
+   Regras específicas abaixo só se necessário sobrescrever algo. */
+
 /* 1. MODAL BASE — usa o padrão do overlay-modal.css com background creme */
 #modal-dados-cliente.modal {
     background: #f4f1ea !important;
@@ -126,3 +129,14 @@
 }
 
 /* 8. BOTAO FECHAR — gerenciado pelo .cabecalho-modal em overlay-modal.css */
+
+/* ── NOTA HTML: TEXTO DO BOTÃO ───────────────────────────── */
+/*
+   No HTML do modal-dados-cliente, o botão de avançar deve ter o texto:
+   "CONTINUAR"  (substituindo qualquer variante de "Pagar")
+
+   Exemplo:
+   <button class="botao-acao botao-primario" onclick="abrirModalPagamento()">
+       Continuar
+   </button>
+*/
