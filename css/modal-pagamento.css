@@ -7,16 +7,15 @@
 /* 🔒 ESTADO INICIAL */
 #modal-pagamento {
     display: none;
-    overflow-y: auto !important;
-    padding-bottom: 40px !important;
     background: #f4f1ea !important;
+    /* NÃO sobrescreve overflow nem padding-bottom —
+       o scroll já está correto via .conteudo-modal no overlay-modal.css */
 }
 
-/* 2. Removemos a rolagem da caixa branca interna */
+/* .conteudo-modal herda flex:1 + overflow-y:auto do overlay-modal.css.
+   Apenas garantimos o padding lateral correto. */
 #modal-pagamento .conteudo-modal {
-    overflow-y: visible !important; /* Faz o conteúdo "vazar" para o pai */
-    max-height: none !important;    /* Remove qualquer limite de altura */
-    height: auto !important;        /* Deixa crescer conforme o conteúdo */
+    padding: 20px !important;
 }
 
 /* --- CONSOLIDADO DE modal-carrinho.css --- */
@@ -180,10 +179,10 @@
     margin-bottom: 0;
 }
 
-/* Botões do rodapé — margem inferior proporcional aos demais modais */
+/* Botões — margem constante igual ao modal dados-cliente */
 #modal-pagamento .par-botoes {
-    margin-top: 20px;
-    margin-bottom: 14px;
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
     display: flex !important;
     flex-direction: row !important;
     gap: 10px !important;
