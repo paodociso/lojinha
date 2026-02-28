@@ -80,7 +80,7 @@ window.dadosIniciais = {
                 {"nome":"Provolone","preco":6},
                 {"nome":"Queijo Prato","preco":6}
             ],
-            "🏺 Antepastos e Conservas": [
+            "🏺 Antipasti e Conservas": [
                 {"nome":"Alichella","preco":4},
                 {"nome":"Confit de alho","preco":4},
                 {"nome":"Confit de alho e tomates cereja","preco":4},
@@ -289,7 +289,7 @@ window.dadosIniciais = {
         ]
       },
       {
-        "nome": "Tomates confitado",
+        "nome": "Tomates confit",
         "descricao": "Tomates cereja confitado no azeite.",
         "preco": 20,
         "imagem": "img/tomate-confitado.webp",
@@ -300,7 +300,7 @@ window.dadosIniciais = {
         ]
       },
       {
-        "nome": "Alho confitado",
+        "nome": "Alho confit",
         "descricao": "Alho confitado no azeite.",
         "preco": 20,
         "imagem": "img/alho-confitado.webp",
@@ -317,7 +317,7 @@ window.dadosIniciais = {
     "itens": [
       {
         "nome": "Canadense",
-        "descricao": "Sanduíche feito com lombo canadense Ceratti, muçarela, pesto de manjericão, rúcula e tomate.",
+        "descricao": "Sanduíche feito com lombo canadense Ceratti, muçarela, pesto de manjericão, rúcula e tomate. Acrescente os opcionais que desejar ;)",
         "preco": 21,
         "imagem": "img/panino-lombocanadense.webp",
         "opcionais": "Panini",
@@ -347,7 +347,7 @@ window.dadosIniciais = {
       },
       {
         "nome": "Giovanni",
-        "descricao": "Sanduíche feito com mortadela Giovanni Ceratti, muçarela, pesto de manjericão, rúcula e tomate.",
+        "descricao": "Sanduíche feito com mortadela Giovanni Ceratti, muçarela, pesto de manjericão, rúcula e tomate.  Acrescente os opcionais que desejar ;)",
         "preco": 19,
         "imagem": "img/panino-mortadela.webp",
         "opcionais": "Panini",
@@ -378,7 +378,7 @@ window.dadosIniciais = {
       },
       {
         "nome": "Italiano",
-        "descricao": "Sanduíche feito com salame italiano, muçarela, pesto de manjericão, rúcula e tomate.",
+        "descricao": "Sanduíche feito com salame italiano, muçarela, pesto de manjericão, rúcula e tomate.  Acrescente os opcionais que desejar ;)",
         "preco": 21,
         "imagem": "img/panino-salame.webp",
         "opcionais": "Panini",
@@ -409,7 +409,7 @@ window.dadosIniciais = {
       },
       {
         "nome": "Peru",
-        "descricao": "Sanduíche feito com peito de peru defumado Ceratti, muçarela, pesto de manjericão, rúcula e tomate.",
+        "descricao": "Sanduíche feito com peito de peru defumado Ceratti, muçarela, pesto de manjericão, rúcula e tomate.  Acrescente os opcionais que desejar ;)",
         "preco": 20,
         "imagem": "img/panino-peru.webp",
         "opcionais": "Panini",
@@ -434,7 +434,7 @@ window.dadosIniciais = {
       },
       {
         "nome": "Piripiri",
-        "descricao": "Monte seu sanduíche de lombo piripiri (lombo suíno apimentado), muçarela, pesto de manjericão, rúcula e tomate.",
+        "descricao": "Sanduíche de lombo piripiri (lombo suíno apimentado), muçarela, pesto de manjericão, rúcula e tomate.  Acrescente os opcionais que desejar ;)",
         "preco": 21,
         "imagem": "img/panino-piripiri.webp",
         "opcionais": "Panini",
@@ -525,7 +525,7 @@ window.dadosIniciais = {
         "preco": 15,
         "imagem": "img/cafe-cremoso.webp",
         "visivel": true,
-        "esgotado": false,
+        "esgotado": true,
         "opcionais_ativos": [
           "Potinho de plástico",
           "Potinho de vidro"

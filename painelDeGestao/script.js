@@ -2,7 +2,7 @@
 // 1. ESTADO E DADOS - RODANDO COM CRUD
 // ===========================================
 const estadoInicial = {
-    loja: { nome: "Pão do Ciso", telefone: "", endereco: "" }, // Adicione esta linha
+    loja: { nome: "Pão do Ciso", telefone: "", endereco: "" },
     fornada: { dataISO: new Date().toISOString().split('T')[0], diasAntecedencia: 2, horaLimite: "23:59h" },
     entrega: { taxaGeral: 10.00, bairros: [] },
     cupons: [],
@@ -24,7 +24,6 @@ function carregarDadosJS() {
     scriptsAntigos.forEach(s => s.remove());
 
     const script = document.createElement('script');
-    // Os dois pontos ../ fazem o navegador subir uma pasta para achar a pasta /js da raiz
     script.src = '../js/dados.js?v=' + new Date().getTime();
     script.className = 'script-dados-carga';
     
@@ -43,20 +42,15 @@ function carregarDadosJS() {
 // 2. INICIALIZAÇÃO
 // ===========================================
 window.onload = function() {
-    // 1. Carrega os dados do arquivo ou localStorage
     carregarDadosJS();
     
-    // 2. Busca o container da aba dashboard
     const dashContainer = document.getElementById('tab-dashboard');
-    
-    // 3. Renderiza os novos cards com links
     if (dashContainer) {
         renderDashboard(dashContainer);
     }
     
-    // 4. Abre na visão geral por padrão
     navegarPara('dashboard');
-}; // <--- Verifique se há apenas um fechamento aqui
+};
 
 function navegarPara(secao) {
     secaoAtiva = secao;
@@ -71,10 +65,10 @@ function renderizarAtual() {
 
     switch(secaoAtiva) {
         case 'dashboard': renderDashboard(container); break;
-        case 'produtos': renderProdutos(container); break;
-        case 'opcionais': renderGestaoOpcionais(container); break; // <-- ADICIONE ESTA LINHA
+        case 'produtos':  renderProdutos(container); break;
+        case 'opcionais': renderGestaoOpcionais(container); break;
         case 'logistica': renderLogistica(container); break;
-        case 'cupons': renderCupons(container); break;
+        case 'cupons':    renderCupons(container); break;
     }
 }
 
@@ -84,10 +78,8 @@ function renderizarAtual() {
 function renderDashboard(container) {
     if (!container) return;
 
-    // 1. Clona o template
     const temp = document.getElementById('tmpl-dashboard').content.cloneNode(true);
 
-    // 2. Preenche os campos da Fornada com os dados do db
     const inputData = temp.getElementById('dash-data');
     inputData.value = db.fornada.dataISO;
     inputData.onchange = () => CRUD.atualizarFornada();
@@ -100,39 +92,45 @@ function renderDashboard(container) {
     inputHora.value = db.fornada.horaLimite;
     inputHora.onchange = () => CRUD.atualizarFornada();
 
-    // 3. Calcula estatísticas dinâmicas
     const totalProdutos = db.secoes.reduce((acc, s) => acc + s.itens.length, 0);
-    const totalBairros = db.entrega.bairros.length;
-    const taxaGeral = parseFloat(db.entrega.taxaGeral).toFixed(2);
+    const totalBairros  = db.entrega.bairros.length;
+    const taxaGeral     = parseFloat(db.entrega.taxaGeral).toFixed(2);
 
-    // 4. Renderiza os cards de status (mantemos o HTML aqui pois são repetitivos)
     const statsGrid = temp.getElementById('dashboard-stats');
+
+    // Cada card é um <a> real — acessível, clicável, sem JS inline
     statsGrid.innerHTML = `
-        <div class="stat-card" onclick="navegarPara('produtos')" style="cursor:pointer !important;">
+        <div class="stat-card" role="button" tabindex="0" data-dest="produtos">
             <div class="stat-value">${totalProdutos}</div>
-            <div class="stat-label">Produtos <i class="fas fa-chevron-right" style="font-size:0.7rem"></i></div>
+            <div class="stat-label">Produtos <i class="fas fa-chevron-right"></i></div>
         </div>
-        <div class="stat-card" onclick="navegarPara('cupons')" style="cursor:pointer !important;">
+        <div class="stat-card" role="button" tabindex="0" data-dest="cupons">
             <div class="stat-value">${db.cupons.length}</div>
-            <div class="stat-label">Cupons <i class="fas fa-chevron-right" style="font-size:0.7rem"></i></div>
+            <div class="stat-label">Cupons <i class="fas fa-chevron-right"></i></div>
         </div>
-        <div class="stat-card" onclick="navegarPara('logistica')" style="cursor:pointer !important; border-bottom: 4px solid var(--marrom-detalhe);">
+        <div class="stat-card" role="button" tabindex="0" data-dest="logistica"
+             style="border-left-color: var(--marrom-detalhe);">
             <div class="stat-value">${totalBairros}</div>
-            <div class="stat-label">Bairros Atendidos <i class="fas fa-chevron-right" style="font-size:0.7rem"></i></div>
+            <div class="stat-label">Bairros Atendidos <i class="fas fa-chevron-right"></i></div>
         </div>
-        <div class="stat-card" onclick="navegarPara('logistica')" style="cursor:pointer !important;">
+        <div class="stat-card" role="button" tabindex="0" data-dest="logistica">
             <div class="stat-value">R$ ${taxaGeral}</div>
-            <div class="stat-label">Taxa Geral <i class="fas fa-chevron-right" style="font-size:0.7rem"></i></div>
+            <div class="stat-label">Taxa Geral <i class="fas fa-chevron-right"></i></div>
         </div>
     `;
 
-    // 5. Limpa o container e injeta o conteúdo final
+    // Eventos delegados — um único listener para todos os cards
+    statsGrid.querySelectorAll('.stat-card[data-dest]').forEach(card => {
+        const dest = card.dataset.dest;
+        card.onclick  = () => navegarPara(dest);
+        card.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') navegarPara(dest); };
+    });
+
     container.innerHTML = '';
     container.appendChild(temp);
 }
 
 function renderProdutos(container) {
-    // 1. Limpa o ecrã e coloca o título
     container.innerHTML = `
         <header>
             <h1><i class="fas fa-utensils"></i> Gerenciar Cardápio</h1>
@@ -140,15 +138,11 @@ function renderProdutos(container) {
         </header>
     `;
 
-    // 2. Para cada categoria (secção) no seu dados.js...
     db.secoes.forEach((sessao, sIdx) => {
-        // ...nós pegamos no "molde" que guardámos no HTML
         const temp = document.getElementById('tmpl-secao-produto').content.cloneNode(true);
 
-        // 3. Preenchemos o nome da categoria no molde
         temp.querySelector('.nome-da-sessao').textContent = sessao.nome;
 
-        // 4. Configuramos os botões da categoria
         const btnArea = temp.querySelector('.botoes-sessao');
         btnArea.innerHTML = `
             <button class="btn-icon" onclick="CRUD.editarSessao(${sIdx})"><i class="fas fa-cog"></i></button>
@@ -156,19 +150,16 @@ function renderProdutos(container) {
             <button class="btn-icon" onclick="CRUD.removerSessao(${sIdx})"><i class="fas fa-trash"></i></button>
         `;
 
-        // 5. Preenchemos os produtos desta categoria (as linhas da tabela)
         const tbody = temp.querySelector('.corpo-produtos');
         if (sessao.itens.length === 0) {
             tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#999; padding:20px;">Categoria vazia.</td></tr>`;
         } else {
-            // Aqui chamamos a lógica que cria cada linha (tr) do produto
             sessao.itens.forEach((item, iIdx) => {
                 const tr = criarLinhaProduto(sIdx, iIdx, item);
                 tbody.appendChild(tr);
             });
         }
 
-        // 6. Colocamos a categoria pronta no ecrã
         container.appendChild(temp);
     });
 }
@@ -177,32 +168,28 @@ function criarLinhaProduto(sIdx, iIdx, item) {
     const tr = document.createElement('tr');
     tr.draggable = true;
     
-    // Configura o Arrastar e Soltar (Drag & Drop)
     tr.ondragstart = (e) => dragProduto(e, sIdx, iIdx);
-    tr.ondragover = (e) => allowDrop(e);
-    tr.ondrop = (e) => dropProduto(e, sIdx, iIdx);
+    tr.ondragover  = (e) => allowDrop(e);
+    tr.ondrop      = (e) => dropProduto(e, sIdx, iIdx);
 
-    // Prepara os balões (tags) de opcionais
     const tagsHtml = (item.opcionais_ativos || [])
         .map(opt => `<span class="tag-mini">${opt}</span>`).join('');
 
-    // Define os ícones de acordo com o estado (Visível/Esgotado)
-    const visivelIcon = item.visivel ? 'fa-eye' : 'fa-eye-slash';
-    const visivelClass = item.visivel ? 'ativo' : '';
-    
-    const esgotadoIcon = item.esgotado ? 'fa-ban' : 'fa-check';
-    const esgotadoClass = item.esgotado ? 'esgotado' : 'ativo';
+    const visivelIcon  = item.visivel  ? 'fa-eye'   : 'fa-eye-slash';
+    const visivelClass = item.visivel  ? 'ativo'    : '';
+    const esgotadoIcon = item.esgotado ? 'fa-ban'   : 'fa-check';
+    const esgotadoClass= item.esgotado ? 'esgotado' : 'ativo';
 
     tr.innerHTML = `
         <td class="col-drag"><i class="fas fa-bars drag-handle" style="color:#ddd"></i></td>
         <td class="col-prod">
             <div style="display:flex; align-items:center; gap:10px;">
                 <img src="../${item.imagem}" alt="${item.nome}"
-                     style="width:48px; height:48px; object-fit:cover; border-radius:6px; border:1px solid #eee; flex-shrink:0;"
-                     onerror="this.style.background='#ffebee'; this.style.border='1px solid #ffcdd2'; this.title='Imagem não encontrada: ${item.imagem}';">
+                     style="width:46px; height:46px; object-fit:cover; border-radius:6px; border:1px solid #eee; flex-shrink:0;"
+                     onerror="this.style.background='#ffebee'; this.style.border='1px solid #ffcdd2';">
                 <div>
-                    <div style="font-weight:bold;">${item.nome}</div>
-                    <div style="font-size:0.8rem; color:#666;">${item.descricao.substring(0, 40)}...</div>
+                    <div style="font-weight:bold; font-size:0.95rem;">${item.nome}</div>
+                    <div style="font-size:0.78rem; color:#666;">${item.descricao.substring(0, 40)}...</div>
                     <div class="mini-tags-container">${tagsHtml}</div>
                 </div>
             </div>
@@ -223,12 +210,11 @@ function criarLinhaProduto(sIdx, iIdx, item) {
         </td>
     `;
 
-    // Atribui as funções aos botões (Eventos)
     tr.querySelector('.btn-quick-vis').onclick = () => CRUD.toggleVisibilidade(sIdx, iIdx);
     tr.querySelector('.btn-quick-esg').onclick = () => CRUD.toggleEsgotado(sIdx, iIdx);
-    tr.querySelector('.btn-edit').onclick = () => CRUD.editarProduto(sIdx, iIdx);
-    tr.querySelector('.btn-copy').onclick = () => CRUD.duplicarProduto(sIdx, iIdx);
-    tr.querySelector('.btn-delete').onclick = () => CRUD.removerProduto(sIdx, iIdx);
+    tr.querySelector('.btn-edit').onclick       = () => CRUD.editarProduto(sIdx, iIdx);
+    tr.querySelector('.btn-copy').onclick       = () => CRUD.duplicarProduto(sIdx, iIdx);
+    tr.querySelector('.btn-delete').onclick     = () => CRUD.removerProduto(sIdx, iIdx);
 
     return tr;
 }
@@ -258,7 +244,6 @@ function renderGestaoOpcionais(container) {
 
         let htmlCorpo = '';
         if (!Array.isArray(ops) && typeof ops === 'object') {
-            // Estilo Panini (Cards de Subgrupos)
             for (const grupo in ops) {
                 htmlCorpo += `
                     <div style="border: 1px solid #eee; border-radius: 8px; padding: 15px; background: #fafafa; position: relative;">
@@ -274,7 +259,6 @@ function renderGestaoOpcionais(container) {
                     </div>`;
             }
         } else {
-            // Estilo Simples
             htmlCorpo += `
                 <div style="grid-column: 1 / -1; border: 1px solid #eee; border-radius: 8px; padding: 15px; background: #fafafa;">
                     <div style="font-weight:bold; border-bottom: 2px solid var(--verde-militar); margin-bottom: 12px; color: var(--verde-militar);">Opcionais Gerais</div>
@@ -295,10 +279,8 @@ function renderGestaoOpcionais(container) {
 function renderLogistica(container) {
     if (!container) return;
 
-    // 1. Clona o esqueleto da Logística
     const temp = document.getElementById('tmpl-logistica').content.cloneNode(true);
 
-    // 2. Configura a Taxa Geral
     const inputTaxa = temp.getElementById('log-taxa-geral');
     inputTaxa.value = db.entrega.taxaGeral;
     inputTaxa.onchange = (e) => {
@@ -306,11 +288,9 @@ function renderLogistica(container) {
         persistir();
     };
 
-    // 3. Limpa e insere o template no container principal
     container.innerHTML = '';
     container.appendChild(temp);
 
-    // 4. Chama a função que preenche as linhas da tabela (agora que o tbody já existe no DOM)
     atualizarTabelaBairros();
 }
 
@@ -318,91 +298,7 @@ function atualizarTabelaBairros() {
     const corpo = document.getElementById('corpo-tabela-bairros');
     if (!corpo) return;
 
-    corpo.innerHTML = ''; // Limpa para reconstruir
-
-    // Renderiza cada bairro do db
-    db.entrega.bairros.forEach((b, idx) => {
-        const tr = document.createElement('tr');
-        tr.style.borderBottom = '1px solid #f4f4f4';
-        tr.innerHTML = `
-            <td style="padding: 8px;">
-                <input type="text" value="${b.nome}" class="input-inline-bairro" data-idx="${idx}" data-campo="nome" style="width: 95%; padding: 5px;">
-            </td>
-            <td style="padding: 8px;">
-                <input type="number" step="0.5" value="${b.taxa || 0}" class="input-inline-bairro" data-idx="${idx}" data-campo="taxa" style="width: 95%; padding: 5px;">
-            </td>
-            <td style="padding: 8px;">
-                <button class="btn-delete-bairro" data-idx="${idx}" style="background:none; border:none; color:#e74c3c; cursor:pointer;">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        `;
-        corpo.appendChild(tr);
-    });
-
-    // Linha final para novo cadastro
-    const trNovo = document.createElement('tr');
-    trNovo.style.background = '#fdfdfd';
-    trNovo.innerHTML = `
-        <td style="padding: 8px;"><input type="text" id="novo-bairro-nome" placeholder="Nome do bairro..." style="width: 95%; padding: 5px; border: 1px dashed #ccc;"></td>
-        <td style="padding: 8px;"><input type="number" id="novo-bairro-taxa" step="0.5" placeholder="0.00" style="width: 95%; padding: 5px; border: 1px dashed #ccc;"></td>
-        <td style="padding: 8px;"><button id="btn-add-bairro" class="btn-icon" style="color:var(--verde-militar)"><i class="fas fa-plus-circle"></i></button></td>
-    `;
-    corpo.appendChild(trNovo);
-
-    // Event Delegations (Melhor prática para inputs dinâmicos)
-    configurarEventosTabelaBairros(corpo);
-}
-
-function configurarEventosTabelaBairros(corpo) {
-    // Salvar edições automáticas
-    corpo.querySelectorAll('.input-inline-bairro').forEach(input => {
-        input.onchange = (e) => {
-            const idx = e.target.dataset.idx;
-            const campo = e.target.dataset.campo;
-            db.entrega.bairros[idx][campo] = campo === 'taxa' ? parseFloat(e.target.value) : e.target.value;
-            persistir();
-        };
-    });
-
-    // Botão remover
-    corpo.querySelectorAll('.btn-delete-bairro').forEach(btn => {
-        btn.onclick = (e) => {
-            const idx = e.currentTarget.dataset.idx;
-            if(confirm('Remover bairro?')) {
-                db.entrega.bairros.splice(idx, 1);
-                persistir();
-                atualizarTabelaBairros();
-            }
-        };
-    });
-
-    // Botão Adicionar e Atalho Enter
-    const btnAdd = document.getElementById('btn-add-bairro');
-    const inputNome = document.getElementById('novo-bairro-nome');
-    const inputTaxa = document.getElementById('novo-bairro-taxa');
-
-    const acaoAdicionar = () => {
-        const nome = inputNome.value.trim();
-        const taxa = parseFloat(inputTaxa.value) || 0;
-        if(nome) {
-            db.entrega.bairros.push({ nome, taxa });
-            persistir();
-            atualizarTabelaBairros();
-            document.getElementById('novo-bairro-nome').focus();
-        }
-    };
-
-    btnAdd.onclick = acaoAdicionar;
-    inputTaxa.onkeydown = (e) => { if(e.key === 'Enter') acaoAdicionar(); };
-}
-
-function atualizarTabelaBairros() {
-    const corpo = document.getElementById('corpo-tabela-bairros');
-    if (!corpo) return;
-
     let html = '';
-    // Renderiza bairros existentes usando a propriedade .taxa
     db.entrega.bairros.forEach((b, idx) => {
         html += `
             <tr style="border-bottom: 1px solid #f4f4f4;">
@@ -426,7 +322,6 @@ function atualizarTabelaBairros() {
         `;
     });
 
-    // Mantém a linha de input para novo cadastro no final
     html += `
         <tr style="background: #fdfdfd;">
             <td style="padding: 8px;">
@@ -435,11 +330,14 @@ function atualizarTabelaBairros() {
             </td>
             <td style="padding: 8px;">
                 <input type="number" id="novo-bairro-taxa" step="0.5" placeholder="0.00" 
-                    onchange="tentarAdicionarBairro()" 
                     onkeydown="if(event.key==='Enter') tentarAdicionarBairro()" 
                     style="width: 95%; padding: 5px; border: 1px dashed #ccc;">
             </td>
-            <td></td>
+            <td style="padding: 8px;">
+                <button onclick="tentarAdicionarBairro()" class="btn-icon" style="color:var(--verde-militar)">
+                    <i class="fas fa-plus-circle"></i>
+                </button>
+            </td>
         </tr>
     `;
 
@@ -450,101 +348,27 @@ function tentarAdicionarBairro() {
     const inputNome = document.getElementById('novo-bairro-nome');
     const inputTaxa = document.getElementById('novo-bairro-taxa');
     
-    const nome = inputNome.value.trim();
+    const nome    = inputNome.value.trim();
     const taxaStr = inputTaxa.value;
 
     if (nome !== "" && taxaStr !== "") {
-        db.entrega.bairros.push({ 
-            nome: nome, 
-            taxa: parseFloat(taxaStr) || 0 // Alterado de 'valor' para 'taxa'
-        });
-        
+        db.entrega.bairros.push({ nome, taxa: parseFloat(taxaStr) || 0 });
         persistir();
         atualizarTabelaBairros();
-        
         setTimeout(() => {
             const proxNome = document.getElementById('novo-bairro-nome');
-            if(proxNome) proxNome.focus();
+            if (proxNome) proxNome.focus();
         }, 50);
-    }
-}
-
-// Função auxiliar para gerar as linhas
-function renderizarLinhasBairros() {
-    let html = '';
-    // Linhas existentes
-    db.entrega.bairros.forEach((b, idx) => {
-        html += `
-            <tr>
-                <td><input type="text" value="${b.nome}" onchange="atualizarBairro(${idx}, 'nome', this.value)" style="width: 95%;"></td>
-                <td><input type="number" step="0.5" value="${b.taxa}" onchange="atualizarBairro(${idx}, 'taxa', this.value)" style="width: 95%;"></td>
-                <td><button onclick="removerBairro(${idx})" style="background:none; border:none; color:red; cursor:pointer;"><i class="fas fa-trash"></i></button></td>
-            </tr>
-        `;
-    });
-    // Linha Vazia - Agora com ID específico para o input de gatilho
-    html += `
-        <tr style="background: #f9f9f9;">
-            <td><input type="text" id="novo-bairro-nome" placeholder="Novo bairro..." onchange="verificarNovaLinha()" style="width: 95%;"></td>
-            <td><input type="number" id="novo-bairro-taxa" step="0.5" placeholder="0.00" onchange="verificarNovaLinha()" style="width: 95%;"></td>
-            <td></td>
-        </tr>
-    `;
-    return html;
-}
-
-function atualizarBairro(idx, campo, valor) {
-    if (campo === 'taxa') valor = parseFloat(valor) || 0;
-    db.entrega.bairros[idx][campo] = valor;
-    persistir();
-    // Não precisa renderizar tudo de novo aqui para não perder o foco enquanto edita
-}
-
-function removerBairro(idx) {
-    if (confirm('Remover este bairro?')) {
-        db.entrega.bairros.splice(idx, 1);
-        persistir();
-        renderLogistica(document.getElementById('tab-logistica'));
-    }
-}
-
-function verificarNovaLinha() {
-    const nomeInput = document.getElementById('novo-bairro-nome');
-    const taxaInput = document.getElementById('novo-bairro-taxa');
-    
-    const nome = nomeInput.value.trim();
-    const taxa = taxaInput.value;
-
-    // Dispara a criação se o nome for preenchido e você sair do campo ou der Enter
-    if (nome !== "") {
-        db.entrega.bairros.push({
-            nome: nome,
-            taxa: parseFloat(taxa) || 0
-        });
-        
-        persistir();
-        
-        // RERENDERIZAÇÃO IMEDIATA:
-        // Buscamos o container da aba de logística e chamamos a renderização
-        const container = document.getElementById('tab-logistica');
-        renderLogistica(container);
-        
-        // Coloca o foco no novo campo de nome para você continuar cadastrando
-        const novoInput = document.getElementById('novo-bairro-nome');
-        if (novoInput) novoInput.focus();
     }
 }
 
 function renderCupons(container) {
     if (!container) return;
 
-    // 1. Clona o molde dos cupons
     const temp = document.getElementById('tmpl-cupons').content.cloneNode(true);
 
-    // 2. Configura o botão de adicionar
     temp.getElementById('btn-novo-cupom').onclick = () => CRUD.modalCupom();
 
-    // 3. Preenche a tabela
     const tbody = temp.getElementById('corpo-tabela-cupons');
     
     if (db.cupons.length === 0) {
@@ -560,13 +384,11 @@ function renderCupons(container) {
                     <button class="btn-icon" style="color:var(--red)"><i class="fas fa-trash"></i></button>
                 </td>
             `;
-            // Atribui o clique de apagar
             tr.querySelector('.btn-icon').onclick = () => CRUD.removerCupom(idx);
             tbody.appendChild(tr);
         });
     }
 
-    // 4. Limpa e exibe
     container.innerHTML = '';
     container.appendChild(temp);
 }
@@ -577,9 +399,9 @@ function renderCupons(container) {
 
 const CRUD = {
     atualizarFornada: () => {
-        db.fornada.dataISO = document.getElementById('dash-data').value;
+        db.fornada.dataISO         = document.getElementById('dash-data').value;
         db.fornada.diasAntecedencia = parseInt(document.getElementById('dash-dias').value);
-        db.fornada.horaLimite = document.getElementById('dash-hora').value;
+        db.fornada.horaLimite      = document.getElementById('dash-hora').value;
         persistir();
     },
 
@@ -588,17 +410,26 @@ const CRUD = {
         if (nome) { db.secoes.push({ nome, itens: [] }); db.opcionais[nome] = []; renderizarAtual(); persistir(); }
     },
 
+    editarSessao: (idx) => {
+        const nome = prompt("Novo nome da categoria:", db.secoes[idx].nome);
+        if (nome && nome !== db.secoes[idx].nome) {
+            db.opcionais[nome] = db.opcionais[db.secoes[idx].nome];
+            delete db.opcionais[db.secoes[idx].nome];
+            db.secoes[idx].nome = nome;
+            renderizarAtual(); persistir();
+        }
+    },
+
     removerSessao: (idx) => { 
-        if(confirm('Apagar categoria?')) { 
+        if (confirm('Apagar categoria?')) { 
             delete db.opcionais[db.secoes[idx].nome]; 
             db.secoes.splice(idx, 1); 
             renderizarAtual(); persistir(); 
         } 
     },
 
-    // --- GESTÃO INLINE DE OPCIONAIS (Aba Opcionais) ---
     addNovoSubgrupo: (secaoNome) => {
-        const nomeSub = prompt("Nome do novo subgrupo (ex: 🥖 Pães, 🧀 Queijos):");
+        const nomeSub = prompt("Nome do novo subgrupo:");
         if (nomeSub) {
             if (Array.isArray(db.opcionais[secaoNome])) db.opcionais[secaoNome] = {};
             db.opcionais[secaoNome][nomeSub] = [];
@@ -643,52 +474,51 @@ const CRUD = {
         persistir(); renderizarAtual();
     },
 
-    // --- GESTÃO DE PRODUTOS ---
     novoProduto: (sIdx) => {
         db.secoes[sIdx].itens.push({ nome: "Novo Produto", descricao: "", preco: 0, imagem: "img/padrao.jpg", visivel: true, esgotado: false, opcionais_ativos: [] });
         renderizarAtual();
         CRUD.editarProduto(sIdx, db.secoes[sIdx].itens.length - 1);
     },
 
-    toggleVisibilidade: (sIdx, pIdx) => { db.secoes[sIdx].itens[pIdx].visivel = !db.secoes[sIdx].itens[pIdx].visivel; renderizarAtual(); persistir(); },
-    toggleEsgotado: (sIdx, pIdx) => { db.secoes[sIdx].itens[pIdx].esgotado = !db.secoes[sIdx].itens[pIdx].esgotado; renderizarAtual(); persistir(); },
+    toggleVisibilidade: (sIdx, pIdx) => { db.secoes[sIdx].itens[pIdx].visivel  = !db.secoes[sIdx].itens[pIdx].visivel;  renderizarAtual(); persistir(); },
+    toggleEsgotado:     (sIdx, pIdx) => { db.secoes[sIdx].itens[pIdx].esgotado = !db.secoes[sIdx].itens[pIdx].esgotado; renderizarAtual(); persistir(); },
 
     editarProduto: (sIdx, pIdx) => {
-        const item = db.secoes[sIdx].itens[pIdx];
+        const item     = db.secoes[sIdx].itens[pIdx];
         const todosOps = db.opcionais[db.secoes[sIdx].nome] || [];
-        const temp = document.getElementById('tmpl-modal-produto').content.cloneNode(true);
+        const temp     = document.getElementById('tmpl-modal-produto').content.cloneNode(true);
 
-        temp.getElementById('prod-nome').value = item.nome;
-        temp.getElementById('prod-desc').value = item.descricao;
+        temp.getElementById('prod-nome').value  = item.nome;
+        temp.getElementById('prod-desc').value  = item.descricao;
         temp.getElementById('prod-preco').value = item.preco;
-        temp.getElementById('prod-img').value = item.imagem;
+        temp.getElementById('prod-img').value   = item.imagem;
 
         const setupBtn = (id, ativo, iconA, iconB, txtA, txtB) => {
             const btn = temp.getElementById(id);
-            if(ativo) btn.classList.add('ativo');
+            if (ativo) btn.classList.add('ativo');
             btn.innerHTML = `<i class="fas ${ativo ? iconA : iconB}"></i> <span>${ativo ? txtA : txtB}</span>`;
             btn.onclick = function() {
                 this.classList.toggle('ativo');
                 const isA = this.classList.contains('ativo');
-                this.querySelector('i').className = `fas ${isA ? iconA : iconB}`;
+                this.querySelector('i').className    = `fas ${isA ? iconA : iconB}`;
                 this.querySelector('span').textContent = isA ? txtA : txtB;
             };
         };
 
-        setupBtn('btn-modal-vis', item.visivel, 'fa-eye', 'fa-eye-slash', 'Visível', 'Oculto');
-        setupBtn('btn-modal-esg', item.esgotado, 'fa-ban', 'fa-check', 'Esgotado', 'Disponível');
+        setupBtn('btn-modal-vis', item.visivel,  'fa-eye', 'fa-eye-slash', 'Visível', 'Oculto');
+        setupBtn('btn-modal-esg', item.esgotado, 'fa-ban', 'fa-check',     'Esgotado', 'Disponível');
 
-        const container = temp.getElementById('opcionais-container');
+        const containerOps = temp.getElementById('opcionais-container');
         const listaOps = !Array.isArray(todosOps) ? Object.values(todosOps).flat() : todosOps;
         
         listaOps.forEach(op => {
             const isSel = (item.opcionais_ativos || []).includes(op.nome);
             const b = document.createElement('div');
-            b.className = `badge-select ${isSel ? 'selected' : ''}`;
-            b.innerHTML = `${op.nome} (+R$${op.preco})`;
-            b.onclick = () => b.classList.toggle('selected');
+            b.className   = `badge-select ${isSel ? 'selected' : ''}`;
+            b.innerHTML   = `${op.nome} (+R$${op.preco})`;
+            b.onclick     = () => b.classList.toggle('selected');
             b.dataset.val = op.nome;
-            container.appendChild(b);
+            containerOps.appendChild(b);
         });
 
         temp.getElementById('btn-salvar-produto').onclick = () => CRUD.salvarProduto(sIdx, pIdx);
@@ -698,29 +528,22 @@ const CRUD = {
         modalContainer.querySelector('.modal').appendChild(temp);
         modalContainer.style.display = 'flex';
 
-        // Botão Google — abre busca de imagens WebP no tamanho certo
         const btnGoogle = modalContainer.querySelector('.btn-google-search');
         btnGoogle.onclick = () => {
             const nomeProduto = document.getElementById('prod-nome').value.trim() || 'pão artesanal';
             const query = encodeURIComponent(nomeProduto + ' webp');
-            // isz=m → tamanho médio (~600px), itp=photo → apenas fotos, imgsz=m
-            const url = `https://www.google.com/search?tbm=isch&q=${query}&tbs=itp:photo,isz:m`;
+            const url   = `https://www.google.com/search?tbm=isch&q=${query}&tbs=itp:photo,isz:m`;
             window.open(url, '_blank');
         };
 
-        // Campo editável manualmente
         const campoCaminho = document.getElementById('prod-img');
         campoCaminho.removeAttribute('readonly');
         campoCaminho.style.background = '';
-        campoCaminho.style.cursor = '';
+        campoCaminho.style.cursor     = '';
 
-        // Botão abre o seletor de arquivos nativo
         const fileInput = document.getElementById('file-input');
         const btnAbrir  = modalContainer.querySelector('.btn-open-file');
-
-        btnAbrir.onclick = () => fileInput.click();
-
-        // Ao selecionar arquivo, preenche o campo com img/nome-do-arquivo
+        btnAbrir.onclick  = () => fileInput.click();
         fileInput.onchange = () => {
             if (fileInput.files.length > 0) {
                 campoCaminho.value = 'img/' + fileInput.files[0].name;
@@ -729,13 +552,13 @@ const CRUD = {
     },
 
     salvarProduto: (sIdx, pIdx) => {
-        const item = db.secoes[sIdx].itens[pIdx];
-        item.nome = document.getElementById('prod-nome').value;
+        const item     = db.secoes[sIdx].itens[pIdx];
+        item.nome      = document.getElementById('prod-nome').value;
         item.descricao = document.getElementById('prod-desc').value;
-        item.preco = parseFloat(document.getElementById('prod-preco').value);
-        item.imagem = document.getElementById('prod-img').value;
-        item.visivel = document.getElementById('btn-modal-vis').classList.contains('ativo');
-        item.esgotado = document.getElementById('btn-modal-esg').classList.contains('ativo');
+        item.preco     = parseFloat(document.getElementById('prod-preco').value);
+        item.imagem    = document.getElementById('prod-img').value;
+        item.visivel   = document.getElementById('btn-modal-vis').classList.contains('ativo');
+        item.esgotado  = document.getElementById('btn-modal-esg').classList.contains('ativo');
         item.opcionais_ativos = Array.from(document.querySelectorAll('.badge-select.selected')).map(el => el.dataset.val);
         fecharModal(); renderizarAtual(); persistir();
     },
@@ -747,13 +570,13 @@ const CRUD = {
         renderizarAtual(); persistir();
     },
 
-    removerProduto: (sIdx, pIdx) => { if(confirm('Excluir?')) { db.secoes[sIdx].itens.splice(pIdx, 1); renderizarAtual(); persistir(); } },
+    removerProduto: (sIdx, pIdx) => { if (confirm('Excluir?')) { db.secoes[sIdx].itens.splice(pIdx, 1); renderizarAtual(); persistir(); } },
 
-    removerBairro: (idx) => { if(confirm('Excluir?')) { db.entrega.bairros.splice(idx, 1); persistir(); atualizarTabelaBairros(); } },
+    removerBairro: (idx) => { if (confirm('Excluir?')) { db.entrega.bairros.splice(idx, 1); persistir(); atualizarTabelaBairros(); } },
     
     modalCupom: () => {
-         const html = `<h2>Cupom</h2><input id="c-cod" placeholder="Código" style="text-transform:uppercase; width:100%; margin-bottom:10px;"><input id="c-val" type="number" placeholder="Valor" style="width:100%;"><div class="modal-footer"><button class="btn-confirm" onclick="CRUD.salvarCupom()">Salvar</button></div>`;
-         abrirModalContent(html);
+        const html = `<h2>Cupom</h2><input id="c-cod" placeholder="Código" style="text-transform:uppercase; width:100%; margin-bottom:10px; padding:9px; border:1px solid #ddd; border-radius:5px; box-sizing:border-box;"><input id="c-val" type="number" placeholder="Valor" style="width:100%; padding:9px; border:1px solid #ddd; border-radius:5px; box-sizing:border-box;"><div class="modal-footer"><button class="btn-confirm" onclick="CRUD.salvarCupom()">Salvar</button></div>`;
+        abrirModalContent(html);
     },
 
     salvarCupom: () => {
@@ -795,7 +618,7 @@ const UI = {
 };
 
 // ===========================================
-// 5. DRAG AND DROP & UTILS
+// 6. DRAG AND DROP & UTILS
 // ===========================================
 function allowDrop(ev) { ev.preventDefault(); }
 function dragSessao(e, idx) { dragIdx = idx; e.dataTransfer.effectAllowed = 'move'; }
@@ -810,18 +633,13 @@ document.getElementById('modal-container').addEventListener('click', (e) => { if
 
 function persistir() { localStorage.setItem('pao_do_ciso_db', JSON.stringify(db)); const btn = document.querySelector('.btn-save'); const org = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i> Salvo!'; setTimeout(() => btn.innerHTML = org, 1500); }
 
-// Esta função garante a ordem lógica que você solicitou ao salvar o arquivo
 function gerarConteudoDadosJS() {
     let conteudo = "// ============================================\n";
     conteudo += "// DADOS DO SISTEMA - PÃO DO CISO\n";
     conteudo += "// ============================================\n\n";
     conteudo += "window.dadosIniciais = {\n";
-
-    // loja e fornada com formatação padrão (já estão legíveis)
     conteudo += `    loja: ${JSON.stringify(db.loja, null, 2)},\n\n`;
     conteudo += `    fornada: ${JSON.stringify(db.fornada, null, 2)},\n\n`;
-    
-    // entrega com bairros em formato legível
     conteudo += `    entrega: {\n`;
     conteudo += `        "taxaGeral": ${db.entrega.taxaGeral},\n`;
     conteudo += `        "bairros": [\n`;
@@ -831,8 +649,6 @@ function gerarConteudoDadosJS() {
         conteudo += '\n';
     });
     conteudo += `        ]\n    },\n\n`;
-
-    // cupons em formato legível
     conteudo += `    cupons: [\n`;
     db.cupons.forEach((cupom, index) => {
         conteudo += `        ${JSON.stringify(cupom)}`;
@@ -840,16 +656,11 @@ function gerarConteudoDadosJS() {
         conteudo += '\n';
     });
     conteudo += `    ],\n\n`;
-
-    // opcionais com formatação especial (objetos aninhados)
     conteudo += `    opcionais: {\n`;
-    
     const categorias = Object.keys(db.opcionais);
     categorias.forEach((categoria, idxCat) => {
         const valor = db.opcionais[categoria];
-        
         if (Array.isArray(valor)) {
-            // Array simples
             conteudo += `        "${categoria}": [\n`;
             valor.forEach((item, idxItem) => {
                 conteudo += `            ${JSON.stringify(item)}`;
@@ -858,7 +669,6 @@ function gerarConteudoDadosJS() {
             });
             conteudo += `        ]`;
         } else {
-            // Objeto com subgrupos
             conteudo += `        "${categoria}": {\n`;
             const subgrupos = Object.keys(valor);
             subgrupos.forEach((subgrupo, idxSub) => {
@@ -874,27 +684,21 @@ function gerarConteudoDadosJS() {
             });
             conteudo += `        }`;
         }
-        
         if (idxCat < categorias.length - 1) conteudo += ',';
         conteudo += '\n';
     });
-    
     conteudo += `    },\n\n`;
-
-    // secoes com formatação expandida
     conteudo += `    secoes: ${JSON.stringify(db.secoes, null, 2)}\n`;
     conteudo += "};";
-    
     return conteudo;
 }
 
-// Função de baixar atualizada para usar a nova organização
 function baixarDados() {
     const conteudo = gerarConteudoDadosJS();
     const blob = new Blob([conteudo], { type: 'text/javascript' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
     a.download = 'dados.js';
     a.click();
     URL.revokeObjectURL(url);
