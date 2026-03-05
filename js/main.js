@@ -85,14 +85,45 @@ function inicializarSistema() {
 }
 
 // INICIALIZAR QUANDO O DOM CARREGAR - APENAS UMA VEZ!
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     log('DOM carregado, verificando dependências...');
-    
-    // Verificar se dados iniciais estão carregados
+
+    // Verificar funções essenciais
+    if (!window.elemento) {
+        window.elemento = id => document.getElementById(id);
+    }
+    if (!window.formatarMoeda) {
+        window.formatarMoeda = valor => parseFloat(valor || 0).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+    }
+
+    // ── Aguarda o módulo firebase.js terminar de inicializar ──
+    if (window._firebasePromise) {
+        await window._firebasePromise;
+    }
+
+    // ── Tenta carregar dados do Firestore; fallback para dados.js ──
+    if (typeof window.carregarDadosFirestore === 'function') {
+        try {
+            const dadosRemoto = await window.carregarDadosFirestore();
+            if (dadosRemoto) {
+                // Mescla campo a campo para não perder propriedades não migradas
+                Object.keys(dadosRemoto).forEach(chave => {
+                    if (dadosRemoto[chave] !== null) {
+                        window.dadosIniciais[chave] = dadosRemoto[chave];
+                    }
+                });
+                log('✅ Dados carregados do Firestore.');
+            } else {
+                log('ℹ️ Nenhum dado no Firestore ainda. Usando dados.js como fonte.');
+            }
+        } catch (err) {
+            console.warn('⚠️ Falha ao buscar Firestore. Usando dados.js.', err);
+        }
+    }
+
+    // Verificar se dados iniciais estão disponíveis
     if (!window.dadosIniciais) {
         console.error('❌ Dados iniciais não carregados. Verifique dados.js');
-        
-        // Mostrar mensagem de erro para o usuário
         const container = document.getElementById('container-aplicativo');
         if (container) {
             container.innerHTML = `
@@ -105,27 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return;
     }
-    
-    // Verificar funções essenciais
-    if (!window.elemento) {
-        console.warn('Função elemento não encontrada, criando fallback...');
-        window.elemento = id => document.getElementById(id);
-    }
-    
-    if (!window.formatarMoeda) {
-        console.warn('Função formatarMoeda não encontrada, criando fallback...');
-        window.formatarMoeda = valor => {
-            return parseFloat(valor || 0).toLocaleString('pt-br', {
-                style: 'currency',
-                currency: 'BRL'
-            });
-        };
-    }
-    
-    // ⏱️ setTimeout(100ms) intencional: garante que todos os scripts com `defer`
-    // (em especial dados.js, que popula window.dadosIniciais) tenham terminado
-    // de executar antes da inicialização. Remover apenas se a ordem de carregamento
-    // for garantida por outro mecanismo (ex: ES modules com import/export).
+
     setTimeout(() => {
         inicializarSistema();
     }, 100);

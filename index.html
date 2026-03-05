@@ -615,6 +615,11 @@
 
 <!-- ===================== SCRIPTS JAVASCRIPT ===================== -->
 <!-- ORDEM CORRETA DE CARREGAMENTO -->
+    <script>
+        // Cria promessa que main.js aguarda antes de inicializar
+        window._firebasePromise = new Promise(resolve => { window._firebaseResolve = resolve; });
+    </script>
+    <script type="module" src="js/firebase.js"></script>
     <script src="js/config.js"></script>
     <script src="js/config.local.js"></script>
     <script src="js/dados.js" defer></script>
